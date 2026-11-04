@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://bjwyk2cogxjfj"]
+
+[ext_resource type="PackedScene" uid="uid://1fxqiv7xk1kv" path="res://SlideBody3D/Test/Corner/SlideBodyTestCorner.blend" id="1_dttkf"]
+[ext_resource type="Script" uid="uid://cjqfxo7vfnqaj" path="res://SlideBody3D/Test/Corner/mover.gd" id="2_ls5jg"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_wawxd"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_g2hon"]
+
+[node name="SlideBodyTestCorner" type="Node3D" unique_id=1687556329]
+
+[node name="SlideBodyTestCorner" parent="." unique_id=934471413 instance=ExtResource("1_dttkf")]
+
+[node name="Mover" type="AnimatableBody3D" parent="." unique_id=1139570522]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3118966, 0, 0)
+script = ExtResource("2_ls5jg")
+metadata/_custom_type_script = "uid://bjcbs7mr6mqi2"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Mover" unique_id=259537012]
+shape = SubResource("CapsuleShape3D_wawxd")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Mover" unique_id=1252753887]
+mesh = SubResource("CapsuleMesh_g2hon")
+skeleton = NodePath("")

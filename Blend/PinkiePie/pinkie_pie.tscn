@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://s0u2e67t7lp5"]
+
+[ext_resource type="PackedScene" uid="uid://bpisksywyr3bj" path="res://Blend/PinkiePie/PinkiePie.blend" id="1_c0bx1"]
+
+[node name="PinkiePie" unique_id=1697564934 instance=ExtResource("1_c0bx1")]
