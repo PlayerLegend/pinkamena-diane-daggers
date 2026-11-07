@@ -5,6 +5,8 @@ class_name WeaponLetters
 @export var projectile_scene: PackedScene
 @export var projectile_source: Node3D
 
+@onready var markov_chain: MarkovChain
+
 var cooldown: float
 
 func _process(delta: float):
@@ -41,5 +43,7 @@ func _is_reconcilable(_projectile: Node, _request_data: Dictionary, _local_data:
 
 func _reconcile(_projectile: Node, _local_data: Dictionary, _remote_data: Dictionary):
     pass
-    
-    
+
+func _ready() -> void:
+    markov_chain = MarkovChain.new(2)
+    markov_chain.load_from_file("res://passages.txt")
