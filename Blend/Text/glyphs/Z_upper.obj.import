@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://c0uhb3fs734g7"
+path="res://.godot/imported/Z_upper.obj-a4619201aa052c563fb7015f3554cdee.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Z_upper.obj-a4619201aa052c563fb7015f3554cdee.mesh"]
+
+source_file="res://Blend/Text/glyphs/Z_upper.obj"
+dest_files=["res://.godot/imported/Z_upper.obj-a4619201aa052c563fb7015f3554cdee.mesh", "res://.godot/imported/Z_upper.obj-a4619201aa052c563fb7015f3554cdee.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

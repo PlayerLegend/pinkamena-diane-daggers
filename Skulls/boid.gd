@@ -37,8 +37,9 @@ class_name Boid
 
 func _ready() -> void:
     # Random initial heading
-    var dir := Vector3(randf_range(-1, 1), randf_range(-0.3, 0.3), randf_range(-1, 1)).normalized()
-    velocity = dir * randf_range(min_speed, max_speed)
+    #var dir := Vector3(randf_range(-1, 1), randf_range(-0.3, 0.3), randf_range(-1, 1)).normalized()
+    #velocity = dir * randf_range(min_speed, max_speed)
+    pass
 
 func _boid_collision(collision: SlideCollision3D):
     pass

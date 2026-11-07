@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://cj4xl357mk3ka"]
 
 [ext_resource type="Script" uid="uid://bync8fqmu2k7x" path="res://Skulls/skull_1.gd" id="1_g5obx"]
+[ext_resource type="ArrayMesh" uid="uid://mor87fxp7iva" path="res://Blend/Skull1/skull1.obj" id="2_0mnsd"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_g5obx"]
 radius = 0.1
@@ -25,3 +26,6 @@ monitorable = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="NearbyArea" unique_id=71289385]
 shape = SubResource("SphereShape3D_gjgrp")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1357615919]
+mesh = ExtResource("2_0mnsd")

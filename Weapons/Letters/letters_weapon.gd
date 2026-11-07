@@ -9,6 +9,15 @@ class_name WeaponLetters
 
 var cooldown: float
 
+const GLYPH_DIR := "res://Blend/Text/glyphs/"
+const GLYPH_CHARS := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+const UPPER_SUFFIX := "_upper"
+
+## Maps single-character String -> Mesh.
+var _glyph_meshes: Dictionary = {}
+## First mesh that loaded successfully; used when a letter has no match.
+var _fallback_mesh: Mesh = null
+
 ## Filtered passage (letters and numbers only) that letters are read from.
 var _cached_passage: String = ""
 ## Index of the next character to hand out from the cached passage.
@@ -38,8 +47,7 @@ func _spawn() -> Node3D:
     var dir = (-10.0 * global_basis.z + offset).normalized()
     new_projectile.set_path(projectile_source.global_position + offset, dir, global_basis.y)
     new_projectile.fly_finish_node = self
-    new_projectile.glyph = get_letter()
-    print(new_projectile.glyph)
+    new_projectile.mesh = _glyph_meshes.get(get_letter(), _fallback_mesh)
     return new_projectile
 
 func _get_data(projectile: Node) -> Dictionary:
@@ -57,7 +65,36 @@ func _reconcile(_projectile: Node, _local_data: Dictionary, _remote_data: Dictio
 func _ready() -> void:
     markov_chain = MarkovChain.new(2)
     markov_chain.load_from_file("res://passages.txt")
+    _build_glyph_dict(GLYPH_CHARS)
     _refresh_passage()
+
+
+## Returns true if the single-character string is an uppercase letter (A-Z).
+func _is_upper_char(c: String) -> bool:
+    var code := c.unicode_at(0)
+    return code >= 65 and code <= 90
+
+
+## Returns the glyph file path for a character.
+## Uppercase letters use "<char>_upper.obj"; everything else uses "<char>.obj".
+func _glyph_path(c: String) -> String:
+    if _is_upper_char(c):
+        return GLYPH_DIR + c + UPPER_SUFFIX + ".obj"
+    return GLYPH_DIR + c + ".obj"
+
+
+## Builds a dictionary of char -> Mesh, loading the glyph file for each char in the string.
+## Uppercase letters are loaded from <char>_upper.obj.
+## The first mesh that loads becomes the fallback.
+func _build_glyph_dict(chars: String) -> void:
+    for i in range(chars.length()):
+        var c := chars[i]
+        var path := _glyph_path(c)
+        if ResourceLoader.exists(path):
+            var mesh := load(path) as Mesh
+            _glyph_meshes[c] = mesh
+            if _fallback_mesh == null:
+                _fallback_mesh = mesh
 
 
 ## Returns the next letter/number from the cached passage.

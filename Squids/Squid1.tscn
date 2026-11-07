@@ -1,14 +1,18 @@
 [gd_scene format=3 uid="uid://emivj6qf322m"]
 
 [ext_resource type="Script" uid="uid://dbw41yoekaikh" path="res://Squids/squid_1.gd" id="1_dq5yt"]
+[ext_resource type="PackedScene" uid="uid://cj4xl357mk3ka" path="res://Skulls/Skull1.tscn" id="2_gbdfl"]
 [ext_resource type="PackedScene" uid="uid://bsuwo86vic8t0" path="res://Blend/Squid1/squid1.blend" id="2_yo1ei"]
 [ext_resource type="Script" uid="uid://d350u8evihs1u" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="3_xo4qj"]
 [ext_resource type="Script" uid="uid://dour8fehaaugp" path="res://addons/netfox/tick-interpolator.gd" id="4_gbdfl"]
 
-[node name="Squid1" type="AnimatableBody3D" unique_id=611473072 node_paths=PackedStringArray("vis_model")]
+[node name="Squid1" type="AnimatableBody3D" unique_id=611473072 node_paths=PackedStringArray("vis_model", "spawn_output")]
 sync_to_physics = false
 script = ExtResource("1_dq5yt")
 vis_model = NodePath("Visual")
+spawn_count = Array[int]([10])
+spawn_scene = Array[PackedScene]([ExtResource("2_gbdfl")])
+spawn_output = NodePath("Marker3D")
 metadata/_custom_type_script = "uid://bjcbs7mr6mqi2"
 
 [node name="Visual" parent="." unique_id=1642054757 instance=ExtResource("2_yo1ei")]
@@ -17,7 +21,7 @@ metadata/_custom_type_script = "uid://bjcbs7mr6mqi2"
 script = ExtResource("3_xo4qj")
 root = NodePath("..")
 enable_prediction = true
-state_properties = Array[String]([":global_transform", ":velocity"])
+state_properties = Array[String]([":position"])
 metadata/_custom_type_script = "uid://d350u8evihs1u"
 
 [node name="TickInterpolator" type="Node" parent="." unique_id=581391939 node_paths=PackedStringArray("root")]
@@ -25,3 +29,6 @@ script = ExtResource("4_gbdfl")
 root = NodePath("..")
 properties = Array[String]([":global_transform"])
 metadata/_custom_type_script = "uid://dour8fehaaugp"
+
+[node name="Marker3D" type="Marker3D" parent="." unique_id=2056346256]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 2.935523, 0)

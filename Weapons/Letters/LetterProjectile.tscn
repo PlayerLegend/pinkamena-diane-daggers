@@ -13,3 +13,5 @@ fly_speed = 30.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1463985040]
 shape = SubResource("SphereShape3D_d3flc")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=942021701]

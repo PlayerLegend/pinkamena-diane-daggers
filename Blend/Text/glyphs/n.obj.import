@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://ch7l42qvllqt5"
+path="res://.godot/imported/n.obj-c7f823379ae4036aa8e7dbef23b586ae.mesh"
+
+[deps]
+
+files=["res://.godot/imported/n.obj-c7f823379ae4036aa8e7dbef23b586ae.mesh"]
+
+source_file="res://Blend/Text/glyphs/n.obj"
+dest_files=["res://.godot/imported/n.obj-c7f823379ae4036aa8e7dbef23b586ae.mesh", "res://.godot/imported/n.obj-c7f823379ae4036aa8e7dbef23b586ae.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

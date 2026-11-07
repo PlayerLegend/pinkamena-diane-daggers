@@ -4,7 +4,7 @@ class_name PlayerController
 
 @export var walk_gravity = 15
 @export var walk_friction: float = 2.0
-@export var walk_speed: float = 6 #64 #16
+@export var walk_speed: float = 8 #64 #16
 @export var walk_acceleration: float = 6.0
 @export var walk_stopspeed: float = 8
 @export var walk_jump_speed: float = 8
@@ -99,7 +99,7 @@ func _helper_apply_acceleration(wishdir: Vector3, delta: float, is_on_floor: boo
     var wishspeed = walk_speed
     
     if not is_on_floor:
-        wishspeed *= 0.4
+        wishspeed *= 0.5
 
     var add_speed_cap = wishspeed - have_speed
     

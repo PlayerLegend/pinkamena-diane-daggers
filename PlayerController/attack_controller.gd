@@ -15,7 +15,6 @@ func _helper_use_weapon():
         if child is NetworkWeapon3D:
             if not child.can_fire():
                 continue
-            print("Use weapon")
             child.fire()
             break
         
