@@ -4,7 +4,7 @@ class_name Boid
 
 @export_group("Speed")
 @export var max_speed := 16.0
-@export var min_speed := 3.5
+@export var min_speed := 4.5
 @export var max_force := 12.0  ## Max steering acceleration
 
 @export_group("Flocking")
@@ -13,15 +13,19 @@ class_name Boid
 @export var alignment_weight := 0.1
 @export var cohesion_weight := 0.2
 @export var separation_radius := 1.0  ## Neighbors closer than this push away
- 
+
+@export_group("Avoidance")
+@export var projectile_avoidance_weight := 1.0
+@export var projectile_avoidance_distance := 3
+
 @export_group("Bounds")
 @export var bounds_center := Vector3.ZERO
 @export var bounds_radius := 40
 @export var bounds_weight := 1.1
- 
+
 @export_group("Visuals")
 @export var turn_speed := 4.0  ## Smoothing for facing direction
- 
+
 @export_group("Target")
 ## Direction the flock drifts toward. Zero vector disables it.
 @export var target_direction := Vector3.ZERO:
@@ -30,71 +34,91 @@ class_name Boid
 @export var target_weight := 0.3
 
 @onready var nearby_area: Area3D = $NearbyArea
- 
+
 func _ready() -> void:
     # Random initial heading
     var dir := Vector3(randf_range(-1, 1), randf_range(-0.3, 0.3), randf_range(-1, 1)).normalized()
     velocity = dir * randf_range(min_speed, max_speed)
-    
+
+func _boid_collision(collision: SlideCollision3D):
+    pass
+
 func _physics_process(delta: float) -> void:
     var steering := _flocking_steering(nearby_area.get_overlapping_bodies())
     steering += _stay_in_bounds() * bounds_weight
     steering += _steer_towards(target_direction) * target_weight
 
     velocity += steering.limit_length(max_force) * delta
- 
+
     # Keep speed within [min_speed, max_speed]
     var speed := velocity.length()
     if speed > 0.001:
         velocity = velocity / speed * clampf(speed, min_speed, max_speed)
- 
-    move_and_slide(delta)
+
+    var collision = move_and_slide(delta)
     _face_velocity(delta)
- 
- 
+    
+    _boid_collision(collision)
+    
+
+
 ## Reynolds steering: desired velocity minus current velocity.
 func _steer_towards(direction: Vector3) -> Vector3:
     if direction.is_zero_approx():
         return Vector3.ZERO
     return direction.normalized() * max_speed - velocity
- 
- 
-## Single pass over neighbors computing all three flocking rules.
+
+
+## Single pass over neighbors computing all flocking rules plus projectile avoidance.
 func _flocking_steering(bodies: Array[Node3D]) -> Vector3:
     var separation_push := Vector3.ZERO
+    var projectile_push := Vector3.ZERO
     var velocity_sum := Vector3.ZERO
     var position_sum := Vector3.ZERO
     var count := 0
     var sep_radius_sq := separation_radius * separation_radius
- 
+
     for body in bodies:
         if body == self:
             continue
+
+        # Projectiles don't count as flock members; they only repel.
+        if body is Projectile:
+            var proj_offset := global_position - body.global_position
+            var proj_dist_sq := proj_offset.length_squared()
+            var proj_avoid_dist2 = projectile_avoidance_distance * projectile_avoidance_distance
+            if proj_dist_sq < proj_avoid_dist2 and proj_dist_sq > 0.01:
+                projectile_push += proj_offset / proj_dist_sq  # stronger when closer
+            continue
+
         var other := body as Boid
         if other == null:
             continue
- 
+
         count += 1
         velocity_sum += other.velocity
         position_sum += other.global_position
- 
+
         var offset := global_position - other.global_position
         var dist_sq := offset.length_squared()
         if dist_sq > 0.0001 and dist_sq < sep_radius_sq:
             separation_push += offset / dist_sq  # stronger when closer
- 
+
+    var avoidance := _steer_towards(projectile_push)
+
     if count == 0:
-        return Vector3.ZERO
- 
+        return avoidance * projectile_avoidance_weight
+
     var alignment := _steer_towards(velocity_sum / count)
     var cohesion := _steer_towards(position_sum / count - global_position)
     var separation := _steer_towards(separation_push)
- 
-    return separation * separation_weight \
+
+    return avoidance * projectile_avoidance_weight \
+        + separation * separation_weight \
         + alignment * alignment_weight \
         + cohesion * cohesion_weight
- 
- 
+
+
 func _stay_in_bounds() -> Vector3:
     var to_center := bounds_center - global_position
     var dist := to_center.length()
@@ -103,8 +127,8 @@ func _stay_in_bounds() -> Vector3:
     # Pull grows the farther outside the bounds the boid is
     var strength := (dist - bounds_radius) / bounds_radius
     return _steer_towards(to_center) * (1.0 + strength)
- 
- 
+
+
 func _face_velocity(delta: float) -> void:
     if velocity.length_squared() < 0.01:
         return

@@ -11,10 +11,18 @@
 [ext_resource type="Resource" uid="uid://hgfhhv1mxdba" path="res://PlayerController/actions/jump.tres" id="7_s3jlx"]
 [ext_resource type="Resource" uid="uid://b4auhpv3w0wae" path="res://PlayerController/actions/shoot.tres" id="8_m11co"]
 [ext_resource type="PackedScene" uid="uid://huy88qkm8eir" path="res://Weapons/Letters/LettersWeapon.tscn" id="10_m11co"]
+[ext_resource type="Script" uid="uid://xd0y40m27r0g" path="res://PlayerController/body_light.gd" id="12_87n76"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_ycagd"]
 
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_87n76"]
+frequency = 0.4738
+
+[sub_resource type="NoiseTexture3D" id="NoiseTexture3D_87n76"]
+noise = SubResource("FastNoiseLite_87n76")
+
 [node name="PlayerController" type="AnimatableBody3D" unique_id=401983748]
+collision_mask = 15
 sync_to_physics = false
 script = ExtResource("1_u0xto")
 metadata/_custom_type_script = "uid://bjcbs7mr6mqi2"
@@ -54,3 +62,7 @@ guide_action_walk = ExtResource("6_3o4bl")
 guide_action_jump = ExtResource("7_s3jlx")
 guide_action_shoot = ExtResource("8_m11co")
 camera = NodePath("../CamLook/Camera3D")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1890550292]
+script = ExtResource("12_87n76")
+_noise = SubResource("NoiseTexture3D_87n76")

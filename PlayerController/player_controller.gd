@@ -3,9 +3,9 @@ extends SlideBody3D
 class_name PlayerController
 
 @export var walk_gravity = 15
-@export var walk_friction: float = 6.0
-@export var walk_speed: float = 8 #64 #16
-@export var walk_acceleration: float = 8.0
+@export var walk_friction: float = 2.0
+@export var walk_speed: float = 6 #64 #16
+@export var walk_acceleration: float = 6.0
 @export var walk_stopspeed: float = 8
 @export var walk_jump_speed: float = 8
 @export var guide_action_look:GUIDEAction

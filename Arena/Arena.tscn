@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://clbho01tu8i5"]
+
+[ext_resource type="Script" uid="uid://cg8ys6varqusj" path="res://Arena/arena.gd" id="1_u642k"]
+[ext_resource type="PackedScene" uid="uid://c8fgf4yvybdqv" path="res://Arena/Tile.tscn" id="2_661re"]
+[ext_resource type="Script" uid="uid://d350u8evihs1u" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="3_661re"]
+[ext_resource type="Script" uid="uid://dour8fehaaugp" path="res://addons/netfox/tick-interpolator.gd" id="4_ifb4t"]
+
+[node name="Arena" type="Node3D" unique_id=1057556895]
+script = ExtResource("1_u642k")
+tile_scene = ExtResource("2_661re")
+
+[node name="RollbackSynchronizer" type="Node" parent="." unique_id=182426023 node_paths=PackedStringArray("root")]
+script = ExtResource("3_661re")
+root = NodePath("..")
+enable_prediction = true
+state_properties = Array[String]([":time"])
+metadata/_custom_type_script = "uid://d350u8evihs1u"
+
+[node name="TickInterpolator" type="Node" parent="." unique_id=649380256 node_paths=PackedStringArray("root")]
+script = ExtResource("4_ifb4t")
+root = NodePath("..")
+properties = Array[String]([":time"])
+metadata/_custom_type_script = "uid://dour8fehaaugp"

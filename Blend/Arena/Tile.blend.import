@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://bsuwo86vic8t0"
-path="res://.godot/imported/squid1.blend-2d87fa736c523e36478730ff743d1ad1.scn"
+uid="uid://woeyjflnef02"
+path="res://.godot/imported/Tile.blend-5322ef536fe84a8332c5cc8468162f9e.scn"
 
 [deps]
 
-source_file="res://Blend/squid1.blend"
-dest_files=["res://.godot/imported/squid1.blend-2d87fa736c523e36478730ff743d1ad1.scn"]
+source_file="res://Blend/Arena/Tile.blend"
+dest_files=["res://.godot/imported/Tile.blend-5322ef536fe84a8332c5cc8468162f9e.scn"]
 
 [params]
 
@@ -33,7 +33,7 @@ animation/fps=30
 animation/trimming=false
 animation/remove_immutable_tracks=true
 animation/import_rest_as_RESET=false
-import_script/path=""
+import_script/path="uid://dld5gcq21ynn8"
 materials/extract=0
 materials/extract_format=0
 materials/extract_path=""

@@ -2,6 +2,14 @@
 
 [ext_resource type="Script" uid="uid://dng4vds1gax11" path="res://Weapons/Letters/letter_projectile.gd" id="1_d3flc"]
 
-[node name="LetterProjectile" type="Node3D" unique_id=1654214689]
+[sub_resource type="SphereShape3D" id="SphereShape3D_d3flc"]
+
+[node name="LetterProjectile" type="AnimatableBody3D" unique_id=1164661472]
+collision_layer = 16
+collision_mask = 8
+sync_to_physics = false
 script = ExtResource("1_d3flc")
 fly_speed = 30.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1463985040]
+shape = SubResource("SphereShape3D_d3flc")

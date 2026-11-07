@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://bntflmhlscswn"]
+
+[ext_resource type="Script" uid="uid://dey1u5fgrfj6q" path="res://Arena/arena_test.gd" id="1_7i25l"]
+[ext_resource type="PackedScene" uid="uid://clbho01tu8i5" path="res://Arena/Arena.tscn" id="2_6qmwv"]
+
+[node name="ArenaTest" type="Node3D" unique_id=1074410010]
+script = ExtResource("1_7i25l")
+
+[node name="Arena" parent="." unique_id=1057556895 instance=ExtResource("2_6qmwv")]
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1344809545]
+transform = Transform3D(1, 0, 0, 0, 0.7717911, 0.6358762, 0, -0.6358762, 0.7717911, 0, 17.819178, 16.926834)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1825264755]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 14.459271, 0)
+omni_range = 37.948605

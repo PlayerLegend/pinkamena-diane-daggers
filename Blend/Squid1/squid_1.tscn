@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://nx0ankqp6uuq"]
+
+[ext_resource type="PackedScene" uid="uid://bsuwo86vic8t0" path="res://Blend/Squid1/squid1.blend" id="1_832qw"]
+
+[node name="squid1" unique_id=1106604642 instance=ExtResource("1_832qw")]

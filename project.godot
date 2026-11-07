@@ -36,6 +36,8 @@ enabled=PackedStringArray("res://addons/guide/plugin.cfg", "res://addons/netfox.
 3d_physics/layer_1="Players"
 3d_physics/layer_2="Boids"
 3d_physics/layer_3="Enemies"
+3d_physics/layer_4="Arena"
+3d_physics/layer_5="Projectiles"
 
 [netfox]
 

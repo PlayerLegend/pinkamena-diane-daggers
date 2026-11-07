@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://d4laukcw0hqqq"]
+
+[ext_resource type="PackedScene" uid="uid://woeyjflnef02" path="res://Blend/Arena/Tile.blend" id="1_ogwo4"]
+
+[node name="Tile" unique_id=1002271019 instance=ExtResource("1_ogwo4")]

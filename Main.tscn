@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://cxonmn3y2rg6u" path="res://main.gd" id="1_glv2v"]
 [ext_resource type="Resource" uid="uid://7m4a0rjn1046" path="res://PlayerController/mappings/fps.tres" id="2_lgr22"]
 [ext_resource type="PackedScene" uid="uid://b5q43yj7pgvd5" path="res://Multiplayer/Multiplayer.tscn" id="2_uu6xs"]
-[ext_resource type="PackedScene" uid="uid://tw3g71cidth" path="res://Map1.tscn" id="3_r0du0"]
 [ext_resource type="Script" uid="uid://blxd2e2temnsn" path="res://PlayerSpawner/player_spawner.gd" id="4_cm0pq"]
 [ext_resource type="PackedScene" uid="uid://punkfa765yoh" path="res://Menu/EscapeMenu/EscapeMenu.tscn" id="5_3dxm6"]
 [ext_resource type="PackedScene" uid="uid://cve8ibikysj1w" path="res://Menu/MainMenu/MainMenu.tscn" id="6_lgr22"]
@@ -11,7 +10,9 @@
 [ext_resource type="PackedScene" uid="uid://cj4xl357mk3ka" path="res://Skulls/Skull1.tscn" id="8_trn2v"]
 [ext_resource type="PackedScene" uid="uid://dckyj01fs8bn4" path="res://Weapons/Letters/LettersProjectileManager.tscn" id="10_wkp8b"]
 [ext_resource type="Script" uid="uid://dwvm458iuafbl" path="res://EnemyManager/enemy_manager.gd" id="11_5vvyt"]
+[ext_resource type="PackedScene" uid="uid://clbho01tu8i5" path="res://Arena/Arena.tscn" id="12_5vvyt"]
 [ext_resource type="ArrayMesh" uid="uid://mor87fxp7iva" path="res://Blend/Skull1/skull1.obj" id="12_c6i3y"]
+[ext_resource type="PackedScene" uid="uid://emivj6qf322m" path="res://Squids/Squid1.tscn" id="13_c6i3y"]
 
 [node name="Main" type="Node" unique_id=1203969749 node_paths=PackedStringArray("multiplayer_handler")]
 script = ExtResource("1_glv2v")
@@ -19,8 +20,6 @@ multiplayer_handler = NodePath("MultiplayerHandler")
 guide_map_fps = ExtResource("2_lgr22")
 
 [node name="MultiplayerHandler" parent="." unique_id=1652064301 instance=ExtResource("2_uu6xs")]
-
-[node name="Map1" parent="." unique_id=1089387945 instance=ExtResource("3_r0du0")]
 
 [node name="PlayerSpawner" type="Node3D" parent="." unique_id=1716587127]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 24, 0)
@@ -329,3 +328,11 @@ script = ExtResource("11_5vvyt")
 enemy_group_name = "skull1"
 mesh = ExtResource("12_c6i3y")
 metadata/_custom_type_script = "uid://dwvm458iuafbl"
+
+[node name="Arena" parent="." unique_id=1057556895 instance=ExtResource("12_5vvyt")]
+
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1252718192]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.139495, 0)
+omni_range = 40.888187
+
+[node name="Squid1" parent="." unique_id=1263472492 instance=ExtResource("13_c6i3y")]
