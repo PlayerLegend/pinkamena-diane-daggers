@@ -26,7 +26,7 @@ class_name BoidManager
 @export var max_force := 12.0  ## Max steering acceleration
 
 @export_group("Flocking")
-@export var separation_weight := 0.3
+@export var separation_weight := 0.8
 @export var alignment_weight := 0.1
 @export var cohesion_weight := 0.2
 @export var separation_radius := 1.0  ## Neighbors closer than this push away
@@ -42,6 +42,12 @@ class_name BoidManager
 @export var bounds_center := Vector3.ZERO
 @export var bounds_radius := 40.0
 @export var bounds_weight := 1.1
+
+@export_group("Floor")
+@export var use_floor := true  ## Enable the floor
+@export var floor_height := 0.0  ## World-space Y that boids can never go below
+@export var floor_margin := 0.5  ## Boids start steering upward within this distance above the floor
+@export var floor_weight := 1.5  ## Strength of the upward steering near the floor
 
 @export_group("Visuals")
 @export var turn_speed := 4.0  ## Smoothing for facing direction
@@ -90,6 +96,8 @@ func add_boid(xform: Transform3D, velocity: Vector3) -> int:
     var i := _count
     _count += 1
     _pos[i] = xform.origin
+    if use_floor:
+        _pos[i].y = maxf(_pos[i].y, floor_height)
     _vel[i] = velocity
     _steer[i] = Vector3.ZERO
     _proj_push[i] = Vector3.ZERO
@@ -293,6 +301,7 @@ func _compute_steering() -> void:
                 + cohesion * cohesion_weight
 
         steering += _stay_in_bounds(boid_pos, boid_vel) * bounds_weight
+        steering += _avoid_floor(boid_pos, boid_vel) * floor_weight
 
         # --- Chase the nearest node in the target group ---
         if has_targets:
@@ -319,6 +328,19 @@ func _stay_in_bounds(boid_pos: Vector3, boid_vel: Vector3) -> Vector3:
     return _steer_towards(to_center, boid_vel) * (1.0 + strength)
 
 
+## Soft floor: steers upward once a boid is within floor_margin of the floor.
+## The push ramps from 0 at the margin edge to full strength at the floor.
+## (A hard clamp in _integrate() guarantees boids never actually pass through.)
+func _avoid_floor(boid_pos: Vector3, boid_vel: Vector3) -> Vector3:
+    if not use_floor:
+        return Vector3.ZERO
+    var depth := (floor_height + floor_margin) - boid_pos.y
+    if depth <= 0.0:
+        return Vector3.ZERO
+    var strength := minf(depth / maxf(floor_margin, 0.01), 2.0)
+    return _steer_towards(Vector3.UP, boid_vel) * strength
+
+
 func _integrate(delta: float) -> void:
     var turn_t := clampf(turn_speed * delta, 0.0, 1.0)
 
@@ -331,6 +353,17 @@ func _integrate(delta: float) -> void:
             boid_vel = boid_vel / speed * clampf(speed, min_speed, max_speed)
 
         var boid_pos := _pos[i] + boid_vel * delta
+
+        # Hard floor: never go below, and cancel downward velocity on contact
+        if use_floor and boid_pos.y < floor_height:
+            boid_pos.y = floor_height
+            if boid_vel.y < 0.0:
+                boid_vel.y = 0.0
+                # Re-apply min speed in case cancelling the Y component slowed it too much
+                var flat_speed := boid_vel.length()
+                if flat_speed > 0.001:
+                    boid_vel = boid_vel / flat_speed * maxf(flat_speed, min_speed)
+
         _vel[i] = boid_vel
         _pos[i] = boid_pos
 

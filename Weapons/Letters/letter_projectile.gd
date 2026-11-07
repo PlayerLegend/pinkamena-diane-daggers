@@ -6,3 +6,5 @@ var mesh: Mesh:
     set(value):
         mesh_instance_3d.mesh = value
         
+func _ready() -> void:
+    add_to_group("projectiles")
