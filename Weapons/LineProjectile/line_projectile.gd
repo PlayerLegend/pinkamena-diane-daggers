@@ -22,7 +22,6 @@ func _init() -> void:
     top_level = true
 
 func serialize() -> Dictionary:
-    print("Did serialize")
     var result = {
         ProjectileState.POSITION: fly_start,
         ProjectileState.DIRECTION: fly_direction,
@@ -30,14 +29,12 @@ func serialize() -> Dictionary:
     return result    
     
 func deserialize(parameters: Dictionary, up: Vector3):
-    print("Did deserialize")
     var fpos: Vector3 = parameters.get(ProjectileState.POSITION)
     var fdir: Vector3 = parameters.get(ProjectileState.DIRECTION)
     set_path(fpos, fdir, up)
 
 func set_path(start: Vector3, dir: Vector3, up: Vector3) -> void:
     
-    print("Line projectile start ", start)
     fly_start = start
     _phys_position_last = start
     fly_direction = dir
@@ -45,7 +42,6 @@ func set_path(start: Vector3, dir: Vector3, up: Vector3) -> void:
     position = start
     #look_at(dir, up)
     basis = Basis.looking_at(dir, up)
-    print("Set position ", position)
     
 func set_direction(dir: Vector3, up: Vector3) -> void:
     set_path(position, dir, up)
@@ -61,7 +57,6 @@ func _fly_physics_inactive(_delta: float) -> void:
     pass
 
 func _fly_physics_hit() -> void:
-    print("Line projectile hit")
     queue_free()
 
 func _physics_process(delta: float) -> void:

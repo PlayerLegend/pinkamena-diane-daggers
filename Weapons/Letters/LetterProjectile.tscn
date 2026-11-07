@@ -4,3 +4,4 @@
 
 [node name="LetterProjectile" type="Node3D" unique_id=1654214689]
 script = ExtResource("1_d3flc")
+fly_speed = 30.0
