@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://cj4xl357mk3ka"]
+
+[ext_resource type="Script" uid="uid://b7alrhv7akbgt" path="res://Skulls/boid.gd" id="1_g5obx"]
+[ext_resource type="PackedScene" uid="uid://bbv18vpagh0rn" path="res://Blend/Skull1/skull_1.tscn" id="2_0mnsd"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_g5obx"]
+radius = 0.26264873
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_gjgrp"]
+radius = 3.0
+
+[node name="Skull1" type="AnimatableBody3D" unique_id=811221927]
+collision_layer = 3
+collision_mask = 3
+sync_to_physics = false
+script = ExtResource("1_g5obx")
+metadata/_custom_type_script = "uid://bjcbs7mr6mqi2"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=336171591]
+shape = SubResource("SphereShape3D_g5obx")
+
+[node name="skull1" parent="." unique_id=725756255 instance=ExtResource("2_0mnsd")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
+
+[node name="NearbyArea" type="Area3D" parent="." unique_id=1280888774]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NearbyArea" unique_id=71289385]
+shape = SubResource("SphereShape3D_gjgrp")

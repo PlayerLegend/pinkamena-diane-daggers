@@ -35,7 +35,7 @@ metadata/_custom_type_script = "uid://d350u8evihs1u"
 
 [node name="TickInterpolator" type="Node" parent="." unique_id=1369918847 node_paths=PackedStringArray("root")]
 script = ExtResource("4_t3w4r")
-root = NodePath("../RollbackSynchronizer")
+root = NodePath("..")
 properties = Array[String]([":global_transform"])
 metadata/_custom_type_script = "uid://dour8fehaaugp"
 

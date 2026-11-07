@@ -3,15 +3,16 @@ extends SlideBody3D
 class_name Boid
 
 @export_group("Speed")
-@export var max_speed := 4.0
-@export var min_speed := 1.0
+@export var max_speed := 10.0
+@export var min_speed := 2.0
 @export var max_force := 12.0  ## Max steering acceleration
  
 @export_group("Flocking")
-@export var separation_weight := 0.25
-@export var alignment_weight := 1.0
+
+@export var separation_weight := 0.3
+@export var alignment_weight := 0.1
 @export var cohesion_weight := 0.25
-@export var separation_radius := 4.0  ## Neighbors closer than this push away
+@export var separation_radius := 2.0  ## Neighbors closer than this push away
  
 @export_group("Bounds")
 @export var bounds_center := Vector3.ZERO
@@ -19,19 +20,27 @@ class_name Boid
 @export var bounds_weight := 2.5
  
 @export_group("Visuals")
-@export var turn_speed := 8.0  ## Smoothing for facing direction
+@export var turn_speed := 4.0  ## Smoothing for facing direction
  
+@export_group("Target")
+## Direction the flock drifts toward. Zero vector disables it.
+@export var target_direction := Vector3.ZERO:
+    set(value):
+        target_direction = value.normalized()
+@export var target_weight := 0.2
+
 @onready var nearby_area: Area3D = $NearbyArea
  
 func _ready() -> void:
     # Random initial heading
     var dir := Vector3(randf_range(-1, 1), randf_range(-0.3, 0.3), randf_range(-1, 1)).normalized()
     velocity = dir * randf_range(min_speed, max_speed)
- 
+    
 func _physics_process(delta: float) -> void:
     var steering := _flocking_steering(nearby_area.get_overlapping_bodies())
     steering += _stay_in_bounds() * bounds_weight
- 
+    steering += _steer_towards(target_direction) * target_weight
+
     velocity += steering.limit_length(max_force) * delta
  
     # Keep speed within [min_speed, max_speed]

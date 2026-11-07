@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://b3h73krhgcxik"
-path="res://.godot/imported/skull4.blend-605373ca956a588941387f7e3febc4c3.scn"
+uid="uid://bsuwo86vic8t0"
+path="res://.godot/imported/squid1.blend-2d87fa736c523e36478730ff743d1ad1.scn"
 
 [deps]
 
-source_file="res://skull4.blend"
-dest_files=["res://.godot/imported/skull4.blend-605373ca956a588941387f7e3febc4c3.scn"]
+source_file="res://Blend/squid1.blend"
+dest_files=["res://.godot/imported/squid1.blend-2d87fa736c523e36478730ff743d1ad1.scn"]
 
 [params]
 

@@ -1,0 +1,54 @@
+[gd_scene format=3 uid="uid://bf3erajoar15h"]
+
+[ext_resource type="Script" uid="uid://wowik7wqbyb4" path="res://menu/Network/network.gd" id="1_rbeht"]
+
+[node name="Network" type="VBoxContainer" unique_id=1483556210]
+anchors_preset = -1
+anchor_right = 0.299
+anchor_bottom = 0.199
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 0
+script = ExtResource("1_rbeht")
+
+[node name="RichTextLabel" type="RichTextLabel" parent="." unique_id=769153271]
+layout_mode = 2
+text = "Network"
+fit_content = true
+
+[node name="ConnectedOptions" type="HBoxContainer" parent="." unique_id=1846022384]
+layout_mode = 2
+
+[node name="Host" type="Button" parent="ConnectedOptions" unique_id=1875248222]
+layout_mode = 2
+text = "Host"
+
+[node name="Connect" type="Button" parent="ConnectedOptions" unique_id=2061784336]
+layout_mode = 2
+text = "Connect"
+
+[node name="Address" type="LineEdit" parent="ConnectedOptions" unique_id=1732084386]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Address"
+
+[node name="Port" type="LineEdit" parent="ConnectedOptions" unique_id=890505729]
+layout_mode = 2
+placeholder_text = "Port"
+
+[node name="DisconnectedOptions" type="HBoxContainer" parent="." unique_id=1948618418]
+layout_mode = 2
+
+[node name="Title" type="RichTextLabel" parent="DisconnectedOptions" unique_id=399094550]
+layout_mode = 2
+text = "Connected:"
+
+[node name="Server" type="RichTextLabel" parent="DisconnectedOptions" unique_id=1403153913]
+layout_mode = 2
+
+[node name="DisconnectButton" type="Button" parent="DisconnectedOptions" unique_id=1044749551]
+layout_mode = 2
+
+[connection signal="button_down" from="ConnectedOptions/Host" to="." method="_on_host_button_down"]
+[connection signal="button_down" from="ConnectedOptions/Connect" to="." method="_on_connect_button_down"]
+[connection signal="button_down" from="DisconnectedOptions/DisconnectButton" to="." method="_on_disconnect_button_button_down"]

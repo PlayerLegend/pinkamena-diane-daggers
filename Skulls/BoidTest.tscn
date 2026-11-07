@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://cyqokx856rapn"]
+
+[ext_resource type="Script" uid="uid://dp3cry5w1182y" path="res://Skulls/boid_test.gd" id="1_uv6pa"]
+[ext_resource type="PackedScene" uid="uid://cj4xl357mk3ka" path="res://Skulls/Skull1.tscn" id="1_vvqhk"]
+
+[node name="BoidTest" type="Node3D" unique_id=1013025933]
+script = ExtResource("1_uv6pa")
+
+[node name="Skull1" parent="." unique_id=811221927 instance=ExtResource("1_vvqhk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.18555903, 0, -1.4058361)
+
+[node name="Skull2" parent="." unique_id=1861122341 instance=ExtResource("1_vvqhk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.93343264, 0, 0.5368383)
+
+[node name="Skull3" parent="." unique_id=1339479877 instance=ExtResource("1_vvqhk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.22140837, 0.9751001, 0.6627673)
+
+[node name="Skull4" parent="." unique_id=629146507 instance=ExtResource("1_vvqhk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1189916, 1.875869, -0.8689978)
+
+[node name="Skull5" parent="." unique_id=165968051 instance=ExtResource("1_vvqhk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8668653, 1.875869, 1.0736766)
+
+[node name="Skull6" parent="." unique_id=1129966828 instance=ExtResource("1_vvqhk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.154841, 2.850969, 1.1996056)
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=2118395773]
+transform = Transform3D(1, 0, 0, 0, 0.46072653, 0.8875421, 0, -0.8875421, 0.46072653, 1.0352657, 6.2783713, 4.9059176)

@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://co8tu78tmwalb"]
+
+[ext_resource type="Script" uid="uid://dnytd1hqikmu7" path="res://menu/SaveConfig/save_config.gd" id="1_m8a4p"]
+
+[node name="SaveConfig" type="Control" unique_id=1684529909]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_m8a4p")
+
+[node name="SaveConfigButton" type="Button" parent="." unique_id=1790253667]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+text = "Save Config"
+
+[connection signal="button_down" from="SaveConfigButton" to="." method="_on_save_config_button_down"]

@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://bsuwo86vic8t0"
-path="res://.godot/imported/squid1.blend-341b9d3e4045d4b8972dba4aa191431f.scn"
+uid="uid://ckbugda6wnrj6"
+path="res://.godot/imported/Pinkiepede.blend-8fc419c298d5d175b69266df1f9f582a.scn"
 
 [deps]
 
-source_file="res://squid1.blend"
-dest_files=["res://.godot/imported/squid1.blend-341b9d3e4045d4b8972dba4aa191431f.scn"]
+source_file="res://Blend/Pinkiepede/Pinkiepede.blend"
+dest_files=["res://.godot/imported/Pinkiepede.blend-8fc419c298d5d175b69266df1f9f582a.scn"]
 
 [params]
 

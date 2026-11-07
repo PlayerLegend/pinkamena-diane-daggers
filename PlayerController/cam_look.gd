@@ -3,7 +3,7 @@ extends Node3D
 @export var guide_action_look:GUIDEAction
 
 var _roll_velocity: float
-var _mouse_scale: float = 0.1
+var _mouse_scale: float = 1.0/300.0
 
 var _gravity: Vector3 = -Vector3.UP
 
@@ -13,7 +13,7 @@ var enable_roll: bool = true
 
 func set_gravity(gval: Vector3):
     _gravity = gval
-    
+
 func set_accel(aval: Vector3):
     _accel = aval
 
@@ -65,6 +65,7 @@ func _on_set_mouse_scale(mscale: float, _area:float, _degrees: float):
     
 func _ready():
     var mouse_scale = Config.get_mouse_scale()
+    Config.signal_set_mouse_scale.connect(_on_set_mouse_scale)
     if mouse_scale:
         _mouse_scale = mouse_scale
         

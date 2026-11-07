@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://cve8ibikysj1w"]
+
+[ext_resource type="Script" uid="uid://c0eck4ai2rop6" path="res://Menu/MainMenu/main_menu.gd" id="1_lwrix"]
+[ext_resource type="PackedScene" uid="uid://bf3erajoar15h" path="res://Menu/Network/Network.tscn" id="2_re7k2"]
+[ext_resource type="PackedScene" uid="uid://co8tu78tmwalb" path="res://Menu/SaveConfig/SaveConfig.tscn" id="3_8a3ah"]
+[ext_resource type="PackedScene" uid="uid://b1vh3dqy5xcdv" path="res://Menu/MouseConfig/MouseConfig.tscn" id="3_gxsnu"]
+
+[node name="MainMenu" type="VBoxContainer" unique_id=468765123]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_lwrix")
+
+[node name="Network" parent="." unique_id=1837322646 instance=ExtResource("2_re7k2")]
+layout_mode = 2
+
+[node name="Mouse Config" parent="." unique_id=1093324099 instance=ExtResource("3_gxsnu")]
+layout_mode = 2
+
+[node name="SaveConfig" parent="." unique_id=1684529909 instance=ExtResource("3_8a3ah")]
+layout_mode = 2
+
+[connection signal="net_connect" from="Network" to="." method="_on_network_net_connect"]
+[connection signal="net_disconnect" from="Network" to="." method="_on_network_net_disconnect"]
+[connection signal="net_host" from="Network" to="." method="_on_network_net_host"]
+[connection signal="set_mouse_scale" from="Mouse Config" to="." method="_on_mouse_config_set_mouse_scale"]
+[connection signal="save_config" from="SaveConfig" to="." method="_on_save_config_save_config"]

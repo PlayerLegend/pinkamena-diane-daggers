@@ -4,9 +4,9 @@ class_name PlayerController
 
 @export var walk_gravity = 100
 @export var walk_friction: float = 6.0
-@export var walk_speed: float = 32 #64 #16
-@export var walk_acceleration: float = 10.0
-@export var walk_stopspeed: float = 10
+@export var walk_speed: float = 16 #64 #16
+@export var walk_acceleration: float = 8.0
+@export var walk_stopspeed: float = 8
 @export var walk_jump_speed: float = 40
 @export var guide_action_look:GUIDEAction
 @export var attack_parent: Node
@@ -108,6 +108,7 @@ func _helper_apply_acceleration(wishdir: Vector3, delta: float, is_on_floor: boo
         return
         
     var add_speed = min(add_speed_cap, walk_acceleration * delta * wishspeed)
+    print("Add speed ", add_speed)
         
     velocity += wishdir * add_speed
 
@@ -169,10 +170,9 @@ func _helper_phys_rollback_else(delta: float):
     else:
         is_on_floor = false
 
-
 func _rollback_tick(delta: float, _tick, _is_fresh):
     
-    delta *= NetworkTime.physics_factor
+    #delta *= NetworkTime.physics_factor
     
     if not is_multiplayer_authority() and _is_fresh:
         return
@@ -194,6 +194,7 @@ func set_mouse_scale(mouse_scale: float):
 
 func _ready():
     await get_tree().process_frame
+    add_to_group("players")
     set_multiplayer_authority(1)
     input.set_multiplayer_authority(name.to_int())
     camera.set_multiplayer_authority(name.to_int())

@@ -31,6 +31,12 @@ Config="*uid://ywtjblr0co4t"
 
 enabled=PackedStringArray("res://addons/guide/plugin.cfg", "res://addons/netfox.extras/plugin.cfg", "res://addons/netfox.internals/plugin.cfg", "res://addons/netfox/plugin.cfg")
 
+[layer_names]
+
+3d_physics/layer_1="Players"
+3d_physics/layer_2="Boids"
+3d_physics/layer_3="Enemies"
+
 [netfox]
 
 autoconnect/enabled=true

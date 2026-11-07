@@ -1,7 +1,0 @@
-[gd_scene format=3 uid="uid://ca7bocydxw38"]
-
-[node name="MainMenu" type="Control" unique_id=1155817352]
-layout_mode = 3
-anchors_preset = 0
-
-[node name="Background" type="Node3D" parent="." unique_id=1518836148]

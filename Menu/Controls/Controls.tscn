@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://byy4duw8u5gcc"]
+
+[node name="Controls" type="Control" unique_id=253601585]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="hbox" type="HBoxContainer" parent="." unique_id=1281468066]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ItemList" type="ItemList" parent="hbox" unique_id=707146029]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Control" type="Control" parent="hbox" unique_id=1798682343]
+layout_mode = 2
+size_flags_horizontal = 3
