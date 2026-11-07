@@ -3,21 +3,21 @@ extends SlideBody3D
 class_name Boid
 
 @export_group("Speed")
-@export var max_speed := 10.0
-@export var min_speed := 2.0
+@export var max_speed := 13.0
+@export var min_speed := 2.5
 @export var max_force := 12.0  ## Max steering acceleration
  
 @export_group("Flocking")
 
 @export var separation_weight := 0.3
 @export var alignment_weight := 0.1
-@export var cohesion_weight := 0.25
-@export var separation_radius := 2.0  ## Neighbors closer than this push away
+@export var cohesion_weight := 0.2
+@export var separation_radius := 1.0  ## Neighbors closer than this push away
  
 @export_group("Bounds")
 @export var bounds_center := Vector3.ZERO
-@export var bounds_radius := 40.0
-@export var bounds_weight := 2.5
+@export var bounds_radius := 40
+@export var bounds_weight := 1.1
  
 @export_group("Visuals")
 @export var turn_speed := 4.0  ## Smoothing for facing direction
@@ -27,7 +27,7 @@ class_name Boid
 @export var target_direction := Vector3.ZERO:
     set(value):
         target_direction = value.normalized()
-@export var target_weight := 0.2
+@export var target_weight := 0.3
 
 @onready var nearby_area: Area3D = $NearbyArea
  
@@ -48,7 +48,6 @@ func _physics_process(delta: float) -> void:
     if speed > 0.001:
         velocity = velocity / speed * clampf(speed, min_speed, max_speed)
  
-    var before := global_position
     move_and_slide(delta)
     _face_velocity(delta)
  
