@@ -2,6 +2,8 @@ extends SlideBody3D
 
 class_name Squid
 
+var boid_manager: BoidManager
+
 var fly_direction: Vector3
 var arena_radius: float = 11 * 4
 @export var vis_model: Node3D
@@ -28,12 +30,19 @@ func _ready():
     position.y = height
 
 func spawn_enemy(scene: PackedScene):
-    var enemy: Node3D = scene.instantiate()
-    get_parent().add_child(enemy)
     assert(spawn_output)
-    enemy.global_transform = spawn_output.global_transform
+    var new_xform = spawn_output.global_transform
     var offs = Vector3(randf_range(-1,1), 5, randf_range(-1,1)).normalized()
-    enemy.velocity = 3 * offs
+    var new_vel = 3 * offs
+    
+    if scene:
+        var enemy: Node3D = scene.instantiate()
+        get_parent().add_child(enemy)
+        enemy.velocity = new_vel
+        enemy.transform = new_xform
+    else:
+        print("Spawn boid")
+        boid_manager.add_boid(new_xform, new_vel)
     pass
 
 func attack_idle(delta: float):

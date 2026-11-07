@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://emivj6qf322m"]
 
 [ext_resource type="Script" uid="uid://dbw41yoekaikh" path="res://Squids/squid_1.gd" id="1_dq5yt"]
-[ext_resource type="PackedScene" uid="uid://cj4xl357mk3ka" path="res://Skulls/Skull1.tscn" id="2_gbdfl"]
 [ext_resource type="PackedScene" uid="uid://bsuwo86vic8t0" path="res://Blend/Squid1/squid1.blend" id="2_yo1ei"]
 [ext_resource type="Script" uid="uid://d350u8evihs1u" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="3_xo4qj"]
 [ext_resource type="Script" uid="uid://dour8fehaaugp" path="res://addons/netfox/tick-interpolator.gd" id="4_gbdfl"]
@@ -11,7 +10,7 @@ sync_to_physics = false
 script = ExtResource("1_dq5yt")
 vis_model = NodePath("Visual")
 spawn_count = Array[int]([10])
-spawn_scene = Array[PackedScene]([ExtResource("2_gbdfl")])
+spawn_scene = Array[PackedScene]([null])
 spawn_output = NodePath("Marker3D")
 metadata/_custom_type_script = "uid://bjcbs7mr6mqi2"
 

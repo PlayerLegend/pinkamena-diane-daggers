@@ -1,6 +1,8 @@
 [gd_scene format=3 uid="uid://chwknn2g41lxo"]
 
 [ext_resource type="Script" uid="uid://c4jr8b24c4o7r" path="res://BoidManager/boid_manager.gd" id="1_icdow"]
+[ext_resource type="ArrayMesh" uid="uid://mor87fxp7iva" path="res://Blend/Skull1/skull1.obj" id="2_1q46d"]
 
 [node name="BoidManager" type="MultiMeshInstance3D" unique_id=1957767101]
 script = ExtResource("1_icdow")
+boid_mesh = ExtResource("2_1q46d")

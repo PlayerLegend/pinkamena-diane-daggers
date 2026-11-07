@@ -1,15 +1,17 @@
 extends MultiMeshInstance3D
 
-class_name FlockMultiMesh
+class_name BoidManager
 ## An entire flock in one node. Boids are plain data (packed arrays), neighbors are
 ## found with a uniform spatial hash grid, and everything is drawn through this
 ## node's MultiMesh.
 ##
 ## Usage from other nodes:
 ##     flock.add_boid(transform, velocity)  # spawn a boid
-## and, from _physics_process, once per tick:
-##     flock.avoid_projectile(self)   # projectiles push nearby boids away
-##     flock.chase_target(self)       # boids seek the nearest registered target
+## and, to interact with the flock, just add nodes to groups (no per-tick calls needed):
+##     add_to_group("projectiles")   # nearby boids are pushed away
+##     add_to_group("players")       # boids seek the nearest one
+##
+## Group members must be Node3D; their global_position is sampled once per physics tick.
 ##
 ## The node is forced to top_level with an identity transform, so all simulation
 ## happens in world space.
@@ -32,6 +34,7 @@ class_name FlockMultiMesh
 @export var max_neighbors := 24  ## Early-out cap per boid in dense clumps
 
 @export_group("Avoidance")
+@export var projectile_group := &"projectiles"  ## Nodes in this group push boids away
 @export var projectile_avoidance_weight := 1.0
 @export var projectile_avoidance_distance := 3.0
 
@@ -44,6 +47,7 @@ class_name FlockMultiMesh
 @export var turn_speed := 4.0  ## Smoothing for facing direction
 
 @export_group("Targets")
+@export var target_group := &"players"  ## Boids chase the nearest node in this group
 @export var target_weight := 0.3
 
 # --- Boid data (structure of arrays, preallocated to max_boids) ---
@@ -64,9 +68,9 @@ var _cell_start := PackedInt32Array()  # size cell_total + 1
 var _cell_items := PackedInt32Array()  # boid indices grouped by cell
 var _boid_cell := PackedInt32Array()
 
-# --- Per-tick requests from projectiles / targets ---
-var _pending_projectiles := PackedVector3Array()
-var _pending_targets := PackedVector3Array()
+# --- Positions sampled from the groups at the start of each tick ---
+var _projectile_positions := PackedVector3Array()
+var _target_positions := PackedVector3Array()
 
 
 func _ready() -> void:
@@ -96,14 +100,19 @@ func add_boid(xform: Transform3D, velocity: Vector3) -> int:
     return i
 
 
-## Called by projectiles every physics tick.
-func avoid_projectile(projectile: Node3D) -> void:
-    _pending_projectiles.append(projectile.global_position)
+## Samples current positions of every Node3D in the projectile and target groups.
+func _gather_group_positions() -> void:
+    var tree := get_tree()
 
+    _projectile_positions.clear()
+    for node in tree.get_nodes_in_group(projectile_group):
+        if node is Node3D and node.is_inside_tree():
+            _projectile_positions.append(node.global_position)
 
-## Called by targets every physics tick.
-func chase_target(target: Node3D) -> void:
-    _pending_targets.append(target.global_position)
+    _target_positions.clear()
+    for node in tree.get_nodes_in_group(target_group):
+        if node is Node3D and node.is_inside_tree():
+            _target_positions.append(node.global_position)
 
 
 func _setup_multimesh() -> void:
@@ -184,7 +193,7 @@ func _build_grid() -> void:
 ## times local boids rather than projectiles times all boids.
 func _apply_projectiles() -> void:
     _proj_push.fill(Vector3.ZERO)
-    if _pending_projectiles.is_empty():
+    if _projectile_positions.is_empty():
         return
 
     var radius := projectile_avoidance_distance
@@ -192,7 +201,7 @@ func _apply_projectiles() -> void:
     var cell_reach := int(ceil(radius * _inv_cell))
     var max_cell := _dim - 1
 
-    for proj_pos in _pending_projectiles:
+    for proj_pos in _projectile_positions:
         var center_cell := _cell_coords(proj_pos)
         for cz in range(maxi(center_cell.z - cell_reach, 0), mini(center_cell.z + cell_reach, max_cell) + 1):
             for cy in range(maxi(center_cell.y - cell_reach, 0), mini(center_cell.y + cell_reach, max_cell) + 1):
@@ -208,21 +217,16 @@ func _apply_projectiles() -> void:
 
 func _physics_process(delta: float) -> void:
     if _count == 0:
-        _pending_projectiles.clear()
-        _pending_targets.clear()
         return
 
+    _gather_group_positions()
     _build_grid()
     _apply_projectiles()
     _compute_steering()
     _integrate(delta)
 
-    _pending_projectiles.clear()
-    _pending_targets.clear()
-
     multimesh.visible_instance_count = _count
-    if _count > 0:
-        multimesh.buffer = _buffer
+    multimesh.buffer = _buffer
 
 
 ## Reynolds steering: desired velocity minus current velocity.
@@ -236,7 +240,7 @@ func _compute_steering() -> void:
     var nr_sq := neighbor_radius * neighbor_radius
     var sep_sq := separation_radius * separation_radius
     var max_cell := _dim - 1
-    var has_targets := not _pending_targets.is_empty()
+    var has_targets := not _target_positions.is_empty()
 
     for i in _count:
         var boid_pos := _pos[i]
@@ -290,11 +294,11 @@ func _compute_steering() -> void:
 
         steering += _stay_in_bounds(boid_pos, boid_vel) * bounds_weight
 
-        # --- Chase the nearest registered target ---
+        # --- Chase the nearest node in the target group ---
         if has_targets:
             var best_sq := INF
             var best_dir := Vector3.ZERO
-            for target_pos in _pending_targets:
+            for target_pos in _target_positions:
                 var to_target := target_pos - boid_pos
                 var target_sq := to_target.length_squared()
                 if target_sq < best_sq:
