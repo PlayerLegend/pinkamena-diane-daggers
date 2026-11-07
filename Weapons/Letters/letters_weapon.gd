@@ -33,7 +33,9 @@ func _spawn() -> Node3D:
     var new_projectile: LetterProjectile = projectile_scene.instantiate()
     new_projectile.add_to_group("LetterProjectiles")
     add_child(new_projectile)
-    new_projectile.set_path(projectile_source.global_position, -global_basis.z, global_basis.y)
+    var offset_dir: Vector3 = randf_range(-1, 1) * global_basis.x + randf_range(-1,1) * global_basis.y
+    var offset = offset_dir.normalized() * randf_range(0,0.25)
+    new_projectile.set_path(projectile_source.global_position + offset, -global_basis.z, global_basis.y)
     new_projectile.fly_finish_node = self
     new_projectile.glyph = get_letter()
     print(new_projectile.glyph)
