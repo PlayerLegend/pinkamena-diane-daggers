@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://dckyj01fs8bn4"]
+
+[ext_resource type="Script" uid="uid://b4w2dtjemklvf" path="res://Weapons/Letters/letters_projectile_manager.gd" id="1_bmxvs"]
+
+[node name="LettersProjectileManager" type="Node3D" unique_id=1185503993]
+script = ExtResource("1_bmxvs")

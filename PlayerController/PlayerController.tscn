@@ -4,11 +4,13 @@
 [ext_resource type="Script" uid="uid://du2eq3npsv6wx" path="res://PlayerController/cam_look.gd" id="2_2ud5e"]
 [ext_resource type="Script" uid="uid://d350u8evihs1u" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="3_ps8a3"]
 [ext_resource type="Resource" uid="uid://c5pd1ax2j12x2" path="res://PlayerController/actions/look.tres" id="3_s3jlx"]
+[ext_resource type="Script" uid="uid://j3rmchu80mau" path="res://PlayerController/attack_controller.gd" id="4_0458q"]
 [ext_resource type="Script" uid="uid://dour8fehaaugp" path="res://addons/netfox/tick-interpolator.gd" id="4_t3w4r"]
 [ext_resource type="Script" uid="uid://diyujlfe1yjb4" path="res://PlayerController/input.gd" id="5_t3w4r"]
 [ext_resource type="Resource" uid="uid://c07vvdykoowbv" path="res://PlayerController/actions/walk.tres" id="6_3o4bl"]
 [ext_resource type="Resource" uid="uid://hgfhhv1mxdba" path="res://PlayerController/actions/jump.tres" id="7_s3jlx"]
 [ext_resource type="Resource" uid="uid://b4auhpv3w0wae" path="res://PlayerController/actions/shoot.tres" id="8_m11co"]
+[ext_resource type="PackedScene" uid="uid://huy88qkm8eir" path="res://Weapons/Letters/LettersWeapon.tscn" id="10_m11co"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_ycagd"]
 
@@ -25,6 +27,13 @@ script = ExtResource("2_2ud5e")
 guide_action_look = ExtResource("3_s3jlx")
 
 [node name="Camera3D" type="Camera3D" parent="CamLook" unique_id=1026726029]
+
+[node name="Weapons" type="Node3D" parent="CamLook/Camera3D" unique_id=1770874646 node_paths=PackedStringArray("input")]
+script = ExtResource("4_0458q")
+guide_action_shoot = ExtResource("8_m11co")
+input = NodePath("../../../Input")
+
+[node name="Letters" parent="CamLook/Camera3D/Weapons" unique_id=426797018 instance=ExtResource("10_m11co")]
 
 [node name="RollbackSynchronizer" type="Node" parent="." unique_id=43548597 node_paths=PackedStringArray("root")]
 script = ExtResource("3_ps8a3")

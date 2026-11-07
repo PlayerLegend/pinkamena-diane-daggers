@@ -8,5 +8,3 @@ func _physics_process(delta: float) -> void:
     for child in get_children():
         if child is Boid:
             child.target_direction = (players[0].position - child.position)
-        
-        

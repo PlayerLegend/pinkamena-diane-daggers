@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://cif5c3q14r3c6"]
+
+[ext_resource type="Script" uid="uid://b6mq8lv7q1clv" path="res://Weapons/LineProjectile/line_projectile.gd" id="1_01y5o"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_hdy8t"]
+
+[node name="LineProjectile" type="MeshInstance3D" unique_id=362622111]
+top_level = true
+mesh = SubResource("BoxMesh_hdy8t")
+script = ExtResource("1_01y5o")

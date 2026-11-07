@@ -9,7 +9,6 @@ class_name PlayerController
 @export var walk_stopspeed: float = 8
 @export var walk_jump_speed: float = 40
 @export var guide_action_look:GUIDEAction
-@export var attack_parent: Node
 @export var body_light: OmniLight3D
 @export var camera_offset: float = 0.5
 
@@ -108,7 +107,6 @@ func _helper_apply_acceleration(wishdir: Vector3, delta: float, is_on_floor: boo
         return
         
     var add_speed = min(add_speed_cap, walk_acceleration * delta * wishspeed)
-    print("Add speed ", add_speed)
         
     velocity += wishdir * add_speed
 

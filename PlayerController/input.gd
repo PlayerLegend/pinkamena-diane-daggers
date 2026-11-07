@@ -1,3 +1,5 @@
+class_name PlayerControllerInput
+
 extends Node
 
 var walk: Vector2

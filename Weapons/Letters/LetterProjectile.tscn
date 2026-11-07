@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://8l0xp31pvhy8"]
+
+[ext_resource type="Script" uid="uid://dng4vds1gax11" path="res://Weapons/Letters/letter_projectile.gd" id="1_d3flc"]
+
+[node name="LetterProjectile" type="Node3D" unique_id=1654214689]
+script = ExtResource("1_d3flc")

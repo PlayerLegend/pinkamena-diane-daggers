@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://huy88qkm8eir"]
+
+[ext_resource type="Script" uid="uid://c3foiffrtekdg" path="res://Weapons/Letters/letters_weapon.gd" id="1_2fdmk"]
+[ext_resource type="PackedScene" uid="uid://8l0xp31pvhy8" path="res://Weapons/Letters/LetterProjectile.tscn" id="2_e360g"]
+
+[node name="Letters" type="Node3D" unique_id=426797018 node_paths=PackedStringArray("projectile_source")]
+script = ExtResource("1_2fdmk")
+projectile_scene = ExtResource("2_e360g")
+projectile_source = NodePath("ProjectileSource")
+
+[node name="ProjectileSource" type="Marker3D" parent="." unique_id=1139055256]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.42262268, -0.7628056)

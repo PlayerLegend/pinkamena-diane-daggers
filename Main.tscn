@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://cve8ibikysj1w" path="res://Menu/MainMenu/MainMenu.tscn" id="6_lgr22"]
 [ext_resource type="Script" uid="uid://okas2ady2mej" path="res://enemies.gd" id="8_03owx"]
 [ext_resource type="PackedScene" uid="uid://cj4xl357mk3ka" path="res://Skulls/Skull1.tscn" id="8_trn2v"]
+[ext_resource type="PackedScene" uid="uid://dckyj01fs8bn4" path="res://Weapons/Letters/LettersProjectileManager.tscn" id="10_wkp8b"]
 
 [node name="Main" type="Node" unique_id=1203969749 node_paths=PackedStringArray("multiplayer_handler")]
 script = ExtResource("1_glv2v")
@@ -48,3 +49,5 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.0765705, 9.005107, 1.07367
 
 [node name="Skull6" parent="Enemies" unique_id=1837487393 instance=ExtResource("8_trn2v")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.364546, 9.980207, 1.1996056)
+
+[node name="LettersProjectileManager" parent="." unique_id=1185503993 instance=ExtResource("10_wkp8b")]

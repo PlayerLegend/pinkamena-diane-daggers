@@ -50,7 +50,6 @@ func _physics_process(delta: float) -> void:
  
     var before := global_position
     move_and_slide(delta)
-    print(name, " vel=", velocity, " moved=", (global_position - before).length())
     _face_velocity(delta)
  
  

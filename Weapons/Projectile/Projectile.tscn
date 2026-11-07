@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bdybe2ebfygbw"]
+
+[ext_resource type="Script" uid="uid://d1brouv8xnt6d" path="res://Weapons/Projectile/projectile.gd" id="1_ffvv6"]
+
+[node name="Projectile" type="MeshInstance3D" unique_id=1587948955]
+script = ExtResource("1_ffvv6")
