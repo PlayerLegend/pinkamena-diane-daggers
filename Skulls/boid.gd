@@ -3,10 +3,10 @@ extends SlideBody3D
 class_name Boid
 
 @export_group("Speed")
-@export var max_speed := 13.0
-@export var min_speed := 2.5
+@export var max_speed := 16.0
+@export var min_speed := 3.5
 @export var max_force := 12.0  ## Max steering acceleration
- 
+
 @export_group("Flocking")
 
 @export var separation_weight := 0.3
