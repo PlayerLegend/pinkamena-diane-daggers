@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://dr46i2lpypu5j"]
+
+[ext_resource type="ArrayMesh" uid="uid://dhes86r8x8h2f" path="res://Blend/Skull4/skull4.obj" id="1_vielp"]
+[ext_resource type="Material" uid="uid://c1js1psy0s3tu" path="res://Blend/Skull4/mat_skull_4.tres" id="2_wfq1e"]
+
+[node name="AnimTest" type="Node3D" unique_id=764005775]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=942603210]
+mesh = ExtResource("1_vielp")
+surface_material_override/0 = ExtResource("2_wfq1e")

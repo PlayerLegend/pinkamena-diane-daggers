@@ -9,7 +9,7 @@ var arena_radius: float = 11 * 4
 @export var vis_model: Node3D
 
 @export var spawn_count: Array[int]
-@export var spawn_scene: Array[PackedScene]
+@export var spawn_boid_type: Array[BoidType]
 @export var spawn_rate: float = 0.05
 @export var attack_rate: float = 5
 @export var spawn_output: Node3D
@@ -29,21 +29,13 @@ func _ready():
     position = -arena_radius * fly_direction
     position.y = height
 
-func spawn_enemy(scene: PackedScene):
+func spawn_boid(boid_type: BoidType):
     assert(spawn_output)
     var new_xform = spawn_output.global_transform
     var offs = Vector3(randf_range(-1,1), 5, randf_range(-1,1)).normalized()
     var new_vel = 3 * offs
-    
-    if scene:
-        var enemy: Node3D = scene.instantiate()
-        get_parent().add_child(enemy)
-        enemy.velocity = new_vel
-        enemy.transform = new_xform
-    else:
-        print("Spawn boid")
-        boid_manager.add_boid(new_xform, new_vel)
-    pass
+    boid_manager.add_boid(boid_type, new_xform, new_vel)
+    print("Added boid ", boid_type)
 
 func attack_idle(delta: float):
     attack_cooldown -= delta
@@ -67,7 +59,7 @@ func attack_idle(delta: float):
         
         did_spawn_count += 1
         
-        spawn_enemy(spawn_scene[did_spawn_index])
+        spawn_boid(spawn_boid_type[did_spawn_index])
         
         return
 

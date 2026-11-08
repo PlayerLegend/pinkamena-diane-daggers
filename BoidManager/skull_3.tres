@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="BoidType" format=3 uid="uid://wn0bn3cywsmk"]
+
+[ext_resource type="Shader" uid="uid://cvu6m5rru4v7p" path="res://BoidManager/skull_3.gdshader" id="1_1qupm"]
+[ext_resource type="ArrayMesh" uid="uid://c1dly1rpqymky" path="res://Blend/Skull3/skull3.obj" id="1_ht0fv"]
+[ext_resource type="Script" uid="uid://ccb31lioy8b6j" path="res://BoidManager/boid_type.gd" id="2_1qupm"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qmsj5"]
+render_priority = 0
+shader = ExtResource("1_1qupm")
+shader_parameter/min_rotation = -15.0
+shader_parameter/max_rotation = -50.0
+shader_parameter/period = 0.25
+shader_parameter/pivot_yz = Vector2(0.2, -0.15)
+
+[resource]
+script = ExtResource("2_1qupm")
+type_name = &"skull3"
+mesh = ExtResource("1_ht0fv")
+material_override = SubResource("ShaderMaterial_qmsj5")
+min_speed = 2.0
+projectile_avoidance_weight = 0.5
+target_weight = 1.0

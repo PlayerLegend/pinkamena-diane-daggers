@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="BoidType" format=3 uid="uid://begmqtybc0sut"]
+
+[ext_resource type="ArrayMesh" uid="uid://cajnvf7obxamg" path="res://Blend/Skull2/skull2.obj" id="1_tce42"]
+[ext_resource type="Script" uid="uid://ccb31lioy8b6j" path="res://BoidManager/boid_type.gd" id="2_64ecx"]
+
+[resource]
+script = ExtResource("2_64ecx")
+type_name = &"skull2"
+mesh = ExtResource("1_tce42")
