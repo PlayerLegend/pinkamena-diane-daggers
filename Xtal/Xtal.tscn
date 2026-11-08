@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://ccoy4gfatfs0o"]
+
+[ext_resource type="ArrayMesh" uid="uid://dhsxh5jue710o" path="res://Blend/Xtal/Xtal.obj" id="1_hr4uy"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_hr4uy"]
+radius = 0.16494143
+
+[node name="Xtal" type="Node3D" unique_id=1613543719]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1229336640]
+mesh = ExtResource("1_hr4uy")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=699639863]
+shape = SubResource("SphereShape3D_hr4uy")
