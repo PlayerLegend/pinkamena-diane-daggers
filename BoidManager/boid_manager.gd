@@ -44,6 +44,7 @@ var _fwd := PackedVector3Array()
 var _steer := PackedVector3Array()
 var _proj_push := PackedVector3Array()
 var _boid_type := PackedInt32Array()
+var _health := PackedInt32Array()
 
 # --- Spatial hash grid (counting sort, no per-frame allocation) ---
 var _dim := 1
@@ -99,6 +100,109 @@ func get_boid_count(type: BoidType = null) -> int:
     return _type_counts[t] if t != -1 else 0
 
 
+## Returns the index of any live boid within `radius` of `center`, or -1 if none.
+## Stops at the first match. If `type` is null, boids of every type are considered.
+## Uses the spatial grid from the last physics tick, so boids spawned or moved
+## since then may be missed (and nothing is found before the first tick).
+func get_boid_in_area(center: Vector3, radius: float, type: BoidType = null) -> int:
+    var wanted := -1
+    if type != null:
+        wanted = _types.find(type)
+        if wanted == -1:
+            return -1
+
+    var radius_sq := radius * radius
+    var max_cell := _dim - 1
+    var cell_reach := int(ceil(radius * _inv_cell))
+    var center_cell := _cell_coords(center)
+
+    for cz in range(maxi(center_cell.z - cell_reach, 0), mini(center_cell.z + cell_reach, max_cell) + 1):
+        for cy in range(maxi(center_cell.y - cell_reach, 0), mini(center_cell.y + cell_reach, max_cell) + 1):
+            for cx in range(maxi(center_cell.x - cell_reach, 0), mini(center_cell.x + cell_reach, max_cell) + 1):
+                var cell := cx + _dim * (cy + _dim * cz)
+                for slot in range(_cell_start[cell], _cell_start[cell + 1]):
+                    var other := _cell_items[slot]
+                    var t := _boid_type[other]
+                    if wanted != -1 and t != wanted:
+                        continue
+                    # The grid can be a tick stale: skip slots removed since it was built
+                    if other >= _type_base[t] + _type_counts[t]:
+                        continue
+                    if _pos[other].distance_squared_to(center) <= radius_sq:
+                        return other
+    return -1
+
+
+## Current world position of a boid, or Vector3.INF if the index is not a live boid.
+func get_boid_position(index: int) -> Vector3:
+    if _type_of_slot(index) == -1:
+        return Vector3.INF
+    return _pos[index]
+
+
+## Health of a boid, or 0 if the index is not a live boid.
+func get_boid_health(index: int) -> int:
+    if _type_of_slot(index) == -1:
+        return 0
+    return _health[index]
+
+
+## Sets a boid's health. Does NOT remove the boid at 0 or below; call remove_boid()
+## yourself (e.g. when the new value is <= 0). Returns false if the index is not live.
+func set_boid_health(index: int, value: int) -> bool:
+    if _type_of_slot(index) == -1:
+        return false
+    _health[index] = value
+    return true
+
+
+## Removes a live boid. Returns false if the index is not a live boid.
+##
+## NOTE: indices are slots, and removal swaps the LAST live boid of the same type into
+## the freed slot. So after removing index i, the boid that used to have the highest
+## index of that type now has index i. If you hold indices over time (or loop over
+## them), iterate backwards or re-query after removing.
+func remove_boid(index: int) -> bool:
+    var t := _type_of_slot(index)
+    if t == -1:
+        return false
+
+    var base := _type_base[t]
+    var last := base + _type_counts[t] - 1
+    var buf: PackedFloat32Array = _buffers[t]
+
+    if index != last:
+        _pos[index] = _pos[last]
+        _vel[index] = _vel[last]
+        _fwd[index] = _fwd[last]
+        _steer[index] = _steer[last]
+        _proj_push[index] = _proj_push[last]
+        _health[index] = _health[last]
+        _boid_type[index] = _boid_type[last]
+        # Move the render transform too so there's no one-frame glitch
+        var dst := (index - base) * 12
+        var src := (last - base) * 12
+        for k in 12:
+            buf[dst + k] = buf[src + k]
+
+    _type_counts[t] -= 1
+    var mm := _multimeshes[t]
+    mm.visible_instance_count = _type_counts[t]
+    mm.buffer = buf
+    return true
+
+
+## Returns the type index owning this slot if it holds a live boid, otherwise -1.
+func _type_of_slot(index: int) -> int:
+    if index < 0 or index >= _capacity:
+        return -1
+    for t in _types.size():
+        var base := _type_base[t]
+        if index < base + _type_counts[t]:
+            return t if index >= base else -1
+    return -1
+
+
 func _spawn(t: int, xform: Transform3D, velocity: Vector3) -> int:
     var bt := _types[t]
     if _type_counts[t] >= bt.max_boids:
@@ -112,6 +216,7 @@ func _spawn(t: int, xform: Transform3D, velocity: Vector3) -> int:
     _vel[i] = velocity
     _steer[i] = Vector3.ZERO
     _proj_push[i] = Vector3.ZERO
+    _health[i] = bt.max_health
     if velocity.length_squared() > 0.0001:
         _fwd[i] = velocity.normalized()
     else:
@@ -201,6 +306,7 @@ func _allocate() -> void:
     _steer.resize(_capacity)
     _proj_push.resize(_capacity)
     _boid_type.resize(_capacity)
+    _health.resize(_capacity)
 
 
 ## Samples current positions of every Node3D in the group (once per tick per group).
