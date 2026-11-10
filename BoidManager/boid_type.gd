@@ -24,6 +24,9 @@ extends Resource
 @export var material_overrides: Array[Material] = []
 @export var max_boids := 1000  ## Capacity of this type. add_boid() fails once reached.
 
+@export_group("Health")
+@export var max_health := 1  ## Health a boid starts with when spawned
+
 @export_group("Speed")
 @export var max_speed := 16.0
 @export var min_speed := 4.5

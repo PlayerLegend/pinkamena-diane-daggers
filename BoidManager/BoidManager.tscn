@@ -1,10 +1,6 @@
 [gd_scene format=3 uid="uid://chwknn2g41lxo"]
 
 [ext_resource type="Script" uid="uid://c4jr8b24c4o7r" path="res://BoidManager/boid_manager.gd" id="1_icdow"]
-[ext_resource type="Script" uid="uid://ccb31lioy8b6j" path="res://BoidManager/boid_type.gd" id="2_vtu4r"]
-[ext_resource type="Resource" uid="uid://ck5s2ghgryskv" path="res://BoidManager/skull_1.tres" id="3_8qebs"]
-[ext_resource type="Resource" uid="uid://begmqtybc0sut" path="res://BoidManager/skull_2.tres" id="4_4g4rk"]
 
 [node name="BoidManager" type="MultiMeshInstance3D" unique_id=1957767101]
 script = ExtResource("1_icdow")
-boid_types = Array[ExtResource("2_vtu4r")]([ExtResource("3_8qebs"), ExtResource("4_4g4rk")])
