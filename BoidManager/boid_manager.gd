@@ -4,11 +4,12 @@ extends Node3D
 ## with one shared uniform spatial hash grid, and each BoidType is drawn through its
 ## own MultiMeshInstance3D child (created at runtime).
 ##
-## Setup: assign BoidType resources (.tres) to `boid_types`.
+## Setup: none. A BoidType (.tres) is registered automatically the first time it is passed
+## to add_boid(). Up to 63 types; type_name must be unique.
 ##
 ## Usage from other nodes:
 ##     flock.add_boid(preload("res://boids/default_boid.tres"), transform, velocity)
-##     flock.add_boid_by_name(&"default", transform, velocity)
+##     flock.add_boid_by_name(&"default", transform, velocity)  # type must already be registered
 ## and, to interact with the flock, just add nodes to the groups named in a BoidType
 ## (no per-tick calls needed):
 ##     add_to_group("projectiles")   # nearby boids are pushed away
@@ -21,8 +22,6 @@ extends Node3D
 ##
 ## Materials: BoidType.material_overrides is an Array[Material]; index i is applied to
 ## mesh surface i (null or missing entries keep the mesh's own material).
-
-@export var boid_types: Array[BoidType] = []  ## One entry per kind of boid. Names must be unique.
 
 @export_group("Bounds")
 @export var bounds_center := Vector3.ZERO
@@ -49,6 +48,7 @@ var _health := PackedInt32Array()
 # --- Spatial hash grid (counting sort, no per-frame allocation) ---
 var _dim := 1
 var _cell_total := 1
+var _cell_size := 0.0
 var _inv_cell := 1.0
 var _grid_origin := Vector3.ZERO
 var _cell_start := PackedInt32Array()  # size cell_total + 1
@@ -65,23 +65,23 @@ var _target_lists: Array = []  # PackedVector3Array per type
 func _ready() -> void:
     top_level = true
     global_transform = Transform3D.IDENTITY
-    _setup_types()
-    _setup_grid()
-    _allocate()
 
 
 ## Adds a boid of the given type at the transform's position, moving at the given velocity.
 ## Facing starts along the velocity (or the transform's -Z if velocity is zero).
-## Returns the boid's slot index, or -1 if the type is unknown or at capacity.
+## The type is registered automatically on first use.
+## Returns the boid's slot index, or -1 if the type can't be registered or is at capacity.
 func add_boid(type: BoidType, xform: Transform3D, velocity: Vector3) -> int:
     var t := _types.find(type)
     if t == -1:
-        push_warning("BoidManager: BoidType is not in boid_types.")
-        return -1
+        t = _register_type(type)
+        if t == -1:
+            return -1
     return _spawn(t, xform, velocity)
 
 
-## Same as add_boid() but looks the type up by its type_name.
+## Same as add_boid() but looks the type up by its type_name. The type must already
+## have been registered by an earlier add_boid() call.
 func add_boid_by_name(type_name: StringName, xform: Transform3D, velocity: Vector3) -> int:
     if not _name_to_index.has(type_name):
         push_warning("BoidManager: no BoidType named '%s'." % type_name)
@@ -105,6 +105,8 @@ func get_boid_count(type: BoidType = null) -> int:
 ## Uses the spatial grid from the last physics tick, so boids spawned or moved
 ## since then may be missed (and nothing is found before the first tick).
 func get_boid_in_area(center: Vector3, radius: float, type: BoidType = null) -> int:
+    if _types.is_empty():
+        return -1
     var wanted := -1
     if type != null:
         wanted = _types.find(type)
@@ -186,6 +188,7 @@ func remove_boid(index: int) -> bool:
             buf[dst + k] = buf[src + k]
 
     _type_counts[t] -= 1
+    _buffers[t] = buf
     var mm := _multimeshes[t]
     mm.visible_instance_count = _type_counts[t]
     mm.buffer = buf
@@ -224,82 +227,71 @@ func _spawn(t: int, xform: Transform3D, velocity: Vector3) -> int:
     return i
 
 
-func _setup_types() -> void:
-    for bt in boid_types:
-        if bt == null:
-            continue
-        if _name_to_index.has(bt.type_name):
-            push_warning("BoidManager: duplicate type_name '%s' ignored." % bt.type_name)
-            continue
-        if _types.size() >= 63:
-            push_warning("BoidManager: more than 63 types, extra types ignored.")
-            break
-        _name_to_index[bt.type_name] = _types.size()
-        _types.append(bt)
+## Registers a BoidType and returns its type index, or -1 if it can't be registered.
+## New types are appended, so existing types keep their slot ranges and indices.
+func _register_type(bt: BoidType) -> int:
+    if bt == null:
+        push_warning("BoidManager: cannot register a null BoidType.")
+        return -1
+    if _name_to_index.has(bt.type_name):
+        push_warning("BoidManager: a different BoidType already uses type_name '%s'." % bt.type_name)
+        return -1
+    if _types.size() >= 63:
+        push_warning("BoidManager: more than 63 types, cannot register '%s'." % bt.type_name)
+        return -1
+
+    var t := _types.size()
+    _name_to_index[bt.type_name] = t
+    _types.append(bt)
+    _type_base.append(_capacity)
+    _type_counts.append(0)
+    _capacity += bt.max_boids
+    _resize_boid_arrays()
+    _update_grid(bt.neighbor_radius)
 
     # Instance bounds: boids move everywhere inside the bounds; don't let culling hide them.
     var extent := Vector3.ONE * bounds_radius * 1.5
     var aabb := AABB(bounds_center - extent, extent * 2.0)
 
-    var base := 0
-    for t in _types.size():
-        var bt := _types[t]
-        _type_base.append(base)
-        _type_counts.append(0)
-        base += bt.max_boids
+    var mm := MultiMesh.new()
+    mm.transform_format = MultiMesh.TRANSFORM_3D
+    mm.use_colors = false
+    mm.use_custom_data = false
 
-        var mm := MultiMesh.new()
-        mm.transform_format = MultiMesh.TRANSFORM_3D
-        mm.use_colors = false
-        mm.use_custom_data = false
+    var mesh: Mesh = bt.mesh
+    if mesh == null:
+        var box := BoxMesh.new()
+        box.size = Vector3(0.2, 0.2, 0.6)
+        mesh = box
+    if not bt.material_overrides.is_empty():
+        mesh = mesh.duplicate()  # don't modify the shared resource
+        var surfaces := mini(mesh.get_surface_count(), bt.material_overrides.size())
+        for s in surfaces:
+            var mat := bt.material_overrides[s]
+            if mat != null:
+                mesh.surface_set_material(s, mat)
+    mm.mesh = mesh
+    mm.instance_count = bt.max_boids
+    mm.visible_instance_count = 0
 
-        var mesh: Mesh = bt.mesh
-        if mesh == null:
-            var box := BoxMesh.new()
-            box.size = Vector3(0.2, 0.2, 0.6)
-            mesh = box
-        if not bt.material_overrides.is_empty():
-            mesh = mesh.duplicate()  # don't modify the shared resource
-            var surfaces := mini(mesh.get_surface_count(), bt.material_overrides.size())
-            for s in surfaces:
-                var mat := bt.material_overrides[s]
-                if mat != null:
-                    mesh.surface_set_material(s, mat)
-        mm.mesh = mesh
-        mm.instance_count = bt.max_boids
-        mm.visible_instance_count = 0
+    var mmi := MultiMeshInstance3D.new()
+    mmi.name = bt.type_name
+    mmi.multimesh = mm
+    mmi.custom_aabb = aabb
+    add_child(mmi)
+    _multimeshes.append(mm)
 
-        var mmi := MultiMeshInstance3D.new()
-        mmi.name = bt.type_name
-        mmi.multimesh = mm
-        mmi.custom_aabb = aabb
-        add_child(mmi)
-        _multimeshes.append(mm)
+    var buf := PackedFloat32Array()
+    buf.resize(bt.max_boids * 12)
+    _buffers.append(buf)
 
-        var buf := PackedFloat32Array()
-        buf.resize(bt.max_boids * 12)
-        _buffers.append(buf)
-
-        _proj_lists.append(PackedVector3Array())
-        _target_lists.append(PackedVector3Array())
-    _capacity = base
+    _proj_lists.append(PackedVector3Array())
+    _target_lists.append(PackedVector3Array())
+    return t
 
 
-func _setup_grid() -> void:
-    # Cell size must cover the largest perception radius so a 3x3x3 block is enough.
-    var cell_size := 0.01
-    for bt in _types:
-        cell_size = maxf(cell_size, bt.neighbor_radius)
-    _inv_cell = 1.0 / cell_size
-    _dim = int(ceil(bounds_radius * 2.0 / cell_size)) + 1
-    _cell_total = _dim * _dim * _dim
-    _grid_origin = bounds_center - Vector3.ONE * bounds_radius
-    _cell_start.resize(_cell_total + 1)
-    _cell_items.resize(_capacity)
-    _boid_cell.resize(_capacity)
-
-
-func _allocate() -> void:
+## Grows every per-boid array to the current capacity (existing data is kept).
+func _resize_boid_arrays() -> void:
     _pos.resize(_capacity)
     _vel.resize(_capacity)
     _fwd.resize(_capacity)
@@ -307,6 +299,24 @@ func _allocate() -> void:
     _proj_push.resize(_capacity)
     _boid_type.resize(_capacity)
     _health.resize(_capacity)
+    _cell_items.resize(_capacity)
+    _boid_cell.resize(_capacity)
+
+
+## Makes sure the grid cell size covers `neighbor_radius` (a 3x3x3 block of cells must be
+## enough for the largest perception radius). Only rebuilds the grid layout if the cell
+## size has to grow; the grid is emptied and refilled on the next physics tick.
+func _update_grid(neighbor_radius: float) -> void:
+    var cell_size := maxf(maxf(_cell_size, neighbor_radius), 0.01)
+    if cell_size == _cell_size:
+        return
+    _cell_size = cell_size
+    _inv_cell = 1.0 / cell_size
+    _dim = int(ceil(bounds_radius * 2.0 / cell_size)) + 1
+    _cell_total = _dim * _dim * _dim
+    _grid_origin = bounds_center - Vector3.ONE * bounds_radius
+    _cell_start.resize(_cell_total + 1)
+    _cell_start.fill(0)  # old contents no longer match the layout; queries see an empty grid
 
 
 ## Samples current positions of every Node3D in the group (once per tick per group).
@@ -595,6 +605,7 @@ func _integrate(delta: float) -> void:
             buf[o + 10] = z.z
             buf[o + 11] = boid_pos.z
 
+        _buffers[t] = buf
         var mm := _multimeshes[t]
         mm.visible_instance_count = count
         mm.buffer = buf
