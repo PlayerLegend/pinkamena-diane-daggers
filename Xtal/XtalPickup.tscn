@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://tgmwp568r7p6"]
+
+[ext_resource type="Script" uid="uid://0gycetugw2x6" path="res://Xtal/xtal_pickup.gd" id="1_iy387"]
+[ext_resource type="ArrayMesh" uid="uid://dhsxh5jue710o" path="res://Blend/Xtal/Xtal.obj" id="2_pam7v"]
+[ext_resource type="Material" uid="uid://bmgrj0ssscwt4" path="res://Blend/Xtal/mat_xtal.tres" id="3_lqxim"]
+[ext_resource type="Script" uid="uid://d350u8evihs1u" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="4_pm31x"]
+[ext_resource type="Script" uid="uid://dour8fehaaugp" path="res://addons/netfox/tick-interpolator.gd" id="5_vqjms"]
+
+[node name="XtalPickup" type="Node3D" unique_id=1250629480]
+top_level = true
+script = ExtResource("1_iy387")
+floor_collision_mask = 8
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1180036008]
+mesh = ExtResource("2_pam7v")
+surface_material_override/0 = ExtResource("3_lqxim")
+
+[node name="RollbackSynchronizer" type="Node" parent="." unique_id=396117955 node_paths=PackedStringArray("root")]
+script = ExtResource("4_pm31x")
+root = NodePath("..")
+enable_prediction = true
+state_properties = Array[String]([":position", ":velocity"])
+metadata/_custom_type_script = "uid://d350u8evihs1u"
+
+[node name="TickInterpolator" type="Node" parent="." unique_id=461517339 node_paths=PackedStringArray("root")]
+script = ExtResource("5_vqjms")
+root = NodePath("..")
+properties = Array[String]([":position", ":velocity"])
+metadata/_custom_type_script = "uid://dour8fehaaugp"

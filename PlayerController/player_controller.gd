@@ -21,8 +21,7 @@ class_name PlayerController
 var up_direction := Vector3(0,1,0)
 var explosion_knock: Vector3 # needs to be applied during _rollback_tick
 
-func give_weapon(scene: PackedScene):
-    camera.add_child(scene.instantiate())
+var shot_power: int
 
 func _helper_jump():
     var have_speed = velocity.dot(up_direction)
@@ -63,11 +62,6 @@ func _helper_get_wishdir():
     
     
     return wishdir.normalized()
-
-func take_explosion_damage(explosion_position: Vector3, explosion_power: float):
-    var my_position = camera.global_position
-    var direction = (my_position - explosion_position).normalized()
-    explosion_knock += direction * 200.0 * explosion_power
 
 func _helper_apply_friction(wishdir: Vector3, delta: float) -> void:
     var have_speed: float = wishdir.dot(velocity)
@@ -125,14 +119,12 @@ func _helper_phys_floor(delta: float, wishdir: Vector3, is_on_floor: bool):
         else:
             _helper_fall(delta)
 
-func _helper_phys_update_camera(velocity_start: Vector3, is_on_floor: bool):
+func _helper_phys_update_camera(velocity_start: Vector3, _is_on_floor: bool):
     
     var accel = velocity - velocity_start
     camera_controller.set_accel(accel)
     camera_controller.set_gravity(-up_direction)
     
-    #camera.enable_roll = is_on_floor
-
 func _helper_phys_apply_explosion_knock():
     if not explosion_knock:
         return
@@ -140,8 +132,18 @@ func _helper_phys_apply_explosion_knock():
     explosion_knock = Vector3(0,0,0)    
 
 func _process(delta: float):
+    _debug_find_stale()
     var local_direction = quaternion.inverse() * up_direction
     camera_controller.position = camera_controller.position.slerp(local_direction * camera_offset, delta)
+
+func _debug_find_stale() -> void:
+    for s in get_tree().root.find_children("*", "RollbackSynchronizer", true, false):
+        for n in s._nodes:
+            if not is_instance_valid(n):
+                print("STALE in ", s.get_path(),
+                    " root=", s.root.get_path() if is_instance_valid(s.root) else "<freed>",
+                    " queued_for_deletion=", s.is_queued_for_deletion(),
+                    " inside_tree=", s.is_inside_tree())
 
 func _helper_phys_rollback_else(delta: float):
     

@@ -1,0 +1,44 @@
+[gd_scene format=3 uid="uid://cnvu48qqm5pwm"]
+
+[ext_resource type="Script" uid="uid://cqvwoxg4jucdh" path="res://Squids/Squid2/squid_2.gd" id="1_2lgke"]
+[ext_resource type="ArrayMesh" uid="uid://s6rj67sm370r" path="res://Squids/Squid2/squid2.obj" id="2_a8ki5"]
+[ext_resource type="PackedScene" uid="uid://tgmwp568r7p6" path="res://Xtal/XtalPickup.tscn" id="2_lxrwu"]
+[ext_resource type="Script" uid="uid://ccb31lioy8b6j" path="res://BoidManager/boid_type.gd" id="2_sobty"]
+[ext_resource type="Resource" uid="uid://ck5s2ghgryskv" path="res://BoidManager/skull_1.tres" id="3_lxrwu"]
+[ext_resource type="Resource" uid="uid://wn0bn3cywsmk" path="res://BoidManager/skull_3.tres" id="4_ndf3c"]
+[ext_resource type="Script" uid="uid://d350u8evihs1u" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="6_2jqbt"]
+[ext_resource type="Script" uid="uid://dour8fehaaugp" path="res://addons/netfox/tick-interpolator.gd" id="7_2ha80"]
+[ext_resource type="Material" uid="uid://c6rasamdiaqqi" path="res://Squids/Squid2/mat_squid_2.tres" id="7_ndf3c"]
+[ext_resource type="PackedScene" uid="uid://c0kp5ysyaagut" path="res://Xtal/XtalTarget.tscn" id="8_fceyh"]
+
+[node name="Squid2" type="AnimatableBody3D" unique_id=1405901256 node_paths=PackedStringArray("rollback_synchronizer", "spawn_output")]
+script = ExtResource("1_2lgke")
+rollback_synchronizer = NodePath("RollbackSynchronizer")
+xtal_scene = ExtResource("2_lxrwu")
+spawn_count = Array[int]([10, 1])
+spawn_boid_type = Array[ExtResource("2_sobty")]([ExtResource("3_lxrwu"), ExtResource("4_ndf3c")])
+spawn_output = NodePath("Marker3D")
+metadata/_custom_type_script = "uid://bjcbs7mr6mqi2"
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1747775219]
+mesh = ExtResource("2_a8ki5")
+surface_material_override/0 = ExtResource("7_ndf3c")
+
+[node name="RollbackSynchronizer" type="Node" parent="." unique_id=168263957 node_paths=PackedStringArray("root")]
+script = ExtResource("6_2jqbt")
+root = NodePath("..")
+enable_prediction = true
+state_properties = Array[String]([":position", ":fly_direction"])
+metadata/_custom_type_script = "uid://d350u8evihs1u"
+
+[node name="TickInterpolator" type="Node" parent="." unique_id=752565030 node_paths=PackedStringArray("root")]
+script = ExtResource("7_2ha80")
+root = NodePath("..")
+properties = Array[String]([":position", ":fly_direction"])
+metadata/_custom_type_script = "uid://dour8fehaaugp"
+
+[node name="Marker3D" type="Marker3D" parent="." unique_id=1870367591]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 2.935523, 0)
+
+[node name="XtalTarget" parent="." unique_id=1797207347 instance=ExtResource("8_fceyh")]
+transform = Transform3D(1, 0, 0, 0, 0.9420926, -0.3353529, 0, 0.3353529, 0.9420926, 0, 1.348805, -0.5487685)

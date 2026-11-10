@@ -18,6 +18,9 @@ extends Node3D
 ##
 ## The node is forced to top_level with an identity transform, so all simulation
 ## happens in world space. Up to 63 types are supported.
+##
+## Materials: BoidType.material_overrides is an Array[Material]; index i is applied to
+## mesh surface i (null or missing entries keep the mesh's own material).
 
 @export var boid_types: Array[BoidType] = []  ## One entry per kind of boid. Names must be unique.
 
@@ -144,19 +147,26 @@ func _setup_types() -> void:
         mm.transform_format = MultiMesh.TRANSFORM_3D
         mm.use_colors = false
         mm.use_custom_data = false
-        if bt.mesh != null:
-            mm.mesh = bt.mesh
-        else:
+
+        var mesh: Mesh = bt.mesh
+        if mesh == null:
             var box := BoxMesh.new()
             box.size = Vector3(0.2, 0.2, 0.6)
-            mm.mesh = box
+            mesh = box
+        if not bt.material_overrides.is_empty():
+            mesh = mesh.duplicate()  # don't modify the shared resource
+            var surfaces := mini(mesh.get_surface_count(), bt.material_overrides.size())
+            for s in surfaces:
+                var mat := bt.material_overrides[s]
+                if mat != null:
+                    mesh.surface_set_material(s, mat)
+        mm.mesh = mesh
         mm.instance_count = bt.max_boids
         mm.visible_instance_count = 0
 
         var mmi := MultiMeshInstance3D.new()
         mmi.name = bt.type_name
         mmi.multimesh = mm
-        mmi.material_override = bt.material_override
         mmi.custom_aabb = aabb
         add_child(mmi)
         _multimeshes.append(mm)

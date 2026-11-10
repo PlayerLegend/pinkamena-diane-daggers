@@ -1,0 +1,14 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://c6rasamdiaqqi"]
+
+[ext_resource type="Shader" uid="uid://crg60oti12e6c" path="res://Squids/squid.gdshader" id="1_xjc2x"]
+[ext_resource type="Texture2D" uid="uid://cct1lfj08p6ib" path="res://Squids/Squid2/squid2.png" id="2_5p1nq"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_xjc2x")
+shader_parameter/amplitude = 15.0
+shader_parameter/scale_amplitude = 0.07
+shader_parameter/time_period = 3.0
+shader_parameter/height_period = 1.0
+shader_parameter/phase_offset = 0.0
+shader_parameter/albedo_texture = ExtResource("2_5p1nq")

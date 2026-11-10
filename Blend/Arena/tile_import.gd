@@ -21,7 +21,7 @@ func _post_import(scene: Node) -> Object:
  
     var body := StaticBody3D.new()
     body.transform = xform
-    body.collision_layer = 4
+    body.collision_layer = 8
     body.add_child(shape)
  
     # Remove the original first so the new node can take the name "col".

@@ -5,7 +5,7 @@ extends Node3D
 var time: float = 0
 
 var spawn_radius = 11
-var tile_width = 4.0
+var tile_width = 3.0
 
 func _ready():
     var limit = spawn_radius * spawn_radius

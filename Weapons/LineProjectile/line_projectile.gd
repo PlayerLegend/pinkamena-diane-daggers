@@ -56,7 +56,7 @@ func _fly_physics_active(_delta: float) -> void:
 func _fly_physics_inactive(_delta: float) -> void:
     pass
 
-func _fly_physics_hit() -> void:
+func _fly_physics_hit(_other: Node3D) -> void:
     queue_free()
 
 func _physics_process(delta: float) -> void:
@@ -70,7 +70,7 @@ func _physics_process(delta: float) -> void:
         var result = space_state.intersect_ray(query)
         if result:
             _is_finished = true
-            _fly_physics_hit()
+            _fly_physics_hit(result["collider"])
             _fly_physics_inactive(delta)
         else:
             _fly_physics_active(delta)

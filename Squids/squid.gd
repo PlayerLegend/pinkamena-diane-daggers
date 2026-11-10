@@ -5,19 +5,24 @@ class_name Squid
 var boid_manager: BoidManager
 
 var fly_direction: Vector3
-var arena_radius: float = 11 * 4
-@export var vis_model: Node3D
+var arena_radius: float = 11 * 3
 
+@export var rollback_synchronizer: RollbackSynchronizer
+
+@export var xtal_scene: PackedScene
 @export var spawn_count: Array[int]
 @export var spawn_boid_type: Array[BoidType]
 @export var spawn_rate: float = 0.05
-@export var attack_rate: float = 5
+@export var attack_rate: float = 20
 @export var spawn_output: Node3D
 
 var spawn_cooldown: float
 var attack_cooldown: float = 2
 var did_spawn_index: int = 999
 var did_spawn_count: int
+var xtal_count: int
+
+var dead_time: float
 
 func _ready():
     sync_to_physics = false
@@ -28,6 +33,12 @@ func _ready():
     var height = position.y
     position = -arena_radius * fly_direction
     position.y = height
+    
+    
+    for child in get_children():
+        if child is XtalTarget:
+            xtal_count += 1
+            child.xtal_died.connect(_xtal_lost)
 
 func spawn_boid(boid_type: BoidType):
     assert(spawn_output)
@@ -84,8 +95,29 @@ func _rollback_tick(delta: float, _tick, _is_fresh):
     
     velocity = fly_direction * 0.1
     
+    if xtal_count <= 0:
+        position.y -= delta
+        collision_layer = 0
+    
     move_and_slide(delta)
 
 func _process(delta: float):
-    assert(vis_model)
-    vis_model.rotation.y += delta / 3.14
+    if xtal_count <= 0:
+        dead_time += delta
+        rotation.y += delta * dead_time * 5 + delta / 0.314
+    else:
+        rotation.y += delta / 3.14
+   
+func drop_xtal(where: Transform3D):
+    var new_xtal = xtal_scene.instantiate()
+    get_parent().add_child(new_xtal)
+    new_xtal.global_transform = where
+
+func _xtal_lost(xtal: XtalTarget):
+    xtal_count -= 1
+    drop_xtal(xtal.global_transform)
+    xtal.queue_free()
+    rollback_synchronizer.process_settings()
+    
+            
+    

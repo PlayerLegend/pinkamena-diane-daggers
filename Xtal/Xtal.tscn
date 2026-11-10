@@ -1,14 +1,101 @@
 [gd_scene format=3 uid="uid://ccoy4gfatfs0o"]
 
 [ext_resource type="ArrayMesh" uid="uid://dhsxh5jue710o" path="res://Blend/Xtal/Xtal.obj" id="1_hr4uy"]
+[ext_resource type="Material" uid="uid://bmgrj0ssscwt4" path="res://Blend/Xtal/mat_xtal.tres" id="3_p8k46"]
+[ext_resource type="Script" uid="uid://d350u8evihs1u" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="3_pn0hk"]
+[ext_resource type="Script" uid="uid://dour8fehaaugp" path="res://addons/netfox/tick-interpolator.gd" id="4_p8k46"]
+
+[sub_resource type="GDScript" id="GDScript_pn0hk"]
+script/source = "class_name Xtal
+extends SlideBody3D
+
+@export_group(\"Physics Layers\")
+@export_flags_3d_physics var enemies_layer: int
+@export_flags_3d_physics var pickups_layer: int
+@onready var rollback_synchronizer: RollbackSynchronizer = $RollbackSynchronizer
+
+var health: int = 10
+
+signal xtal_died(xtal: Xtal)
+
+func _ready() -> void:
+    collision_layer = enemies_layer
+
+func take_damage(amount: int):
+    if not health:
+        print(\"Xtal took damage but is dead\")
+        return
+    
+    health -= amount
+    if health <= 0:
+        health = 0
+        top_level = true
+        collision_layer = pickups_layer
+        xtal_died.emit(self)
+
+func _helper_find_player() -> PlayerController:
+    var dist = INF
+    var result = null
+    for player in get_tree().get_nodes_in_group(\"players\"):
+        assert(player is PlayerController)
+        var player_dist = (player.global_position - global_position).length_squared()
+        if player_dist < dist:
+            result = player
+            dist = player_dist
+    return result
+
+func _rollback_tick(delta: float, _tick, _is_fresh):
+    
+    #delta *= NetworkTime.physics_factor
+    
+    if not is_multiplayer_authority() and _is_fresh:
+        return
+    
+    if top_level:
+        var player := _helper_find_player()
+        rotation.lerp(Vector3(0,0,0), delta)
+        if player:
+            var wishdir = (player.global_position - global_position).normalized()
+            var wishvel = 10 * wishdir
+            var fric = velocity.slide(wishdir)
+            velocity = velocity.lerp(wishvel, delta / 3)
+            velocity -= fric * delta
+        move_and_slide(delta)
+        
+"
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_hr4uy"]
 radius = 0.16494143
 
-[node name="Xtal" type="Node3D" unique_id=1613543719]
+[node name="Xtal" type="AnimatableBody3D" unique_id=258284027]
+collision_layer = 0
+collision_mask = 0
+sync_to_physics = false
+script = SubResource("GDScript_pn0hk")
+enemies_layer = 4
+pickups_layer = 32
+metadata/_custom_type_script = "uid://bjcbs7mr6mqi2"
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1229336640]
 mesh = ExtResource("1_hr4uy")
+surface_material_override/0 = ExtResource("3_p8k46")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=699639863]
 shape = SubResource("SphereShape3D_hr4uy")
+
+[node name="RollbackSynchronizer" type="Node" parent="." unique_id=1971004701 node_paths=PackedStringArray("root")]
+script = ExtResource("3_pn0hk")
+root = NodePath("..")
+enable_prediction = true
+state_properties = Array[String]([":position", ":velocity"])
+metadata/_custom_type_script = "uid://d350u8evihs1u"
+
+[node name="TickInterpolator" type="Node" parent="." unique_id=1569408383 node_paths=PackedStringArray("root")]
+script = ExtResource("4_p8k46")
+root = NodePath("..")
+properties = Array[String]([":position", ":velocity"])
+metadata/_custom_type_script = "uid://dour8fehaaugp"
+
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=2108752241]
+light_color = Color(0, 0.61666656, 1, 1)
+omni_range = 1.0262848

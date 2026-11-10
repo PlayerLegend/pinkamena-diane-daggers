@@ -12,9 +12,10 @@
 [ext_resource type="PackedScene" uid="uid://clbho01tu8i5" path="res://Arena/Arena.tscn" id="12_5vvyt"]
 [ext_resource type="Resource" uid="uid://ck5s2ghgryskv" path="res://BoidManager/skull_1.tres" id="12_c6i3y"]
 [ext_resource type="Resource" uid="uid://begmqtybc0sut" path="res://BoidManager/skull_2.tres" id="13_c2ibq"]
-[ext_resource type="PackedScene" uid="uid://emivj6qf322m" path="res://Squids/Squid1.tscn" id="13_c6i3y"]
+[ext_resource type="PackedScene" uid="uid://emivj6qf322m" path="res://Squids/Squid1/Squid1.tscn" id="13_c6i3y"]
 [ext_resource type="Resource" uid="uid://wn0bn3cywsmk" path="res://BoidManager/skull_3.tres" id="14_j4qnp"]
 [ext_resource type="Resource" uid="uid://iad02ocldrpf" path="res://BoidManager/skull_4.tres" id="15_j4qnp"]
+[ext_resource type="PackedScene" uid="uid://cnvu48qqm5pwm" path="res://Squids/Squid2/squid2.tscn" id="16_fpfj3"]
 
 [node name="Main" type="Node" unique_id=1203969749 node_paths=PackedStringArray("multiplayer_handler")]
 script = ExtResource("1_glv2v")
@@ -38,13 +39,8 @@ boid_manager = NodePath("../BoidManager")
 
 [node name="Squid1" parent="Enemies" unique_id=1263472492 instance=ExtResource("13_c6i3y")]
 
-[node name="Squid2" parent="Enemies" unique_id=611473072 instance=ExtResource("13_c6i3y")]
-
-[node name="Squid3" parent="Enemies" unique_id=617426122 instance=ExtResource("13_c6i3y")]
-
-[node name="Squid4" parent="Enemies" unique_id=1846788096 instance=ExtResource("13_c6i3y")]
-
-[node name="Squid5" parent="Enemies" unique_id=103898023 instance=ExtResource("13_c6i3y")]
+[node name="Squid2" parent="Enemies" unique_id=1405901256 instance=ExtResource("16_fpfj3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.0269332)
 
 [node name="Arena" parent="." unique_id=1057556895 instance=ExtResource("12_5vvyt")]
 
@@ -54,7 +50,5 @@ omni_range = 40.888187
 
 [node name="BoidManager" parent="." unique_id=1957767101 instance=ExtResource("10_wkp8b")]
 boid_types = Array[ExtResource("11_5vvyt")]([ExtResource("12_c6i3y"), ExtResource("13_c2ibq"), ExtResource("14_j4qnp"), ExtResource("15_j4qnp")])
-bounds_center = null
-bounds_radius = null
 
 [connection signal="child_entered_tree" from="Enemies" to="Enemies" method="_on_child_entered_tree"]

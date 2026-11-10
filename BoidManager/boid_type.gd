@@ -1,3 +1,4 @@
+@tool
 class_name BoidType
 extends Resource
 ## Settings for one kind of boid. Save instances as .tres files and assign them to
@@ -9,8 +10,18 @@ extends Resource
 @export var type_name := &"boid"
 
 @export_group("Population")
-@export var mesh: Mesh  ## Mesh per boid, should point along -Z. Falls back to a small box.
-@export var material_override: Material  ## Optional material applied to the whole flock.
+## Mesh per boid, should point along -Z. Falls back to a small box.
+@export var mesh: Mesh:
+    set(value):
+        if mesh != null and mesh.changed.is_connected(_sync_materials):
+            mesh.changed.disconnect(_sync_materials)
+        mesh = value
+        if mesh != null:
+            mesh.changed.connect(_sync_materials)
+        _sync_materials()
+## One slot per mesh surface (resized automatically when the mesh changes).
+## Null entries keep the mesh's own material.
+@export var material_overrides: Array[Material] = []
 @export var max_boids := 1000  ## Capacity of this type. add_boid() fails once reached.
 
 @export_group("Speed")
@@ -46,3 +57,12 @@ extends Resource
 @export_group("Targets")
 @export var target_group := &"players"  ## Boids chase the nearest node in this group
 @export var target_weight := 0.3
+
+
+func _sync_materials() -> void:
+    if mesh == null:
+        return
+    var n := mesh.get_surface_count()
+    if material_overrides.size() != n:
+        material_overrides.resize(n)  # keeps existing entries, pads with null, trims extras
+        notify_property_list_changed()

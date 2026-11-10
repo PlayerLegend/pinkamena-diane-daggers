@@ -1,0 +1,18 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://canm5gpxeigyy"]
+
+[ext_resource type="Shader" uid="uid://bchfflaswajjd" path="res://Skulls/wobble.gdshader" id="1_jdsvf"]
+[ext_resource type="Texture2D" uid="uid://dshhd30jrtdty" path="res://Blend/Skull2/material.png" id="2_x1qcp"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_64ecx"]
+frequency = 0.1281
+
+[sub_resource type="NoiseTexture3D" id="NoiseTexture3D_s0quj"]
+noise = SubResource("FastNoiseLite_64ecx")
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_jdsvf")
+shader_parameter/displacement_distance = 0.2
+shader_parameter/noise_scale = 10.0
+shader_parameter/noise_texture = SubResource("NoiseTexture3D_s0quj")
+shader_parameter/albedo_texture = ExtResource("2_x1qcp")

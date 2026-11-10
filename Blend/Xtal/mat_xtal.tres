@@ -1,0 +1,20 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://bmgrj0ssscwt4"]
+
+[ext_resource type="Shader" uid="uid://h6e7eboufeba" path="res://Xtal/Xtal.gdshader" id="1_eaxmq"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_eaxmq"]
+frequency = 0.0884
+
+[sub_resource type="NoiseTexture3D" id="NoiseTexture3D_0mgxc"]
+width = 128
+depth = 128
+noise = SubResource("FastNoiseLite_eaxmq")
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_eaxmq")
+shader_parameter/light_color = Color(0, 0.8166666, 1, 1)
+shader_parameter/dark_color = Color(0.08216666, 0, 0.29, 1)
+shader_parameter/noise_texture_3d = SubResource("NoiseTexture3D_0mgxc")
+shader_parameter/noise_scale = 1.0
+shader_parameter/noise_offset = Vector3(0, 0, 0)
