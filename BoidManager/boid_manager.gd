@@ -141,25 +141,20 @@ func get_boids_in_area(center: Vector3, radius: float, type: BoidType = null) ->
     return results
 
 
-## Casts a ray against the boids' collision spheres and returns the closest hit, or an
-## empty Dictionary if nothing was hit. `direction` does not need to be normalized.
+## Casts a ray against the boids' collision spheres and returns the index of the closest
+## boid hit, or -1 if nothing was hit. `direction` does not need to be normalized.
 ## If `type` is null, boids of every type are considered.
 ##
-## Result keys:
-##   position : Vector3  - world-space hit point
-##   normal   : Vector3  - surface normal at the hit point
-##   distance : float    - distance from `start` to the hit point
-##
 ## Uses the spatial grid from the last physics tick (see get_boids_in_area()).
-## A ray starting inside a boid's sphere reports a hit at distance 0.
-func raycast(start: Vector3, direction: Vector3, distance: float, type: BoidType = null) -> Dictionary:
+## A ray starting inside a boid's sphere counts as a hit on that boid.
+func raycast(start: Vector3, direction: Vector3, distance: float, type: BoidType = null) -> int:
     if _types.is_empty() or distance <= 0.0 or direction.is_zero_approx():
-        return {}
+        return -1
     var wanted := -1
     if type != null:
         wanted = _types.find(type)
         if wanted == -1:
-            return {}
+            return -1
 
     var dir := direction.normalized()
     var pad := _max_collision_radius
@@ -172,14 +167,14 @@ func raycast(start: Vector3, direction: Vector3, distance: float, type: BoidType
     for a in 3:
         if absf(dir[a]) < 0.000001:
             if start[a] < box_min[a] or start[a] > box_max[a]:
-                return {}
+                return -1
         else:
             var t1 := (box_min[a] - start[a]) / dir[a]
             var t2 := (box_max[a] - start[a]) / dir[a]
             t_enter = maxf(t_enter, minf(t1, t2))
             t_exit = minf(t_exit, maxf(t1, t2))
     if t_enter > t_exit:
-        return {}
+        return -1
 
     # DDA setup
     var entry := start + dir * t_enter
@@ -239,17 +234,7 @@ func raycast(start: Vector3, direction: Vector3, distance: float, type: BoidType
             break
         t_max[axis] += t_delta[axis]
 
-    if best_index == -1:
-        return {}
-    var hit_pos := start + dir * best_t
-    var normal := hit_pos - _pos[best_index]
-    normal = normal.normalized() if not normal.is_zero_approx() else -dir
-    return {
-        "index": best_index,
-        "position": hit_pos,
-        "normal": normal,
-        "distance": best_t,
-    }
+    return best_index
 
 
 ## Ray vs. sphere test. `dir` must be normalized. Returns the distance along the ray to
