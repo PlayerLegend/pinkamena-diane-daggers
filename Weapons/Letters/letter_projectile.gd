@@ -2,6 +2,7 @@ class_name LetterProjectile
 extends LineProjectile
 @onready var mesh_instance_3d: MeshInstance3D = $MeshInstance3D
 
+
 var mesh: Mesh:
     set(value):
         mesh_instance_3d.mesh = value
@@ -22,7 +23,9 @@ func _fly_physics_active(_delta: float) -> void:
         
     var health := BoidManager.get_boid_health(boid)
     
+    BoidManager.set_boid_flash(boid, 1.0 / 20.0)
     if health <= 1:
+        BoidManager.spawn_afterimage(boid)
         BoidManager.remove_boid(boid)
     else:
         BoidManager.set_boid_health(boid, health - 1)
