@@ -27,6 +27,10 @@ extends Node3D
 ## time is available as the global shader uniform `boid_time`. A shader compares the
 ## two, e.g. `step(boid_time, INSTANCE_CUSTOM.x)` is 1.0 while the flash is active.
 
+## Afterimage scene
+
+var afterimage_scene = preload("res://Skulls/SkullAfterimage.tscn")
+
 ## Floats per MultiMesh instance: 12 for the 3D transform + 4 for custom data.
 const FLOATS_PER_INSTANCE := 12 + 4
 ## Name of the global shader uniform holding the current time (see _now()).
@@ -98,7 +102,7 @@ func _now() -> float:
 func add_boid(type: BoidType, xform: Transform3D, velocity: Vector3) -> int:
     var t := _types.find(type)
     if t == -1:
-        t = _register_type(type)
+        t = register_type(type)
         if t == -1:
             return -1
     return _spawn(t, xform, velocity)
@@ -123,6 +127,12 @@ func get_boid_count(type: BoidType = null) -> int:
     var t := _types.find(type)
     return _type_counts[t] if t != -1 else 0
 
+## Boid mesh, null if invalid index
+func get_boid_mesh(index: int) -> Mesh:
+    var t := _type_of_slot(index)
+    if t == -1:
+        return null
+    return _multimeshes[t].mesh
 
 ## Returns the indices of all live boids whose collision sphere touches the query sphere
 ## (distance between centers <= radius + the boid's collision_radius). If `type` is null,
@@ -283,6 +293,20 @@ func get_boid_position(index: int) -> Vector3:
         return Vector3.INF
     return _pos[index]
 
+func get_boid_transform(index: int) -> Transform3D:
+    if _type_of_slot(index) == -1:
+        return Transform3D(Basis.IDENTITY, Vector3.INF)
+    var forward := _fwd[index]
+    if forward.length_squared() < 0.0001:
+        return Transform3D(Basis.IDENTITY, _pos[index])
+    forward = forward.normalized()
+    # Build basis with -Z facing forward, matching the render basis in _integrate()
+    var z := -forward
+    var up := Vector3.UP if absf(forward.y) < 0.99 else Vector3.RIGHT
+    var x := up.cross(z).normalized()
+    var y := z.cross(x)
+    return Transform3D(Basis(x, y, z), _pos[index])
+
 
 ## Health of a boid, or 0 if the index is not a live boid.
 func get_boid_health(index: int) -> int:
@@ -310,6 +334,19 @@ func set_boid_flash(index: int, duration: float) -> bool:
     _flash_end[index] = _now() + maxf(duration, 0.0)
     return true
 
+func spawn_afterimage(index: int) -> SkullAfterimage:
+    var t := _type_of_slot(index)
+    if t == -1:
+        return null
+
+    var afterimage: SkullAfterimage = afterimage_scene.instantiate()
+    get_tree().current_scene.add_child(afterimage)
+
+    afterimage.global_transform = get_boid_transform(index)
+
+    afterimage.set_mesh_1(_multimeshes[t].mesh)
+
+    return afterimage
 
 ## Removes a live boid. Returns false if the index is not a live boid.
 ##
@@ -384,7 +421,7 @@ func _spawn(t: int, xform: Transform3D, velocity: Vector3) -> int:
 
 ## Registers a BoidType and returns its type index, or -1 if it can't be registered.
 ## New types are appended, so existing types keep their slot ranges and indices.
-func _register_type(bt: BoidType) -> int:
+func register_type(bt: BoidType) -> int:
     if bt == null:
         push_warning("BoidManager: cannot register a null BoidType.")
         return -1

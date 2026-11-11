@@ -1,0 +1,7 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://dlafvdfovtusj"]
+
+[ext_resource type="Shader" uid="uid://cperskcdxqvk8" path="res://Skulls/SkullAfterimage.gdshader" id="1_r4swj"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_r4swj")
