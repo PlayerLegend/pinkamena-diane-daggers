@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://dxsgsfp420pha"]
+
+[ext_resource type="Script" uid="uid://e3fevnfu2t0d" path="res://DecalCanvas/decal_canvas.gd" id="1_kda76"]
+[ext_resource type="Texture2D" uid="uid://v7tkw0ujxf53" path="res://icon.svg" id="2_uunnb"]
+
+[node name="DecalCanvas" type="Node3D" unique_id=1855920060]
+script = ExtResource("1_kda76")
+
+[node name="SubViewport" type="SubViewport" parent="." unique_id=601797226]
+size = Vector2i(2048, 2048)
+render_target_clear_mode = 1
+render_target_update_mode = 1
+
+[node name="Decal" type="Decal" parent="." unique_id=217058198]
+texture_albedo = ExtResource("2_uunnb")
