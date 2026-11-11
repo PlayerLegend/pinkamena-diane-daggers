@@ -34,6 +34,7 @@ var _multimeshes: Array[MultiMesh] = []
 var _buffers: Array = []                # PackedFloat32Array per type
 var _name_to_index := {}
 var _capacity := 0
+var _max_collision_radius := 0.0  # largest collision_radius of any registered type
 
 # --- Boid data (structure of arrays). Type t owns slots [_type_base[t], _type_base[t] + max_boids) ---
 var _pos := PackedVector3Array()
@@ -99,22 +100,27 @@ func get_boid_count(type: BoidType = null) -> int:
     return _type_counts[t] if t != -1 else 0
 
 
-## Returns the index of any live boid within `radius` of `center`, or -1 if none.
-## Stops at the first match. If `type` is null, boids of every type are considered.
+## Returns the indices of all live boids whose collision sphere touches the query sphere
+## (distance between centers <= radius + the boid's collision_radius). If `type` is null,
+## boids of every type are considered. Returns an empty array if none match.
 ## Uses the spatial grid from the last physics tick, so boids spawned or moved
 ## since then may be missed (and nothing is found before the first tick).
-func get_boid_in_area(center: Vector3, radius: float, type: BoidType = null) -> int:
+##
+## Indices are slots; remove_boid() swaps the last boid into the freed slot, so when
+## removing several results, iterate the array backwards (sort it first if needed).
+func get_boids_in_area(center: Vector3, radius: float, type: BoidType = null) -> PackedInt32Array:
+    var results := PackedInt32Array()
     if _types.is_empty():
-        return -1
+        return results
     var wanted := -1
     if type != null:
         wanted = _types.find(type)
         if wanted == -1:
-            return -1
+            return results
 
-    var radius_sq := radius * radius
+    var reach_dist := radius + _max_collision_radius
     var max_cell := _dim - 1
-    var cell_reach := int(ceil(radius * _inv_cell))
+    var cell_reach := int(ceil(reach_dist * _inv_cell))
     var center_cell := _cell_coords(center)
 
     for cz in range(maxi(center_cell.z - cell_reach, 0), mini(center_cell.z + cell_reach, max_cell) + 1):
@@ -129,9 +135,137 @@ func get_boid_in_area(center: Vector3, radius: float, type: BoidType = null) -> 
                     # The grid can be a tick stale: skip slots removed since it was built
                     if other >= _type_base[t] + _type_counts[t]:
                         continue
-                    if _pos[other].distance_squared_to(center) <= radius_sq:
-                        return other
-    return -1
+                    var reach: float = radius + _types[t].collision_radius
+                    if _pos[other].distance_squared_to(center) <= reach * reach:
+                        results.append(other)
+    return results
+
+
+## Casts a ray against the boids' collision spheres and returns the closest hit, or an
+## empty Dictionary if nothing was hit. `direction` does not need to be normalized.
+## If `type` is null, boids of every type are considered.
+##
+## Result keys:
+##   position : Vector3  - world-space hit point
+##   normal   : Vector3  - surface normal at the hit point
+##   distance : float    - distance from `start` to the hit point
+##
+## Uses the spatial grid from the last physics tick (see get_boids_in_area()).
+## A ray starting inside a boid's sphere reports a hit at distance 0.
+func raycast(start: Vector3, direction: Vector3, distance: float, type: BoidType = null) -> Dictionary:
+    if _types.is_empty() or distance <= 0.0 or direction.is_zero_approx():
+        return {}
+    var wanted := -1
+    if type != null:
+        wanted = _types.find(type)
+        if wanted == -1:
+            return {}
+
+    var dir := direction.normalized()
+    var pad := _max_collision_radius
+
+    # Clip the ray to the grid box (padded, since a sphere can poke out of the grid)
+    var box_min := _grid_origin - Vector3.ONE * pad
+    var box_max := _grid_origin + Vector3.ONE * (_dim * _cell_size + pad)
+    var t_enter := 0.0
+    var t_exit := distance
+    for a in 3:
+        if absf(dir[a]) < 0.000001:
+            if start[a] < box_min[a] or start[a] > box_max[a]:
+                return {}
+        else:
+            var t1 := (box_min[a] - start[a]) / dir[a]
+            var t2 := (box_max[a] - start[a]) / dir[a]
+            t_enter = maxf(t_enter, minf(t1, t2))
+            t_exit = minf(t_exit, maxf(t1, t2))
+    if t_enter > t_exit:
+        return {}
+
+    # DDA setup
+    var entry := start + dir * t_enter
+    var cell_pos := _cell_coords(entry)
+    var max_cell := _dim - 1
+    var cell_reach := int(ceil(pad * _inv_cell))
+    var step := Vector3i.ZERO
+    var t_max := Vector3(INF, INF, INF)
+    var t_delta := Vector3(INF, INF, INF)
+    for a in 3:
+        if dir[a] > 0.000001:
+            step[a] = 1
+            var boundary := _grid_origin[a] + (cell_pos[a] + 1) * _cell_size
+            t_max[a] = t_enter + (boundary - entry[a]) / dir[a]
+            t_delta[a] = _cell_size / dir[a]
+        elif dir[a] < -0.000001:
+            step[a] = -1
+            var boundary := _grid_origin[a] + cell_pos[a] * _cell_size
+            t_max[a] = t_enter + (boundary - entry[a]) / dir[a]
+            t_delta[a] = -_cell_size / dir[a]
+
+    var best_t := INF
+    var best_index := -1
+
+    while true:
+        # Test boids in this cell, plus neighbors within the largest sphere's reach: the
+        # hit point lies in a cell on the ray, but the sphere's center may be in the next one.
+        for cz in range(maxi(cell_pos.z - cell_reach, 0), mini(cell_pos.z + cell_reach, max_cell) + 1):
+            for cy in range(maxi(cell_pos.y - cell_reach, 0), mini(cell_pos.y + cell_reach, max_cell) + 1):
+                for cx in range(maxi(cell_pos.x - cell_reach, 0), mini(cell_pos.x + cell_reach, max_cell) + 1):
+                    var cell := cx + _dim * (cy + _dim * cz)
+                    for slot in range(_cell_start[cell], _cell_start[cell + 1]):
+                        var other := _cell_items[slot]
+                        var t := _boid_type[other]
+                        if wanted != -1 and t != wanted:
+                            continue
+                        if other >= _type_base[t] + _type_counts[t]:
+                            continue  # stale grid entry
+                        var hit_t := _ray_sphere_distance(start, dir, _pos[other], _types[t].collision_radius, distance)
+                        if hit_t >= 0.0 and hit_t < best_t:
+                            best_t = hit_t
+                            best_index = other
+
+        # Anything found so far is closer than every hit in later cells
+        var cell_exit := minf(t_max.x, minf(t_max.y, t_max.z))
+        if best_t <= cell_exit or cell_exit > t_exit:
+            break
+
+        # Advance to the next cell along the ray
+        var axis := 0
+        if t_max.y < t_max[axis]:
+            axis = 1
+        if t_max.z < t_max[axis]:
+            axis = 2
+        cell_pos[axis] += step[axis]
+        if cell_pos[axis] < 0 or cell_pos[axis] > max_cell:
+            break
+        t_max[axis] += t_delta[axis]
+
+    if best_index == -1:
+        return {}
+    var hit_pos := start + dir * best_t
+    var normal := hit_pos - _pos[best_index]
+    normal = normal.normalized() if not normal.is_zero_approx() else -dir
+    return {
+        "index": best_index,
+        "position": hit_pos,
+        "normal": normal,
+        "distance": best_t,
+    }
+
+
+## Ray vs. sphere test. `dir` must be normalized. Returns the distance along the ray to
+## the first intersection, or -1.0 if the ray misses. A ray starting inside the sphere
+## returns 0.0. Hits beyond `max_distance` count as misses.
+func _ray_sphere_distance(start: Vector3, dir: Vector3, center: Vector3, radius: float, max_distance: float) -> float:
+    var m := start - center
+    var b := m.dot(dir)
+    var c := m.dot(m) - radius * radius
+    if c > 0.0 and b > 0.0:
+        return -1.0  # outside the sphere and pointing away
+    var disc := b * b - c
+    if disc < 0.0:
+        return -1.0
+    var hit_t := maxf(-b - sqrt(disc), 0.0)
+    return hit_t if hit_t <= max_distance else -1.0
 
 
 ## Current world position of a boid, or Vector3.INF if the index is not a live boid.
@@ -247,6 +381,7 @@ func _register_type(bt: BoidType) -> int:
     _capacity += bt.max_boids
     _resize_boid_arrays()
     _update_grid(bt.neighbor_radius)
+    _max_collision_radius = maxf(_max_collision_radius, bt.collision_radius)
 
     # Instance bounds: boids move everywhere inside the bounds; don't let culling hide them.
     var extent := Vector3.ONE * bounds_radius * 1.5

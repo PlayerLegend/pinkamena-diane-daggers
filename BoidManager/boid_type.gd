@@ -27,6 +27,10 @@ extends Resource
 @export_group("Health")
 @export var max_health := 1  ## Health a boid starts with when spawned
 
+@export_group("Collision")
+## Radius of the boid's collision sphere. Used by raycast() and get_boids_in_area().
+@export var collision_radius := 0.3
+
 @export_group("Speed")
 @export var max_speed := 16.0
 @export var min_speed := 4.5
