@@ -49,9 +49,10 @@ func add_splatter(world_position: Vector3, splatter_scale: float = 1.0) -> void:
     sub_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
     await RenderingServer.frame_post_draw
 
+    decal.texture_albedo = null
+    decal.texture_albedo = sub_viewport.get_texture()
+
     sprite.queue_free()
-    
-    print("Add splatter at uv ", uv)
 
 
 func _on_boid_removed(
