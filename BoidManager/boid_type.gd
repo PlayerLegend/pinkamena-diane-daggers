@@ -29,7 +29,7 @@ extends Resource
 
 @export_group("Collision")
 ## Radius of the boid's collision sphere. Used by raycast() and get_boids_in_area().
-@export var collision_radius := 0.3
+@export var collision_radius := 0.25
 
 @export_group("Speed")
 @export var max_speed := 16.0

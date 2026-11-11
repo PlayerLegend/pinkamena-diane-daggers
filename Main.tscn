@@ -35,7 +35,6 @@ script = ExtResource("8_03owx")
 
 [node name="Squid2" parent="Enemies" unique_id=1405901256 instance=ExtResource("16_fpfj3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.0269332)
-visible = false
 
 [node name="Spider1" parent="Enemies" unique_id=1160817362 instance=ExtResource("10_20pc6")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3749244, -4.320915)

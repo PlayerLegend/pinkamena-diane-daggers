@@ -54,3 +54,10 @@ autoconnect/enabled=true
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+
+[shader_globals]
+
+boid_time={
+"type": "float",
+"value": 0.0
+}

@@ -1,7 +1,7 @@
 [gd_resource type="ShaderMaterial" format=3 uid="uid://canm5gpxeigyy"]
 
 [ext_resource type="Shader" uid="uid://bchfflaswajjd" path="res://Skulls/wobble.gdshader" id="1_jdsvf"]
-[ext_resource type="Texture2D" uid="uid://dshhd30jrtdty" path="res://Blend/Skull2/material.png" id="2_x1qcp"]
+[ext_resource type="Texture2D" uid="uid://dshhd30jrtdty" path="res://Skulls/Skull2/material.png" id="2_x1qcp"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_64ecx"]
 frequency = 0.1281

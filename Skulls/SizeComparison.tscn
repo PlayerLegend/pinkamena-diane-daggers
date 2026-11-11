@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://bq4uusbrauycg"]
+
+[ext_resource type="ArrayMesh" uid="uid://mor87fxp7iva" path="res://Skulls/Skull1/skull1.obj" id="1_3wvnp"]
+[ext_resource type="ArrayMesh" uid="uid://cajnvf7obxamg" path="res://Skulls/Skull2/skull2.obj" id="2_wxnef"]
+[ext_resource type="ArrayMesh" uid="uid://c1dly1rpqymky" path="res://Skulls/Skull3/skull3.obj" id="3_et354"]
+[ext_resource type="ArrayMesh" uid="uid://dhes86r8x8h2f" path="res://Skulls/Skull4/skull4.obj" id="4_4iek2"]
+
+[node name="SizeComparison" type="Node3D" unique_id=50805627]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=129117552]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.0686955, 0, 0)
+mesh = ExtResource("1_3wvnp")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=1291961027]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.767348, 0, 0)
+mesh = ExtResource("2_wxnef")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="." unique_id=1129651902]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.1895142, 0, 0)
+mesh = ExtResource("3_et354")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="." unique_id=1385302205]
+mesh = ExtResource("4_4iek2")
