@@ -16,6 +16,7 @@
 [ext_resource type="PackedScene" uid="uid://clbho01tu8i5" path="res://Arena/Arena.tscn" id="12_5vvyt"]
 [ext_resource type="PackedScene" uid="uid://emivj6qf322m" path="res://Squids/Squid1/Squid1.tscn" id="13_c6i3y"]
 [ext_resource type="PackedScene" uid="uid://cnvu48qqm5pwm" path="res://Squids/Squid2/squid2.tscn" id="16_fpfj3"]
+[ext_resource type="ArrayMesh" uid="uid://dayvctvq68uxx" path="res://Blend/Arena/Tile.obj" id="17_sc1dx"]
 
 [node name="Main" type="Node" unique_id=1203969749 node_paths=PackedStringArray("multiplayer_handler")]
 script = ExtResource("1_glv2v")
@@ -46,6 +47,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.0269332)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3749244, -4.320915)
 
 [node name="Arena" parent="." unique_id=1057556895 instance=ExtResource("12_5vvyt")]
+tile_mesh = ExtResource("17_sc1dx")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1252718192]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.139495, 0)
