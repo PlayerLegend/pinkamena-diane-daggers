@@ -23,6 +23,8 @@ var explosion_knock: Vector3 # needs to be applied during _rollback_tick
 
 var shot_power: int
 
+var look_direction: Vector3
+
 func _helper_jump():
     var have_speed = velocity.dot(up_direction)
     
@@ -169,6 +171,8 @@ func _helper_phys_rollback_else(delta: float):
         is_on_floor = true
     else:
         is_on_floor = false
+        
+    look_direction = -camera.global_basis.z
 
 func _rollback_tick(delta: float, _tick, _is_fresh):
     

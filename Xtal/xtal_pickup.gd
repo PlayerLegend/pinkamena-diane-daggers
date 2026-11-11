@@ -21,6 +21,13 @@ func get_height(up: Vector3 = Vector3.UP, max_distance: float = 1000.0, collisio
 
     return (from - hit.position).dot(up.normalized())
     
+func _helper_find_spider() -> Spider:
+    for spider in get_tree().get_nodes_in_group("spiders"):
+        assert(spider is Spider)
+        return spider
+        
+    return null
+        
 func _helper_find_player() -> PlayerController:
     var dist = INF
     var result = null
@@ -32,19 +39,11 @@ func _helper_find_player() -> PlayerController:
             dist = player_dist
     return result
 
-func _rollback_tick(delta: float, _tick, _is_fresh):
+func _helper_fly_to_spider(delta: float, spider: Spider):
+    var wishdir = (spider.global_position - global_position).normalized()
+    velocity = wishdir
     
-    #delta *= NetworkTime.physics_factor
-    
-    if not is_multiplayer_authority() and _is_fresh:
-        return
-        
-    print("xtal position ", position)
-        
-    time += delta
-
-    var player := _helper_find_player()
-    rotation = rotation.lerp(Vector3(0,0,0), delta)
+func _helper_fly_to_player(delta: float, player: PlayerController):
     if not player:
         return
         
@@ -66,5 +65,25 @@ func _rollback_tick(delta: float, _tick, _is_fresh):
     
     velocity += delta_v
     
+
+
+func _rollback_tick(delta: float, _tick, _is_fresh):
+    
+    #delta *= NetworkTime.physics_factor
+    
+    if not is_multiplayer_authority() and _is_fresh:
+        return
+        
+    print("xtal position ", position)
+        
+    time += delta
+
+    rotation = rotation.lerp(Vector3(0,0,0), delta)
+    var spider := _helper_find_spider()
+    if spider:
+        _helper_fly_to_spider(delta, spider)
+    else:
+        var player := _helper_find_player()
+        _helper_fly_to_player(delta, player)
     position += velocity * delta
         

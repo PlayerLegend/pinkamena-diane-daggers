@@ -3,7 +3,7 @@ extends SlideBody3D
 class_name Squid
 
 var fly_direction: Vector3
-var arena_radius: float = 11 * 3
+@export var arena_radius: float = 11 * 3
 
 @export var rollback_synchronizer: RollbackSynchronizer
 
@@ -78,7 +78,9 @@ func attack():
     did_spawn_index = 0
     
 func _rollback_tick(delta: float, _tick, _is_fresh):
-    
+    if not visible:
+        return
+        
     #delta *= NetworkTime.physics_factor
     
     if not is_multiplayer_authority() and _is_fresh:
