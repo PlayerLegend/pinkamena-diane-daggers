@@ -5,6 +5,12 @@ extends Node
 @export var guide_map_fps: GUIDEMappingContext
 @onready var escape_menu: ColorRect = $EscapeMenu
 
+@export var boid_types: Array[BoidType]
+
+func _helper_register_boid_types():
+    for type in boid_types:
+        BoidManager.register_type(type)
+        
 func _on_save_config() -> void:
     Config.save()
 
