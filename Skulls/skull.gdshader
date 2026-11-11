@@ -13,8 +13,9 @@ float get_angle() {
     float t = sin(TIME * (6.28318530718 / period));
     return radians(mix(min_rotation, max_rotation, t * 0.5 + 0.5));
 }
-
+varying flat float flash_end;
 void vertex() {
+    flash_end = INSTANCE_CUSTOM.x;
     if (COLOR.r > 0.5) {
         float a = get_angle();       // hoisted per-frame by compiler
         float s = sin(a);
@@ -36,8 +37,9 @@ void vertex() {
 }
 
 void fragment() {
-    float flash_end = INSTANCE_CUSTOM.x;
     float active = step(boid_time, flash_end) * step(0.001, flash_end);
 
     ALBEDO = texture(albedo_texture, UV).rgb;
+    if (active > 0.5)
+        EMISSION = ALBEDO;
 }
