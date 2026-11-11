@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://dyq3ux7pxsfai"]
+
+[ext_resource type="ArrayMesh" uid="uid://dayvctvq68uxx" path="res://Blend/Arena/Tile.obj" id="1_c8hso"]
+[ext_resource type="Texture2D" uid="uid://bn7v82bt5bkf6" path="res://Splatters/splatter2.png" id="2_g686m"]
+
+[node name="VisualTest" type="Node3D" unique_id=685191294]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=259904056]
+mesh = ExtResource("1_c8hso")
+
+[node name="Decal" type="Decal" parent="." unique_id=400666121]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.47969842, 0)
+texture_albedo = ExtResource("2_g686m")
