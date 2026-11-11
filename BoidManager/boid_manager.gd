@@ -27,9 +27,16 @@ extends Node3D
 ## time is available as the global shader uniform `flash_effect_time_now`. A shader compares the
 ## two, e.g. `step(flash_effect_time_now, INSTANCE_CUSTOM.x)` is 1.0 while the flash is active.
 
-## Afterimage scene
-
-var afterimage_scene = preload("res://Skulls/SkullAfterimage.tscn")
+## Emitted when a boid is removed via remove_boid(). All values describe the boid
+## as it was just before removal. `mesh` is the type's rendered mesh.
+signal boid_removed(
+    type: BoidType,
+    mesh: Mesh,
+    position: Vector3,
+    velocity: Vector3,
+    forward: Vector3,
+    health: int,
+)
 
 ## Floats per MultiMesh instance: 12 for the 3D transform + 4 for custom data.
 const FLOATS_PER_INSTANCE := 12 + 4
@@ -335,20 +342,6 @@ func set_boid_flash(index: int, duration: float) -> bool:
     _flash_end[index] = _now() + maxf(duration, 0.0)
     return true
 
-func spawn_afterimage(index: int) -> SkullAfterimage:
-    var t := _type_of_slot(index)
-    if t == -1:
-        return null
-
-    var afterimage: SkullAfterimage = afterimage_scene.instantiate()
-    get_tree().current_scene.add_child(afterimage)
-
-    afterimage.global_transform = get_boid_transform(index)
-
-    afterimage.set_mesh_1(_multimeshes[t].mesh)
-
-    return afterimage
-
 ## Removes a live boid. Returns false if the index is not a live boid.
 ##
 ## NOTE: indices are slots, and removal swaps the LAST live boid of the same type into
@@ -363,6 +356,14 @@ func remove_boid(index: int) -> bool:
     var base := _type_base[t]
     var last := base + _type_counts[t] - 1
     var buf: PackedFloat32Array = _buffers[t]
+
+    # Capture the removed boid's data before the swap overwrites it.
+    var removed_type := _types[t]
+    var removed_mesh := _multimeshes[t].mesh
+    var removed_pos := _pos[index]
+    var removed_vel := _vel[index]
+    var removed_fwd := _fwd[index]
+    var removed_health := _health[index]
 
     if index != last:
         _pos[index] = _pos[last]
@@ -385,8 +386,17 @@ func remove_boid(index: int) -> bool:
     mm.visible_instance_count = _type_counts[t]
     mm.buffer = buf
     _grid_dirty_gen += 1
-    return true
 
+    boid_removed.emit(
+        removed_type,
+        removed_mesh,
+        removed_pos,
+        removed_vel,
+        removed_fwd,
+        removed_health
+    )
+    return true
+    
 
 ## Returns the type index owning this slot if it holds a live boid, otherwise -1.
 func _type_of_slot(index: int) -> int:

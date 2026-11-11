@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://8l0xp31pvhy8"]
 
 [ext_resource type="Script" uid="uid://dng4vds1gax11" path="res://Weapons/Letters/letter_projectile.gd" id="1_d3flc"]
+[ext_resource type="PackedScene" uid="uid://br3ofaouirrt2" path="res://Splatters/Splatter.tscn" id="2_hckbp"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d3flc"]
 albedo_color = Color(1, 0.58377886, 0.7442891, 1)
@@ -10,11 +11,13 @@ emission = Color(0.91739255, 0.0006626642, 0.91446924, 1)
 [sub_resource type="SphereShape3D" id="SphereShape3D_d3flc"]
 
 [node name="LetterProjectile" type="AnimatableBody3D" unique_id=1164661472]
+top_level = true
 collision_layer = 16
 collision_mask = 8
 sync_to_physics = false
 script = ExtResource("1_d3flc")
 projectile_material = SubResource("StandardMaterial3D_d3flc")
+splatter_scene = ExtResource("2_hckbp")
 fly_speed = 40.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1463985040]

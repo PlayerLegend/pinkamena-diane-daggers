@@ -2,6 +2,7 @@ class_name LetterProjectile
 extends LineProjectile
 @onready var mesh_instance_3d: MeshInstance3D = $MeshInstance3D
 @export var projectile_material: Material
+@export var splatter_scene: PackedScene
 
 var mesh: Mesh:
     set(value):
@@ -28,12 +29,18 @@ func _fly_physics_active(_delta: float) -> void:
         return
         
     var health := BoidManager.get_boid_health(boid)
+    health -= 1
+    BoidManager.set_boid_health(boid, health)
     
-    BoidManager.set_boid_flash(boid, 1.0 / 20.0)
-    if health <= 1:
-        BoidManager.spawn_afterimage(boid)
+    
+    if health <= 0:
+        #var splatter = splatter_scene.instantiate()
+        #get_tree().current_scene.add_child(splatter)
+        #splatter.place(BoidManager.get_boid_position(boid))
+        #BoidManager.spawn_afterimage(boid)
         BoidManager.remove_boid(boid)
+        
     else:
-        BoidManager.set_boid_health(boid, health - 1)
+        BoidManager.set_boid_flash(boid, 1.0 / 20.0)
         
     queue_free()
