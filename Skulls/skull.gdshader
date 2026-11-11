@@ -6,14 +6,14 @@ uniform float period : hint_range(0.05, 1.0) = 0.25;
 uniform vec2 pivot_yz = vec2(0.2, -0.15);
 uniform sampler2D albedo_texture : source_color;
 
-global uniform float boid_time;
+global uniform float flash_effect_time_now;
+varying flat float flash_end;
 
 // Precomputed per-frame (uniform expressions — Godot hoists these once)
 float get_angle() {
     float t = sin(TIME * (6.28318530718 / period));
     return radians(mix(min_rotation, max_rotation, t * 0.5 + 0.5));
 }
-varying flat float flash_end;
 void vertex() {
     flash_end = INSTANCE_CUSTOM.x;
     if (COLOR.r > 0.5) {
@@ -37,7 +37,7 @@ void vertex() {
 }
 
 void fragment() {
-    float active = step(boid_time, flash_end) * step(0.001, flash_end);
+    float active = step(flash_effect_time_now, flash_end) * step(0.001, flash_end);
 
     ALBEDO = texture(albedo_texture, UV).rgb;
     if (active > 0.5)

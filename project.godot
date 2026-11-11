@@ -57,7 +57,7 @@ renderer/rendering_method.mobile="gl_compatibility"
 
 [shader_globals]
 
-boid_time={
+flash_effect_time_now={
 "type": "float",
 "value": 0.0
 }

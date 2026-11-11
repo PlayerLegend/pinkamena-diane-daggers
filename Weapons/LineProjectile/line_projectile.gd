@@ -57,7 +57,7 @@ func _fly_physics_active(_delta: float) -> void:
 func _fly_physics_inactive(_delta: float) -> void:
     pass
 
-func _fly_physics_hit(_other: Node3D) -> void:
+func _fly_physics_hit(_other: Node3D, _shape: CollisionShape3D) -> void:
     queue_free()
 
 func _physics_process(delta: float) -> void:
@@ -74,7 +74,12 @@ func _physics_process(delta: float) -> void:
         var result = space_state.intersect_ray(query)
         if result:
             _is_finished = true
-            _fly_physics_hit(result["collider"])
+            var body = result["collider"]
+            var shape_index = result["shape"]
+            var owner_id = body.shape_find_owner(shape_index)
+            var shape = body.shape_owner_get_owner(owner_id)
+
+            _fly_physics_hit(body, shape)
             _fly_physics_inactive(delta)
         else:
             _fly_physics_active(delta)

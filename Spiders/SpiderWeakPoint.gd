@@ -1,0 +1,2 @@
+class_name SpiderWeakPoint
+extends CollisionShape3D

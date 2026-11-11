@@ -24,8 +24,8 @@ extends Node3D
 ##
 ## Flash: set_boid_flash(index, duration) stores an absolute end time (seconds on the
 ## _now() clock) per boid. It reaches shaders as INSTANCE_CUSTOM.x, and the current
-## time is available as the global shader uniform `boid_time`. A shader compares the
-## two, e.g. `step(boid_time, INSTANCE_CUSTOM.x)` is 1.0 while the flash is active.
+## time is available as the global shader uniform `flash_effect_time_now`. A shader compares the
+## two, e.g. `step(flash_effect_time_now, INSTANCE_CUSTOM.x)` is 1.0 while the flash is active.
 
 ## Afterimage scene
 
@@ -34,7 +34,7 @@ var afterimage_scene = preload("res://Skulls/SkullAfterimage.tscn")
 ## Floats per MultiMesh instance: 12 for the 3D transform + 4 for custom data.
 const FLOATS_PER_INSTANCE := 12 + 4
 ## Name of the global shader uniform holding the current time (see _now()).
-const TIME_PARAM := &"boid_time"
+const TIME_PARAM := &"flash_effect_time_now"
 
 @export_group("Bounds")
 @export var bounds_center := Vector3.ZERO
@@ -69,6 +69,8 @@ var _grid_origin := Vector3.ZERO
 var _cell_start := PackedInt32Array()  # size cell_total + 1
 var _cell_items := PackedInt32Array()  # boid indices grouped by cell
 var _boid_cell := PackedInt32Array()
+var _grid_dirty_gen := 0
+var _grid_built_gen := 0
 
 # --- Positions sampled from the groups at the start of each tick ---
 var _group_positions := {}  # StringName -> PackedVector3Array (reused between ticks)
@@ -137,8 +139,6 @@ func get_boid_mesh(index: int) -> Mesh:
 ## Returns the indices of all live boids whose collision sphere touches the query sphere
 ## (distance between centers <= radius + the boid's collision_radius). If `type` is null,
 ## boids of every type are considered. Returns an empty array if none match.
-## Uses the spatial grid from the last physics tick, so boids spawned or moved
-## since then may be missed (and nothing is found before the first tick).
 ##
 ## Indices are slots; remove_boid() swaps the last boid into the freed slot, so when
 ## removing several results, iterate the array backwards (sort it first if needed).
@@ -151,6 +151,8 @@ func get_boids_in_area(center: Vector3, radius: float, type: BoidType = null) ->
         wanted = _types.find(type)
         if wanted == -1:
             return results
+
+    _ensure_grid_current()
 
     var reach_dist := radius + _max_collision_radius
     var max_cell := _dim - 1
@@ -166,7 +168,6 @@ func get_boids_in_area(center: Vector3, radius: float, type: BoidType = null) ->
                     var t := _boid_type[other]
                     if wanted != -1 and t != wanted:
                         continue
-                    # The grid can be a tick stale: skip slots removed since it was built
                     if other >= _type_base[t] + _type_counts[t]:
                         continue
                     var reach: float = radius + _types[t].collision_radius
@@ -178,8 +179,6 @@ func get_boids_in_area(center: Vector3, radius: float, type: BoidType = null) ->
 ## Casts a ray against the boids' collision spheres and returns the index of the closest
 ## boid hit, or -1 if nothing was hit. `direction` does not need to be normalized.
 ## If `type` is null, boids of every type are considered.
-##
-## Uses the spatial grid from the last physics tick (see get_boids_in_area()).
 ## A ray starting inside a boid's sphere counts as a hit on that boid.
 func raycast(start: Vector3, direction: Vector3, distance: float, type: BoidType = null) -> int:
     if _types.is_empty() or distance <= 0.0 or direction.is_zero_approx():
@@ -189,6 +188,8 @@ func raycast(start: Vector3, direction: Vector3, distance: float, type: BoidType
         wanted = _types.find(type)
         if wanted == -1:
             return -1
+
+    _ensure_grid_current()
 
     var dir := direction.normalized()
     var pad := _max_collision_radius
@@ -246,7 +247,7 @@ func raycast(start: Vector3, direction: Vector3, distance: float, type: BoidType
                         if wanted != -1 and t != wanted:
                             continue
                         if other >= _type_base[t] + _type_counts[t]:
-                            continue  # stale grid entry
+                            continue
                         var hit_t := _ray_sphere_distance(start, dir, _pos[other], _types[t].collision_radius, distance)
                         if hit_t >= 0.0 and hit_t < best_t:
                             best_t = hit_t
@@ -326,7 +327,7 @@ func set_boid_health(index: int, value: int) -> bool:
 
 ## Makes a boid flash for `duration` seconds from now. The absolute end time is stored
 ## per boid and passed to shaders as INSTANCE_CUSTOM.x (compare against the global
-## uniform `boid_time`). Calling it again restarts the flash. The value reaches the GPU
+## uniform `flash_effect_time_now`). Calling it again restarts the flash. The value reaches the GPU
 ## on the next physics tick. Returns false if the index is not a live boid.
 func set_boid_flash(index: int, duration: float) -> bool:
     if _type_of_slot(index) == -1:
@@ -383,6 +384,7 @@ func remove_boid(index: int) -> bool:
     var mm := _multimeshes[t]
     mm.visible_instance_count = _type_counts[t]
     mm.buffer = buf
+    _grid_dirty_gen += 1
     return true
 
 
@@ -395,6 +397,11 @@ func _type_of_slot(index: int) -> int:
         if index < base + _type_counts[t]:
             return t if index >= base else -1
     return -1
+
+
+func _ensure_grid_current() -> void:
+    if _grid_built_gen != _grid_dirty_gen:
+        _build_grid()
 
 
 func _spawn(t: int, xform: Transform3D, velocity: Vector3) -> int:
@@ -416,6 +423,7 @@ func _spawn(t: int, xform: Transform3D, velocity: Vector3) -> int:
         _fwd[i] = velocity.normalized()
     else:
         _fwd[i] = -xform.basis.z.normalized()
+    _grid_dirty_gen += 1
     return i
 
 
@@ -511,6 +519,7 @@ func _update_grid(neighbor_radius: float) -> void:
     _grid_origin = bounds_center - Vector3.ONE * bounds_radius
     _cell_start.resize(_cell_total + 1)
     _cell_start.fill(0)  # old contents no longer match the layout; queries see an empty grid
+    _grid_dirty_gen += 1
 
 
 ## Samples current positions of every Node3D in the group (once per tick per group).
@@ -574,6 +583,8 @@ func _build_grid() -> void:
             var cell := _boid_cell[i]
             _cell_start[cell] -= 1
             _cell_items[_cell_start[cell]] = i
+
+    _grid_built_gen = _grid_dirty_gen
 
 
 ## Pushes boids near each projectile away from it. Each type uses its own projectile
@@ -810,3 +821,6 @@ func _integrate(delta: float) -> void:
         var mm := _multimeshes[t]
         mm.visible_instance_count = count
         mm.buffer = buf
+
+    # Positions changed, so the grid no longer matches _pos[] for queries.
+    _grid_dirty_gen += 1

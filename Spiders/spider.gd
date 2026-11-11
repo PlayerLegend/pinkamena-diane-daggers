@@ -3,7 +3,12 @@ extends SlideBody3D
 
 @export var health: int = 25
 @export var arena_radius: float = 11 * 3
+@export var weak_point: StaticBody3D
+@export var visual_mesh: SpiderMesh
 var dead_time: float
+
+func take_damage(amount: int):
+    visual_mesh.flash()
 
 func _ready():
     sync_to_physics = false
@@ -57,7 +62,6 @@ func _rollback_tick(delta: float, _tick, _is_fresh):
     if player:
         var avoid_dir := _helper_get_avoid_dir(player)
         goal_position += avoid_dir * maxspeed
-        print("Avoid dir ", avoid_dir)
         var target_basis := global_transform.looking_at(player.position, Vector3.UP).basis
         global_transform.basis = global_transform.basis.slerp(target_basis, delta)
     velocity = goal_position - position
