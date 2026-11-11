@@ -1,25 +1,26 @@
 [gd_resource type="Resource" script_class="BoidType" format=3 uid="uid://begmqtybc0sut"]
 
-[ext_resource type="Shader" uid="uid://bchfflaswajjd" path="res://Skulls/wobble.gdshader" id="1_fnw7u"]
+[ext_resource type="Shader" uid="uid://cvu6m5rru4v7p" path="res://Skulls/skull.gdshader" id="1_s0quj"]
 [ext_resource type="ArrayMesh" uid="uid://cajnvf7obxamg" path="res://Skulls/Skull2/skull2.obj" id="1_tce42"]
 [ext_resource type="Script" uid="uid://ccb31lioy8b6j" path="res://BoidManager/boid_type.gd" id="2_64ecx"]
 [ext_resource type="Texture2D" uid="uid://dshhd30jrtdty" path="res://Skulls/Skull2/material.png" id="2_ifj2w"]
-[ext_resource type="NoiseTexture3D" uid="uid://b4fpjd8rdsmud" path="res://wobble_noise_3d.tres" id="3_dwgr0"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_esx3d"]
 render_priority = 0
-shader = ExtResource("1_fnw7u")
-shader_parameter/displacement_distance = 0.2
-shader_parameter/noise_scale = 50.0
-shader_parameter/noise_texture = ExtResource("3_dwgr0")
+shader = ExtResource("1_s0quj")
+shader_parameter/min_rotation = -15.0
+shader_parameter/max_rotation = -50.0
+shader_parameter/period = 0.25
+shader_parameter/pivot_yz = Vector2(0.2, -0.15)
 shader_parameter/albedo_texture = ExtResource("2_ifj2w")
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_kipis"]
 render_priority = 0
-shader = ExtResource("1_fnw7u")
-shader_parameter/displacement_distance = -0.1999999145
-shader_parameter/noise_scale = 50.0
-shader_parameter/noise_texture = ExtResource("3_dwgr0")
+shader = ExtResource("1_s0quj")
+shader_parameter/min_rotation = -15.0
+shader_parameter/max_rotation = -50.0
+shader_parameter/period = 0.25
+shader_parameter/pivot_yz = Vector2(0.2, -0.15)
 shader_parameter/albedo_texture = ExtResource("2_ifj2w")
 
 [resource]
