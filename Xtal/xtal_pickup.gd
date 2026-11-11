@@ -22,12 +22,18 @@ func get_height(up: Vector3 = Vector3.UP, max_distance: float = 1000.0, collisio
     return (from - hit.position).dot(up.normalized())
     
 func _helper_find_spider() -> Spider:
+    var dist = INF
+    var result = null
     for spider in get_tree().get_nodes_in_group("spiders"):
-        assert(spider is Spider)
-        return spider
-        
-    return null
-        
+        if spider is Spider:
+            if spider.health <= 0:
+                continue
+            var spider_dist = (spider.global_position - global_position).length_squared()
+            if spider_dist < dist:
+                result = spider
+                dist = spider_dist
+    return result
+
 func _helper_find_player() -> PlayerController:
     var dist = INF
     var result = null

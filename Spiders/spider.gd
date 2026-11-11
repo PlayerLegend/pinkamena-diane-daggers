@@ -5,10 +5,16 @@ extends SlideBody3D
 @export var arena_radius: float = 11 * 3
 @export var weak_point: StaticBody3D
 @export var visual_mesh: SpiderMesh
+
+@export var animation_tree: AnimationTree
 var dead_time: float
 
 func take_damage(amount: int):
     visual_mesh.flash()
+    health -= 1
+    if health <= 0:
+        var playback: AnimationNodeStateMachinePlayback = animation_tree.get("parameters/playback")
+        playback.travel("die")
 
 func _ready():
     sync_to_physics = false
@@ -51,6 +57,12 @@ func _rollback_tick(delta: float, _tick, _is_fresh):
     #delta *= NetworkTime.physics_factor
     
     if not is_multiplayer_authority() and _is_fresh:
+        return
+    
+    if health <= 0:
+        dead_time += delta
+        if dead_time > 5.0:
+            queue_free()
         return
     
     var goal_position = position.normalized() * arena_radius
