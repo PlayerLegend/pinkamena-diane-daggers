@@ -15,13 +15,13 @@ func save():
     config_file.save(config_path)
     
 func get_mouse_scale():
-    return config_file.get_value("Controls", "mouse_scale")
+    return config_file.get_value("Controls", "mouse_scale", 0)
     
 func get_mouse_area() :
-    return config_file.get_value("Controls", "mouse_area")
+    return config_file.get_value("Controls", "mouse_area", 0)
 
 func get_mouse_degrees():
-    return config_file.get_value("Controls", "mouse_degrees")
+    return config_file.get_value("Controls", "mouse_degrees", 0)
     
 func _ready():
     print("Autoload config")
