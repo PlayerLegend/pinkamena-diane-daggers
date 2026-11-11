@@ -21,6 +21,16 @@ extends Node3D
 ##
 ## Materials: BoidType.material_overrides is an Array[Material]; index i is applied to
 ## mesh surface i (null or missing entries keep the mesh's own material).
+##
+## Flash: set_boid_flash(index, duration) stores an absolute end time (seconds on the
+## _now() clock) per boid. It reaches shaders as INSTANCE_CUSTOM.x, and the current
+## time is available as the global shader uniform `boid_time`. A shader compares the
+## two, e.g. `step(boid_time, INSTANCE_CUSTOM.x)` is 1.0 while the flash is active.
+
+## Floats per MultiMesh instance: 12 for the 3D transform + 4 for custom data.
+const FLOATS_PER_INSTANCE := 12 + 4
+## Name of the global shader uniform holding the current time (see _now()).
+const TIME_PARAM := &"boid_time"
 
 @export_group("Bounds")
 @export var bounds_center := Vector3.ZERO
@@ -44,6 +54,7 @@ var _steer := PackedVector3Array()
 var _proj_push := PackedVector3Array()
 var _boid_type := PackedInt32Array()
 var _health := PackedInt32Array()
+var _flash_end := PackedFloat32Array()  # absolute time (seconds, see _now()) when the flash ends; 0 = none
 
 # --- Spatial hash grid (counting sort, no per-frame allocation) ---
 var _dim := 1
@@ -65,6 +76,19 @@ var _target_lists: Array = []  # PackedVector3Array per type
 func _ready() -> void:
     top_level = true
     global_transform = Transform3D.IDENTITY
+    # Global uniform so every boid shader reads the same clock the flash times are compared against
+    if not RenderingServer.global_shader_parameter_get_list().has(TIME_PARAM):
+        RenderingServer.global_shader_parameter_add(
+            TIME_PARAM, RenderingServer.GLOBAL_VAR_TYPE_FLOAT, _now())
+
+
+func _process(_delta: float) -> void:
+    RenderingServer.global_shader_parameter_set(TIME_PARAM, _now())
+
+
+## Seconds since engine start. Flash times are absolute values on this clock.
+func _now() -> float:
+    return Time.get_ticks_msec() * 0.001
 
 
 ## Adds a boid of the given type at the transform's position, moving at the given velocity.
@@ -276,6 +300,17 @@ func set_boid_health(index: int, value: int) -> bool:
     return true
 
 
+## Makes a boid flash for `duration` seconds from now. The absolute end time is stored
+## per boid and passed to shaders as INSTANCE_CUSTOM.x (compare against the global
+## uniform `boid_time`). Calling it again restarts the flash. The value reaches the GPU
+## on the next physics tick. Returns false if the index is not a live boid.
+func set_boid_flash(index: int, duration: float) -> bool:
+    if _type_of_slot(index) == -1:
+        return false
+    _flash_end[index] = _now() + maxf(duration, 0.0)
+    return true
+
+
 ## Removes a live boid. Returns false if the index is not a live boid.
 ##
 ## NOTE: indices are slots, and removal swaps the LAST live boid of the same type into
@@ -298,11 +333,12 @@ func remove_boid(index: int) -> bool:
         _steer[index] = _steer[last]
         _proj_push[index] = _proj_push[last]
         _health[index] = _health[last]
+        _flash_end[index] = _flash_end[last]
         _boid_type[index] = _boid_type[last]
-        # Move the render transform too so there's no one-frame glitch
-        var dst := (index - base) * 12
-        var src := (last - base) * 12
-        for k in 12:
+        # Move the render data too (transform + custom data) so there's no one-frame glitch
+        var dst := (index - base) * FLOATS_PER_INSTANCE
+        var src := (last - base) * FLOATS_PER_INSTANCE
+        for k in FLOATS_PER_INSTANCE:
             buf[dst + k] = buf[src + k]
 
     _type_counts[t] -= 1
@@ -338,6 +374,7 @@ func _spawn(t: int, xform: Transform3D, velocity: Vector3) -> int:
     _steer[i] = Vector3.ZERO
     _proj_push[i] = Vector3.ZERO
     _health[i] = bt.max_health
+    _flash_end[i] = 0.0
     if velocity.length_squared() > 0.0001:
         _fwd[i] = velocity.normalized()
     else:
@@ -375,7 +412,7 @@ func _register_type(bt: BoidType) -> int:
     var mm := MultiMesh.new()
     mm.transform_format = MultiMesh.TRANSFORM_3D
     mm.use_colors = false
-    mm.use_custom_data = false
+    mm.use_custom_data = true  # INSTANCE_CUSTOM.x = flash end time
 
     var mesh: Mesh = bt.mesh
     if mesh == null:
@@ -401,7 +438,7 @@ func _register_type(bt: BoidType) -> int:
     _multimeshes.append(mm)
 
     var buf := PackedFloat32Array()
-    buf.resize(bt.max_boids * 12)
+    buf.resize(bt.max_boids * FLOATS_PER_INSTANCE)
     _buffers.append(buf)
 
     _proj_lists.append(PackedVector3Array())
@@ -418,6 +455,7 @@ func _resize_boid_arrays() -> void:
     _proj_push.resize(_capacity)
     _boid_type.resize(_capacity)
     _health.resize(_capacity)
+    _flash_end.resize(_capacity)
     _cell_items.resize(_capacity)
     _boid_cell.resize(_capacity)
 
@@ -709,8 +747,9 @@ func _integrate(delta: float) -> void:
             var x := up.cross(z).normalized()
             var y := z.cross(x)
 
-            # MultiMesh TRANSFORM_3D layout: 3 rows of (basis column x, y, z, origin)
-            var o := (i - base) * 12
+            # MultiMesh TRANSFORM_3D layout: 3 rows of (basis column x, y, z, origin),
+            # followed by 4 floats of custom data (use_custom_data = true)
+            var o := (i - base) * FLOATS_PER_INSTANCE
             buf[o] = x.x
             buf[o + 1] = y.x
             buf[o + 2] = z.x
@@ -723,6 +762,12 @@ func _integrate(delta: float) -> void:
             buf[o + 9] = y.z
             buf[o + 10] = z.z
             buf[o + 11] = boid_pos.z
+
+            # Custom data (INSTANCE_CUSTOM): x = flash end time (absolute, see _now())
+            buf[o + 12] = _flash_end[i]
+            buf[o + 13] = 0.0
+            buf[o + 14] = 0.0
+            buf[o + 15] = 0.0
 
         _buffers[t] = buf
         var mm := _multimeshes[t]
