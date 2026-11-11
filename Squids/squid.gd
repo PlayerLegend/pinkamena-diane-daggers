@@ -85,7 +85,12 @@ func _rollback_tick(delta: float, _tick, _is_fresh):
     
     if not is_multiplayer_authority() and _is_fresh:
         return
-        
+    
+    if xtal_count <= 0:
+        position.y -= delta
+        collision_layer = 0
+        return
+    
     attack_idle(delta)
     if attack_cooldown < 0:
         attack()
@@ -95,16 +100,14 @@ func _rollback_tick(delta: float, _tick, _is_fresh):
     
     velocity = fly_direction * 0.1
     
-    if xtal_count <= 0:
-        position.y -= delta
-        collision_layer = 0
-    
     move_and_slide(delta)
 
 func _process(delta: float):
     if xtal_count <= 0:
         dead_time += delta
         rotation.y += delta * dead_time * 5 + delta / 0.314
+        if dead_time >= 8.0:
+            queue_free()
     else:
         rotation.y += delta / 3.14
    
