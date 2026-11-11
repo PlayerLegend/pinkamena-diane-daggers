@@ -1,0 +1,13 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://ccxd18s7i7rc6"]
+
+[ext_resource type="Shader" uid="uid://cvu6m5rru4v7p" path="res://BoidManager/skull_3.gdshader" id="1_sp2sk"]
+[ext_resource type="Texture2D" uid="uid://cmf5pt8sqo6hi" path="res://Blend/Skull3/skull3.png" id="2_h6lg6"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_sp2sk")
+shader_parameter/min_rotation = -22.766992531432493
+shader_parameter/max_rotation = -66.6869946176325
+shader_parameter/period = 0.20400000806006
+shader_parameter/pivot_yz = Vector2(0.08, -0.05)
+shader_parameter/albedo_texture = ExtResource("2_h6lg6")

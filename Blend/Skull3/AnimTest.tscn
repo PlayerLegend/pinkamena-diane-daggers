@@ -1,18 +1,10 @@
 [gd_scene format=3 uid="uid://dr54xupec8vsq"]
 
 [ext_resource type="ArrayMesh" uid="uid://c1dly1rpqymky" path="res://Blend/Skull3/skull3.obj" id="1_sqc5g"]
-[ext_resource type="Shader" uid="uid://cvu6m5rru4v7p" path="res://BoidManager/skull_3.gdshader" id="2_6jps6"]
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_ca4ma"]
-render_priority = 0
-shader = ExtResource("2_6jps6")
-shader_parameter/min_rotation = 0.0
-shader_parameter/max_rotation = -45.0
-shader_parameter/period = 2.0
-shader_parameter/pivot_yz = Vector2(0, 0)
+[ext_resource type="Material" uid="uid://ccxd18s7i7rc6" path="res://Skulls/Skull3/mat_skull_3.tres" id="2_sqc5g"]
 
 [node name="AnimTest" type="Node3D" unique_id=764005775]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=942603210]
 mesh = ExtResource("1_sqc5g")
-surface_material_override/0 = SubResource("ShaderMaterial_ca4ma")
+surface_material_override/0 = ExtResource("2_sqc5g")

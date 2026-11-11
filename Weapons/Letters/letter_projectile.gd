@@ -14,3 +14,19 @@ func _fly_physics_hit(other: Node3D) -> void:
     if other is XtalTarget:
         other.take_damage(1)
     queue_free()
+
+func _fly_physics_active(_delta: float) -> void:
+    var boid := BoidManager.get_boid_in_area(position, 0.5)
+    if boid < 0:
+        return
+        
+    var health := BoidManager.get_boid_health(boid)
+    
+    if health <= 1:
+        BoidManager.remove_boid(boid)
+    else:
+        BoidManager.set_boid_health(boid, health - 1)
+        
+    queue_free()
+        
+    

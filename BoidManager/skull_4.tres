@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="BoidType" format=3 uid="uid://iad02ocldrpf"]
 
-[ext_resource type="Material" uid="uid://c1js1psy0s3tu" path="res://Blend/Skull4/mat_skull_4.tres" id="1_e6mrd"]
+[ext_resource type="Material" uid="uid://cw3pdabi4vnav" path="res://Skulls/Skull4/mat_skull_4.tres" id="1_e6mrd"]
 [ext_resource type="ArrayMesh" uid="uid://dhes86r8x8h2f" path="res://Blend/Skull4/skull4.obj" id="2_e6mrd"]
 [ext_resource type="Script" uid="uid://ccb31lioy8b6j" path="res://BoidManager/boid_type.gd" id="3_8rrh0"]
 
@@ -8,7 +8,7 @@
 script = ExtResource("3_8rrh0")
 type_name = &"skull4"
 mesh = ExtResource("2_e6mrd")
-material_override = ExtResource("1_e6mrd")
+material_overrides = Array[Material]([ExtResource("1_e6mrd"), null])
 max_speed = 30.0
 min_speed = 0.1
 max_force = 18.0

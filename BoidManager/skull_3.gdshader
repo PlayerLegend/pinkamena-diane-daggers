@@ -2,8 +2,10 @@ shader_type spatial;
 
 uniform float min_rotation : hint_range(-180.0, 180.0) = -15.0;
 uniform float max_rotation : hint_range(-180.0, 180.0) = -50.0;
-uniform float period : hint_range(0.1, 10.0) = 0.25;
+uniform float period : hint_range(0.05, 1.0) = 0.25;
 uniform vec2 pivot_yz = vec2(0.2, -0.15);
+uniform sampler2D albedo_texture : source_color;
+
 
 // Precomputed per-frame (uniform expressions — Godot hoists these once)
 float get_angle() {
@@ -31,11 +33,7 @@ void vertex() {
         NORMAL = vec3(NORMAL.x, NORMAL.y * c - NORMAL.z * s, NORMAL.y * s + NORMAL.z * c);
     }
 }
+
 void fragment() {
-    // COLOR in fragment() is the interpolated vertex color.
-    // If you painted the moving region red and the rest gray/white,
-    // this will show that. Use .rgb so the mask value isn't multiplied in.
-    ALBEDO    = COLOR.rgb;
-    ROUGHNESS = 0.5;
-    METALLIC  = 0.0;
+    ALBEDO = texture(albedo_texture, UV).rgb;
 }

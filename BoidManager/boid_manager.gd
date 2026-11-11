@@ -1,4 +1,3 @@
-class_name BoidManager
 extends Node3D
 ## Many flocks in one node. Boids are plain data (packed arrays), neighbors are found
 ## with one shared uniform spatial hash grid, and each BoidType is drawn through its

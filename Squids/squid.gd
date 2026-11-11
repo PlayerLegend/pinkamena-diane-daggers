@@ -2,8 +2,6 @@ extends SlideBody3D
 
 class_name Squid
 
-var boid_manager: BoidManager
-
 var fly_direction: Vector3
 var arena_radius: float = 11 * 3
 
@@ -45,7 +43,7 @@ func spawn_boid(boid_type: BoidType):
     var new_xform = spawn_output.global_transform
     var offs = Vector3(randf_range(-1,1), 5, randf_range(-1,1)).normalized()
     var new_vel = 3 * offs
-    boid_manager.add_boid(boid_type, new_xform, new_vel)
+    BoidManager.add_boid(boid_type, new_xform, new_vel)
     print("Added boid ", boid_type)
 
 func attack_idle(delta: float):

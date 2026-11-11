@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://trcyjel4jae8"
-path.s3tc="res://.godot/imported/pinkie cutie mark.png-7d8b2cec01f848bbc761d3603a1740e0.s3tc.ctex"
+uid="uid://cmf5pt8sqo6hi"
+path.s3tc="res://.godot/imported/skull3.png-9bc0bffcb67f9027f5cdda8382c6181c.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://Blend/PinkiePie/pinkie cutie mark.png"
-dest_files=["res://.godot/imported/pinkie cutie mark.png-7d8b2cec01f848bbc761d3603a1740e0.s3tc.ctex"]
+source_file="res://Blend/Skull3/skull3.png"
+dest_files=["res://.godot/imported/skull3.png-9bc0bffcb67f9027f5cdda8382c6181c.s3tc.ctex"]
 
 [params]
 

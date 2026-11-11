@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://cd47f7hw1kp5h"]
+
+[ext_resource type="PackedScene" uid="uid://b5gkindyf3e41" path="res://Spiders/Spider1/Spider1.tscn" id="1_x5meh"]
+
+[node name="AnimTest" type="Node3D" unique_id=313381609]
+
+[node name="Spider1" parent="." unique_id=1160817362 instance=ExtResource("1_x5meh")]
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=316313457]
+transform = Transform3D(0.952028, -0.070803106, 0.29770735, 0, 0.9728648, 0.23137437, -0.30601102, -0.22027487, 0.9261945, 0.37888247, 0.3117658, 0.9112053)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1541033641]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2702214, 0.7727839)

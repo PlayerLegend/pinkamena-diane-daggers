@@ -2,20 +2,24 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://473qq8ess8qw"
-path="res://.godot/imported/ice cream cone.double.png-e565da4fb538c60a30699dc2cb64b88b.ctex"
+uid="uid://dc3bc2ofwrb25"
+path.s3tc="res://.godot/imported/Spider1_pinkie cutie mark.png-e58605413ce444981a4210d590b2455b.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
+}
+generator_parameters={
+"md5": "f2d66d467f838fa0812714b32db5ed98"
 }
 
 [deps]
 
-source_file="res://ice cream cone.double.png"
-dest_files=["res://.godot/imported/ice cream cone.double.png-e565da4fb538c60a30699dc2cb64b88b.ctex"]
+source_file="res://Spiders/Spider1/Spider1_pinkie cutie mark.png"
+dest_files=["res://.godot/imported/Spider1_pinkie cutie mark.png-e58605413ce444981a4210d590b2455b.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -23,7 +27,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
@@ -37,4 +41,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

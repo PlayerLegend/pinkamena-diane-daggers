@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cqnabx4xtkmgh"
-path="res://.godot/imported/pinkie cutie mark.double.png-a12a511f7860860f89ce49875cf4ca41.ctex"
+uid="uid://c1cleisljeync"
+path="res://.godot/imported/5d8095f4a513996f050693b8a24bf686.jpg-adec5e4e537eaefae14f9c46d8ac5b92.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Blend/PinkiePie/pinkie cutie mark.double.png"
-dest_files=["res://.godot/imported/pinkie cutie mark.double.png-a12a511f7860860f89ce49875cf4ca41.ctex"]
+source_file="res://Blend/PinkiePie/textures/5d8095f4a513996f050693b8a24bf686.jpg"
+dest_files=["res://.godot/imported/5d8095f4a513996f050693b8a24bf686.jpg-adec5e4e537eaefae14f9c46d8ac5b92.ctex"]
 
 [params]
 

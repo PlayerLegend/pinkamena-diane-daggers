@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://crdskfpib4ue1"
-path="res://.godot/imported/horns.double.png-30d668973df8d0d7fd9976fd14ab6467.ctex"
+uid="uid://cc1ll1a54p44y"
+path="res://.godot/imported/images.jpg-fb85a2b33366db7d74e4ec1408b11a1e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://horns.double.png"
-dest_files=["res://.godot/imported/horns.double.png-30d668973df8d0d7fd9976fd14ab6467.ctex"]
+source_file="res://Blend/PinkiePie/textures/images.jpg"
+dest_files=["res://.godot/imported/images.jpg-fb85a2b33366db7d74e4ec1408b11a1e.ctex"]
 
 [params]
 

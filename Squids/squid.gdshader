@@ -13,7 +13,7 @@ void vertex() {
     float weight = clamp(COLOR.r, 0.0, 1.0);
 
     // Shared phase for both twist and radial scale
-    float phase = TIME * (TAU / time_period) + VERTEX.y * (TAU / height_period) + phase_offset;
+    float phase = TIME * (TAU / time_period) - VERTEX.y * (TAU / height_period) + phase_offset;
     float wave = sin(phase) * weight;
 
     // Twist angle
