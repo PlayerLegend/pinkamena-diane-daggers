@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://tgmwp568r7p6" path="res://Xtal/XtalPickup.tscn" id="2_lxrwu"]
 [ext_resource type="Script" uid="uid://ccb31lioy8b6j" path="res://BoidManager/boid_type.gd" id="2_sobty"]
 [ext_resource type="Resource" uid="uid://ck5s2ghgryskv" path="res://BoidManager/skull_1.tres" id="3_lxrwu"]
-[ext_resource type="Resource" uid="uid://iad02ocldrpf" path="res://BoidManager/skull_4.tres" id="5_ndf3c"]
+[ext_resource type="Resource" uid="uid://wn0bn3cywsmk" path="res://BoidManager/skull_3.tres" id="5_ndf3c"]
 [ext_resource type="Script" uid="uid://d350u8evihs1u" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="6_2jqbt"]
 [ext_resource type="Script" uid="uid://dour8fehaaugp" path="res://addons/netfox/tick-interpolator.gd" id="7_2ha80"]
 [ext_resource type="Material" uid="uid://c6rasamdiaqqi" path="res://Squids/Squid2/mat_squid_2.tres" id="7_ndf3c"]
