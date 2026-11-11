@@ -3,9 +3,14 @@
 [ext_resource type="Script" uid="uid://cxonmn3y2rg6u" path="res://main.gd" id="1_glv2v"]
 [ext_resource type="Resource" uid="uid://7m4a0rjn1046" path="res://PlayerController/mappings/fps.tres" id="2_lgr22"]
 [ext_resource type="PackedScene" uid="uid://b5q43yj7pgvd5" path="res://Multiplayer/Multiplayer.tscn" id="2_uu6xs"]
+[ext_resource type="Script" uid="uid://ccb31lioy8b6j" path="res://BoidManager/boid_type.gd" id="3_fpfj3"]
 [ext_resource type="Script" uid="uid://blxd2e2temnsn" path="res://PlayerSpawner/player_spawner.gd" id="4_cm0pq"]
+[ext_resource type="Resource" uid="uid://ck5s2ghgryskv" path="res://BoidManager/skull_1.tres" id="4_sc1dx"]
 [ext_resource type="PackedScene" uid="uid://punkfa765yoh" path="res://Menu/EscapeMenu/EscapeMenu.tscn" id="5_3dxm6"]
+[ext_resource type="Resource" uid="uid://begmqtybc0sut" path="res://BoidManager/skull_2.tres" id="5_kjvhd"]
+[ext_resource type="Resource" uid="uid://wn0bn3cywsmk" path="res://BoidManager/skull_3.tres" id="6_5tuhn"]
 [ext_resource type="PackedScene" uid="uid://cve8ibikysj1w" path="res://Menu/MainMenu/MainMenu.tscn" id="6_lgr22"]
+[ext_resource type="Resource" uid="uid://iad02ocldrpf" path="res://BoidManager/skull_4.tres" id="7_2gh4u"]
 [ext_resource type="Script" uid="uid://okas2ady2mej" path="res://enemies.gd" id="8_03owx"]
 [ext_resource type="PackedScene" uid="uid://b5gkindyf3e41" path="res://Spiders/Spider1/Spider1.tscn" id="10_20pc6"]
 [ext_resource type="PackedScene" uid="uid://clbho01tu8i5" path="res://Arena/Arena.tscn" id="12_5vvyt"]
@@ -16,6 +21,7 @@
 script = ExtResource("1_glv2v")
 multiplayer_handler = NodePath("MultiplayerHandler")
 guide_map_fps = ExtResource("2_lgr22")
+boid_types = Array[ExtResource("3_fpfj3")]([ExtResource("4_sc1dx"), ExtResource("5_kjvhd"), ExtResource("6_5tuhn"), ExtResource("7_2gh4u")])
 
 [node name="MultiplayerHandler" parent="." unique_id=1652064301 instance=ExtResource("2_uu6xs")]
 
