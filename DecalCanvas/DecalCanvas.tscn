@@ -10,14 +10,15 @@
 [ext_resource type="Texture2D" uid="uid://bk44mkyh0ikhb" path="res://Splatters/splatter6.png" id="7_wx8ny"]
 [ext_resource type="Texture2D" uid="uid://cuhyg8o14ayw3" path="res://Splatters/splatter7.png" id="8_y4qrc"]
 [ext_resource type="Texture2D" uid="uid://dt7xhj3sha85e" path="res://Splatters/splatter8.png" id="9_a6g3g"]
+[ext_resource type="Shader" uid="uid://pa58xa2mx3ix" path="res://DecalCanvas/DecalCanvas.gdshader" id="10_x86id"]
 
-[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_kjvhd"]
-blend_mode = 4
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_a6g3g"]
+shader = ExtResource("10_x86id")
 
 [node name="DecalCanvas" type="Node3D" unique_id=1855920060]
 script = ExtResource("1_kda76")
 splatter_choices = Array[CompressedTexture2D]([ExtResource("2_lh2qh"), ExtResource("3_a6g3g"), ExtResource("4_x86id"), ExtResource("5_01bub"), ExtResource("6_a3yiw"), ExtResource("7_wx8ny"), ExtResource("8_y4qrc"), ExtResource("9_a6g3g")])
-splat_material = SubResource("CanvasItemMaterial_kjvhd")
+splat_material = SubResource("ShaderMaterial_a6g3g")
 
 [node name="SubViewport" type="SubViewport" parent="." unique_id=601797226]
 size = Vector2i(2048, 2048)

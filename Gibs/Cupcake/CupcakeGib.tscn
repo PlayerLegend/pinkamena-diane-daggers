@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://cp3pewe063a34"]
+
+[ext_resource type="ArrayMesh" uid="uid://vsrua5q0hmx5" path="res://Gibs/Cupcake/CupcakeGib.obj" id="1_p8osd"]
+[ext_resource type="Script" uid="uid://0iwprucxeeh6" path="res://Gibs/gib.gd" id="2_p8osd"]
+
+[node name="CupcakeGib" type="MeshInstance3D" unique_id=262280956]
+mesh = ExtResource("1_p8osd")
+script = ExtResource("2_p8osd")
+metadata/_custom_type_script = "uid://0iwprucxeeh6"

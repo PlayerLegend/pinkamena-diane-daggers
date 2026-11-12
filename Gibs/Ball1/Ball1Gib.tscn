@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://cpbdy64obvfj6"]
+
+[ext_resource type="ArrayMesh" uid="uid://c8vhfg0lged1b" path="res://Gibs/Ball1/Ball1.obj" id="1_v7scp"]
+[ext_resource type="Script" uid="uid://0iwprucxeeh6" path="res://Gibs/gib.gd" id="2_e7dhu"]
+
+[node name="Ball1Gib" type="MeshInstance3D" unique_id=1520401293]
+mesh = ExtResource("1_v7scp")
+script = ExtResource("2_e7dhu")
+metadata/_custom_type_script = "uid://0iwprucxeeh6"

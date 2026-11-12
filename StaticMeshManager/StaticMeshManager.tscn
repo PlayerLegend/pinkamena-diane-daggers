@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://byuu4u3gn4vmi"]
+
+[ext_resource type="Script" uid="uid://c2ceq5vxc3jj7" path="res://StaticMeshManager/static_mesh_manager.gd" id="1_3x5l6"]
+
+[node name="StaticMeshManager" type="Node3D" unique_id=1745606803]
+script = ExtResource("1_3x5l6")

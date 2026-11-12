@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://bh07fmuqqi32k"]
+
+[ext_resource type="Script" uid="uid://0iwprucxeeh6" path="res://Gibs/gib.gd" id="1_2rplq"]
+[ext_resource type="ArrayMesh" uid="uid://dq0mb3r8dtb0e" path="res://Gibs/Hat1/Hat1Gib.obj" id="1_o2oti"]
+
+[node name="Hat1Gib" type="MeshInstance3D" unique_id=2070804947]
+mesh = ExtResource("1_o2oti")
+script = ExtResource("1_2rplq")
+metadata/_custom_type_script = "uid://0iwprucxeeh6"

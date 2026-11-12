@@ -3,7 +3,6 @@ extends Node3D
 
 var afterimage_scene = preload("res://Skulls/SkullAfterimage.tscn")
 
-
 func _on_boid_removed(
     _type: BoidType,
     boid_mesh: Mesh,

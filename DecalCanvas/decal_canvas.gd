@@ -6,8 +6,10 @@ extends Node3D
 ## Approximate size of a splatter in world units.
 @export var splatter_world_size: float = 3.0
 @export var splatter_choices: Array[CompressedTexture2D]
+## How strongly the splatters glow. 0 disables emission.
+@export_range(0.0, 2.0, 0.01, "or_greater") var emission_strength: float = 1.0
 
-@export var splat_material: CanvasItemMaterial
+@export var splat_material: ShaderMaterial
 
 @onready var sub_viewport: SubViewport = $SubViewport
 @onready var decal: Decal = $Decal
@@ -15,15 +17,25 @@ extends Node3D
 func _ready() -> void:
     sub_viewport.size = Vector2i(texture_resolution, texture_resolution)
     sub_viewport.transparent_bg = true
-    # Clear once on the first render, then keep previous contents forever.
     sub_viewport.render_target_clear_mode = SubViewport.CLEAR_MODE_ONCE
     sub_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
-    #sub_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+    # 1. Default filter for everything drawn inside the viewport.
+    sub_viewport.canvas_item_default_texture_filter = \
+        Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST
+
+    # 2. Decal sampling of the viewport texture (global, see note below).
+    RenderingServer.decals_set_filter(RenderingServer.DECAL_FILTER_NEAREST)
 
     decal.size = Vector3.ONE * arena_radius * 2.0
-    decal.texture_albedo = sub_viewport.get_texture()
-    
-    BoidManager.boid_removed.connect(_on_boid_removed)
+    decal.emission_energy = emission_strength
+    _refresh_decal_textures()
+
+    #BoidManager.boid_removed.connect(_on_boid_removed)
+
+func _refresh_decal_textures() -> void:
+    var viewport_tex := sub_viewport.get_texture()
+    decal.texture_albedo = viewport_tex
+    decal.texture_emission = viewport_tex
 
 func add_splatter(world_position: Vector3, splatter_scale: float = 1.0) -> void:
     assert(!splatter_choices.is_empty())
@@ -44,6 +56,8 @@ func add_splatter(world_position: Vector3, splatter_scale: float = 1.0) -> void:
     var sprite := Sprite2D.new()
     sprite.material = splat_material
     sprite.texture = tex
+    # 3. Explicit per-sprite filter, so it doesn't depend on the parent default.
+    sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
     sprite.position = uv * texture_resolution
     sprite.rotation = randf() * TAU
     sprite.scale = Vector2.ONE * (world_size * pixels_per_unit / tex.get_width())
@@ -52,19 +66,21 @@ func add_splatter(world_position: Vector3, splatter_scale: float = 1.0) -> void:
     sub_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
     await RenderingServer.frame_post_draw
 
+    # Re-assign to force the decal to pick up the updated viewport contents.
     decal.texture_albedo = null
-    decal.texture_albedo = sub_viewport.get_texture()
+    decal.texture_emission = null
+    _refresh_decal_textures()
 
     sprite.queue_free()
 
 
-func _on_boid_removed(
-    type: BoidType,
-    _boid_mesh: Mesh,
-    pos: Vector3,
-    _velocity: Vector3,
-    _forward: Vector3,
-    health: int
-    ):
-        if health <= 0:
-            add_splatter(pos, type.collision_radius * 5.0)
+#func _on_boid_removed(
+    #type: BoidType,
+    #_boid_mesh: Mesh,
+    #pos: Vector3,
+    #_velocity: Vector3,
+    #_forward: Vector3,
+    #health: int
+    #):
+        #if health <= 0:
+            #add_splatter(pos, type.collision_radius * 5.0)
