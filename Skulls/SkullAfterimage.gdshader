@@ -5,7 +5,7 @@ void vertex() {
 }
 
 void fragment() {
-    EMISSION = ALBEDO;
+    EMISSION = vec3(0.0, 0.573, 0.859);
 	// Called for every pixel the material is visible on.
 }
 

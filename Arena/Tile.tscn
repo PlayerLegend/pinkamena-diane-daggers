@@ -1,9 +1,10 @@
 [gd_scene format=3 uid="uid://c8fgf4yvybdqv"]
 
 [ext_resource type="Script" uid="uid://cmgh8rdy0kwu7" path="res://Arena/tile.gd" id="1_twa58"]
-[ext_resource type="PackedScene" uid="uid://d4laukcw0hqqq" path="res://Blend/Arena/tile.tscn" id="2_twa58"]
+[ext_resource type="ArrayMesh" uid="uid://dayvctvq68uxx" path="res://Arena/Tile.obj" id="2_twa58"]
 
 [node name="Tile" type="Node3D" unique_id=191962793]
 script = ExtResource("1_twa58")
 
-[node name="Tile" parent="." unique_id=1002271019 instance=ExtResource("2_twa58")]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1783909233]
+mesh = ExtResource("2_twa58")

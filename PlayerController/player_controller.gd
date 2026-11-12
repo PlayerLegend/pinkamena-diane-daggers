@@ -2,12 +2,13 @@ extends SlideBody3D
 
 class_name PlayerController
 
-@export var walk_gravity = 15
+@export var walk_gravity = 20
 @export var walk_friction: float = 2.0
 @export var walk_speed: float = 8 #64 #16
 @export var walk_acceleration: float = 6.0
 @export var walk_stopspeed: float = 8
 @export var walk_jump_speed: float = 8
+@export var walk_air_control: float = 0.3
 @export var guide_action_look:GUIDEAction
 @export var body_light: OmniLight3D
 @export var camera_offset: float = 0.5
@@ -95,7 +96,7 @@ func _helper_apply_acceleration(wishdir: Vector3, delta: float, is_on_floor: boo
     var wishspeed = walk_speed
     
     if not is_on_floor:
-        wishspeed *= 0.5
+        wishspeed *= walk_air_control
 
     var add_speed_cap = wishspeed - have_speed
     
@@ -195,6 +196,9 @@ func set_mouse_scale(mouse_scale: float):
         return
     
     camera_controller.set_mouse_scale(mouse_scale)    
+
+func get_camera_global_transform():
+    return camera.global_transform
 
 func _ready():
     await get_tree().process_frame

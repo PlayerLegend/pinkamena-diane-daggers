@@ -7,6 +7,8 @@ extends Node3D
 @export var splatter_world_size: float = 3.0
 @export var splatter_choices: Array[CompressedTexture2D]
 
+@export var splat_material: CanvasItemMaterial
+
 @onready var sub_viewport: SubViewport = $SubViewport
 @onready var decal: Decal = $Decal
 
@@ -40,6 +42,7 @@ func add_splatter(world_position: Vector3, splatter_scale: float = 1.0) -> void:
     var world_size := splatter_world_size * splatter_scale * random_coefficient
 
     var sprite := Sprite2D.new()
+    sprite.material = splat_material
     sprite.texture = tex
     sprite.position = uv * texture_resolution
     sprite.rotation = randf() * TAU
@@ -56,7 +59,7 @@ func add_splatter(world_position: Vector3, splatter_scale: float = 1.0) -> void:
 
 
 func _on_boid_removed(
-    _type: BoidType,
+    type: BoidType,
     _boid_mesh: Mesh,
     pos: Vector3,
     _velocity: Vector3,
@@ -64,4 +67,4 @@ func _on_boid_removed(
     health: int
     ):
         if health <= 0:
-            add_splatter(pos)
+            add_splatter(pos, type.collision_radius * 5.0)

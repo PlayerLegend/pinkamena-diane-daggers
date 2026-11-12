@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://bp8u34bitp0w4"]
+
+[ext_resource type="Shader" uid="uid://bn42irgcwd7lh" path="res://Screen/Screen.gdshader" id="1_r18hd"]
+[ext_resource type="Script" uid="uid://cohh53u1r2fdj" path="res://Screen/screen.gd" id="2_uxyja"]
+[ext_resource type="Script" uid="uid://pmemwsnbxnue" path="res://Screen/fps_counter.gd" id="3_uxyja"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_uxyja"]
+viewport_path = NodePath("SubViewport")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qdswm"]
+resource_local_to_scene = true
+shader = ExtResource("1_r18hd")
+shader_parameter/screen_render = SubResource("ViewportTexture_uxyja")
+
+[node name="Screen" type="ColorRect" unique_id=1499899468]
+material = SubResource("ShaderMaterial_qdswm")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_uxyja")
+
+[node name="FPSCounter" type="Label" parent="." unique_id=400324891]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+script = ExtResource("3_uxyja")
+
+[node name="SubViewport" type="SubViewport" parent="." unique_id=1213617099]
+render_target_update_mode = 4
+
+[node name="Camera3D" type="Camera3D" parent="SubViewport" unique_id=21590830]

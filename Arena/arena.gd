@@ -1,8 +1,12 @@
 extends Node3D
 
 @export var tile_mesh: Mesh
+@export var tile_material: Material
 @export var spawn_radius = 11
 @export var tile_width = 3.0
+@export_flags_3d_physics var tile_collision_layer: int = 1
+@export_flags_3d_physics var tile_collision_mask: int = 1
+@export_flags_3d_render var tile_render_layer: int = 1
 
 var time: float = 0
 var tiles: Array[AnimatableBody3D] = []
@@ -11,6 +15,7 @@ var multimesh: MultiMesh
 
 func _ready():
     multimesh_instance = MultiMeshInstance3D.new()
+    multimesh_instance.material_override = tile_material
     multimesh = MultiMesh.new()
     multimesh.transform_format = MultiMesh.TRANSFORM_3D
     multimesh.mesh = tile_mesh
@@ -34,6 +39,8 @@ func _ready():
             
             var tile = AnimatableBody3D.new()
             tile.sync_to_physics = false
+            tile.collision_layer = tile_collision_layer
+            tile.collision_mask = tile_collision_mask
             
             var shape = BoxShape3D.new()
             shape.size = Vector3(tile_width, tile_width, tile_width)
@@ -50,6 +57,7 @@ func _ready():
             i += 1
     
     multimesh_instance.multimesh = multimesh
+    multimesh_instance.layers = tile_render_layer
     add_child(multimesh_instance)
 
 func _rollback_tick(delta: float, _tick, _is_fresh):

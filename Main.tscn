@@ -16,7 +16,22 @@
 [ext_resource type="PackedScene" uid="uid://clbho01tu8i5" path="res://Arena/Arena.tscn" id="12_5vvyt"]
 [ext_resource type="PackedScene" uid="uid://emivj6qf322m" path="res://Squids/Squid1/Squid1.tscn" id="13_c6i3y"]
 [ext_resource type="PackedScene" uid="uid://cnvu48qqm5pwm" path="res://Squids/Squid2/squid2.tscn" id="16_fpfj3"]
-[ext_resource type="ArrayMesh" uid="uid://dayvctvq68uxx" path="res://Blend/Arena/Tile.obj" id="17_sc1dx"]
+[ext_resource type="PackedScene" uid="uid://dxsgsfp420pha" path="res://DecalCanvas/DecalCanvas.tscn" id="17_sc1dx"]
+[ext_resource type="Script" uid="uid://cxxd4g8kyoy7q" path="res://afterimage_spawner.gd" id="18_kjvhd"]
+[ext_resource type="PackedScene" uid="uid://bp8u34bitp0w4" path="res://Screen/Screen.tscn" id="19_2gh4u"]
+[ext_resource type="Shader" uid="uid://bn42irgcwd7lh" path="res://Screen/Screen.gdshader" id="20_devvj"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_2gh4u"]
+viewport_path = NodePath("ScreenEffects")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_devvj"]
+resource_local_to_scene = true
+shader = ExtResource("20_devvj")
+shader_parameter/screen_render = SubResource("ViewportTexture_2gh4u")
+
+[sub_resource type="Environment" id="Environment_q8hc1"]
+ambient_light_source = 1
+reflected_light_source = 1
 
 [node name="Main" type="Node" unique_id=1203969749 node_paths=PackedStringArray("multiplayer_handler")]
 script = ExtResource("1_glv2v")
@@ -24,7 +39,8 @@ multiplayer_handler = NodePath("MultiplayerHandler")
 guide_map_fps = ExtResource("2_lgr22")
 boid_types = Array[ExtResource("3_fpfj3")]([ExtResource("4_sc1dx"), ExtResource("5_kjvhd"), ExtResource("6_5tuhn"), ExtResource("7_2gh4u")])
 
-[node name="MultiplayerHandler" parent="." unique_id=1652064301 instance=ExtResource("2_uu6xs")]
+[node name="MultiplayerHandler" parent="." unique_id=1652064301 node_paths=PackedStringArray("screen") instance=ExtResource("2_uu6xs")]
+screen = NodePath("../Screen")
 
 [node name="PlayerSpawner" type="Node3D" parent="." unique_id=1716587127]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 24, 0)
@@ -47,10 +63,21 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.0269332)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3749244, -4.320915)
 
 [node name="Arena" parent="." unique_id=1057556895 instance=ExtResource("12_5vvyt")]
-tile_mesh = ExtResource("17_sc1dx")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1252718192]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.139495, 0)
-omni_range = 40.888187
+omni_range = 29.8926
+
+[node name="DecalCanvas" parent="." unique_id=1855920060 instance=ExtResource("17_sc1dx")]
+
+[node name="AfterimageSpawner" type="Node3D" parent="." unique_id=184789913]
+script = ExtResource("18_kjvhd")
+
+[node name="Screen" parent="." unique_id=1531499629 instance=ExtResource("19_2gh4u")]
+material = SubResource("ShaderMaterial_devvj")
+render_height = 400
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=660186046]
+environment = SubResource("Environment_q8hc1")
 
 [connection signal="child_entered_tree" from="Enemies" to="Enemies" method="_on_child_entered_tree"]

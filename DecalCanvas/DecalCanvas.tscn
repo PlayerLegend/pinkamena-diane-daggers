@@ -1,10 +1,23 @@
 [gd_scene format=3 uid="uid://dxsgsfp420pha"]
 
 [ext_resource type="Script" uid="uid://e3fevnfu2t0d" path="res://DecalCanvas/decal_canvas.gd" id="1_kda76"]
+[ext_resource type="Texture2D" uid="uid://buk4n2b8w4ea5" path="res://Splatters/splatter1.png" id="2_lh2qh"]
 [ext_resource type="Texture2D" uid="uid://v7tkw0ujxf53" path="res://icon.svg" id="2_uunnb"]
+[ext_resource type="Texture2D" uid="uid://bn7v82bt5bkf6" path="res://Splatters/splatter2.png" id="3_a6g3g"]
+[ext_resource type="Texture2D" uid="uid://7bthygxr1byg" path="res://Splatters/splatter3.png" id="4_x86id"]
+[ext_resource type="Texture2D" uid="uid://qjb2igw2mxyo" path="res://Splatters/splatter4.png" id="5_01bub"]
+[ext_resource type="Texture2D" uid="uid://c4h7aoxl8xevk" path="res://Splatters/splatter5.png" id="6_a3yiw"]
+[ext_resource type="Texture2D" uid="uid://bk44mkyh0ikhb" path="res://Splatters/splatter6.png" id="7_wx8ny"]
+[ext_resource type="Texture2D" uid="uid://cuhyg8o14ayw3" path="res://Splatters/splatter7.png" id="8_y4qrc"]
+[ext_resource type="Texture2D" uid="uid://dt7xhj3sha85e" path="res://Splatters/splatter8.png" id="9_a6g3g"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_kjvhd"]
+blend_mode = 4
 
 [node name="DecalCanvas" type="Node3D" unique_id=1855920060]
 script = ExtResource("1_kda76")
+splatter_choices = Array[CompressedTexture2D]([ExtResource("2_lh2qh"), ExtResource("3_a6g3g"), ExtResource("4_x86id"), ExtResource("5_01bub"), ExtResource("6_a3yiw"), ExtResource("7_wx8ny"), ExtResource("8_y4qrc"), ExtResource("9_a6g3g")])
+splat_material = SubResource("CanvasItemMaterial_kjvhd")
 
 [node name="SubViewport" type="SubViewport" parent="." unique_id=601797226]
 size = Vector2i(2048, 2048)
@@ -13,3 +26,4 @@ render_target_update_mode = 1
 
 [node name="Decal" type="Decal" parent="." unique_id=217058198]
 texture_albedo = ExtResource("2_uunnb")
+cull_mask = 2

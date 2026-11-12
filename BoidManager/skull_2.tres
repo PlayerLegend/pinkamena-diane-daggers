@@ -13,6 +13,7 @@ shader_parameter/max_rotation = -50.0
 shader_parameter/period = 0.25
 shader_parameter/pivot_yz = Vector2(0.2, -0.15)
 shader_parameter/albedo_texture = ExtResource("2_ifj2w")
+shader_parameter/flash_color = Color(0.49411765, 0.83137256, 1, 1)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_kipis"]
 render_priority = 0
@@ -22,6 +23,7 @@ shader_parameter/max_rotation = -50.0
 shader_parameter/period = 0.25
 shader_parameter/pivot_yz = Vector2(0.2, -0.15)
 shader_parameter/albedo_texture = ExtResource("2_ifj2w")
+shader_parameter/flash_color = Color(0.49411765, 0.83137256, 1, 1)
 
 [resource]
 script = ExtResource("2_64ecx")

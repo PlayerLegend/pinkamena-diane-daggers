@@ -1,11 +1,15 @@
 [gd_scene format=3 uid="uid://do0d58qxcn56i"]
 
 [ext_resource type="Script" uid="uid://bey57r8opoppx" path="res://Skulls/skull_afterimage.gd" id="1_ofvqp"]
-[ext_resource type="Material" uid="uid://dlafvdfovtusj" path="res://Skulls/mat_skull_afterimage.tres" id="1_pg8o6"]
+[ext_resource type="Shader" uid="uid://cperskcdxqvk8" path="res://Skulls/SkullAfterimage.gdshader" id="2_pg8o6"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_8pqsq"]
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_uxyja"]
+render_priority = 0
+shader = ExtResource("2_pg8o6")
+
 [node name="SkullAfterimage" type="MeshInstance3D" unique_id=808329406]
 mesh = SubResource("BoxMesh_8pqsq")
-surface_material_override/0 = ExtResource("1_pg8o6")
 script = ExtResource("1_ofvqp")
+afterimage_material = SubResource("ShaderMaterial_uxyja")

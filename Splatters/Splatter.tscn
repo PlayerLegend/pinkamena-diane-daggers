@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://br3ofaouirrt2"]
+
+[ext_resource type="Script" uid="uid://bew8vp11rlh32" path="res://Splatters/splatter.gd" id="1_6q2sm"]
+[ext_resource type="Texture2D" uid="uid://buk4n2b8w4ea5" path="res://Splatters/splatter1.png" id="2_webiv"]
+[ext_resource type="Texture2D" uid="uid://bn7v82bt5bkf6" path="res://Splatters/splatter2.png" id="3_f52qw"]
+[ext_resource type="Texture2D" uid="uid://7bthygxr1byg" path="res://Splatters/splatter3.png" id="4_f52qw"]
+[ext_resource type="Texture2D" uid="uid://qjb2igw2mxyo" path="res://Splatters/splatter4.png" id="5_urqaj"]
+[ext_resource type="Texture2D" uid="uid://c4h7aoxl8xevk" path="res://Splatters/splatter5.png" id="6_8ophm"]
+
+[node name="Splatter" type="Decal" unique_id=1436664677]
+cull_mask = 2
+script = ExtResource("1_6q2sm")
+splatter_choices = Array[CompressedTexture2D]([ExtResource("2_webiv"), ExtResource("3_f52qw"), ExtResource("4_f52qw"), ExtResource("5_urqaj"), ExtResource("6_8ophm")])
+floor_collision_mask = 8

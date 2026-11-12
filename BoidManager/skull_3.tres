@@ -8,7 +8,7 @@
 script = ExtResource("2_1qupm")
 type_name = &"skull3"
 mesh = ExtResource("1_ht0fv")
-material_overrides = Array[Material]([ExtResource("1_1qupm")])
+material_overrides = Array[Material]([ExtResource("1_1qupm"), ExtResource("1_1qupm"), ExtResource("1_1qupm"), null, null])
 max_health = 10
 collision_radius = 0.7
 min_speed = 2.0

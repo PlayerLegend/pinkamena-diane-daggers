@@ -1,4 +1,5 @@
 shader_type spatial;
+//render_mode unshaded;
 
 uniform float min_rotation : hint_range(-180.0, 180.0) = -15.0;
 uniform float max_rotation : hint_range(-180.0, 180.0) = -50.0;
@@ -40,6 +41,8 @@ void fragment() {
     float active = step(flash_effect_time_now, flash_end) * step(0.001, flash_end);
 
     ALBEDO = texture(albedo_texture, UV).rgb;
-    if (active > 0.5)
-        EMISSION = ALBEDO;
+    if (active > 0.5) {
+        ALBEDO = vec3(0.494, 0.831, 1.0);
+        EMISSION = vec3(0.0, 0.573, 0.859);
+    }
 }
