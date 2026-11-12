@@ -24,7 +24,7 @@ func _get_accel_angle():
     if not _accel:
         return 0
         
-    return -0.025 * basis.x.dot(_accel)
+    return -0.4 * basis.x.dot(_accel)
 
 func _get_roll() -> float:
     var forward = -basis.z
