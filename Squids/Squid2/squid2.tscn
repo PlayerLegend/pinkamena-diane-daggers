@@ -21,6 +21,7 @@ spawn_output = NodePath("Marker3D")
 metadata/_custom_type_script = "uid://bjcbs7mr6mqi2"
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1747775219]
+transform = Transform3D(1.45, 0, 0, 0, 1.45, 0, 0, 0, 1.45, 0, 0, 0)
 mesh = ExtResource("2_a8ki5")
 surface_material_override/0 = ExtResource("7_ndf3c")
 
@@ -38,10 +39,10 @@ properties = Array[String]([":position", ":fly_direction"])
 metadata/_custom_type_script = "uid://dour8fehaaugp"
 
 [node name="Marker3D" type="Marker3D" parent="." unique_id=1870367591]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 2.935523, 0)
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 3.4596934, 0)
 
 [node name="XtalTarget" parent="." unique_id=1797207347 instance=ExtResource("8_fceyh")]
-transform = Transform3D(1, 0, 0, 0, 0.99248224, 0.12238905, 0, -0.12238905, 0.99248224, 0, 1.348805, -0.44421673)
+transform = Transform3D(1, 0, 0, 0, 0.99248224, 0.12238905, 0, -0.12238905, 0.99248224, 0, 1.8269029, -0.6393358)
 
 [node name="XtalTarget2" parent="." unique_id=1255093399 instance=ExtResource("8_fceyh")]
-transform = Transform3D(1, 0, 0, 0, 0.99254614, -0.12186935, 0, 0.12186935, 0.99254614, 0, 1.349, 0.444)
+transform = Transform3D(1, 0, 0, 0, 0.99254614, -0.12186935, 0, 0.12186935, 0.99254614, 0, 1.827, 0.639)

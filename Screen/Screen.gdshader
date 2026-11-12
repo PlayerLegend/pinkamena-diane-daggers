@@ -31,6 +31,7 @@ void fragment() {
     vec3 in_hsv = rgb2hsv(in_rgb);
     vec3 out_hsv = in_hsv;
     out_hsv.z = quantize(out_hsv.z, 6);
+    //out_hsv.y = in_hsv.y / in_hsv.z;
     COLOR = vec4(hsv2rgb(out_hsv), 1.0);
 	// Called for every pixel the material is visible on.
 }

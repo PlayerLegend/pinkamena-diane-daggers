@@ -11,7 +11,7 @@ var fly_direction: Vector3
 @export var spawn_count: Array[int]
 @export var spawn_boid_type: Array[BoidType]
 @export var spawn_rate: float = 0.05
-@export var attack_rate: float = 5 #20
+@export var attack_rate: float = 20
 @export var spawn_output: Node3D
 
 var spawn_cooldown: float

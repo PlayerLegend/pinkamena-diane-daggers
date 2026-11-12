@@ -40,9 +40,12 @@ void vertex() {
 void fragment() {
     float active = step(flash_effect_time_now, flash_end) * step(0.001, flash_end);
 
-    ALBEDO = texture(albedo_texture, UV).rgb;
     if (active > 0.5) {
         ALBEDO = vec3(0.494, 0.831, 1.0);
         EMISSION = vec3(0.0, 0.573, 0.859);
+    }
+    else {
+        ALBEDO = texture(albedo_texture, UV).rgb;
+        //EMISSION = vec3(0.071, 0.0, 0.031) * 0.2;
     }
 }

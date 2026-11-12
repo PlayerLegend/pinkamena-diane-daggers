@@ -30,6 +30,7 @@ shader = ExtResource("20_devvj")
 shader_parameter/screen_render = SubResource("ViewportTexture_2gh4u")
 
 [sub_resource type="Environment" id="Environment_q8hc1"]
+background_mode = 1
 ambient_light_source = 1
 reflected_light_source = 1
 
@@ -66,7 +67,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3749244, -4.320915)
 
 [node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1252718192]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.139495, 0)
-omni_range = 29.8926
+omni_range = 81.01641
 
 [node name="DecalCanvas" parent="." unique_id=1855920060 instance=ExtResource("17_sc1dx")]
 
