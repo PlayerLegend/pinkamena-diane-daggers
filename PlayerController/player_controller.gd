@@ -231,11 +231,20 @@ func set_mouse_scale(mouse_scale: float):
 func get_camera_global_transform():
     return camera.global_transform
 
+func set_chase_group():
+    if visible:
+        add_to_group("chase_targets")
+    else:
+        remove_from_group("chase_targets")
+        
+func _on_visibility_changed():
+    set_chase_group()
+
 func _ready():
     await get_tree().process_frame
     body_light.energy_scale = 0
     print("Set body light to ", body_light.light_energy)
-    add_to_group("chase_targets")
+    set_chase_group()
     set_multiplayer_authority(1)
     input.set_multiplayer_authority(name.to_int())
     camera.set_multiplayer_authority(name.to_int())

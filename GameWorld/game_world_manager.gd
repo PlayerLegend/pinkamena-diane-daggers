@@ -8,14 +8,15 @@ signal world_changed(new_world: GameWorld)
         if game_world == value:
             return
             
+        if game_world:
+            game_world.queue_free()
+            
         if value is GameWorld:
-            if game_world:
-                game_world.queue_free()
-                
             add_child(value)
             value.world_finished.connect(_on_world_finished)
-            game_world = value
-            world_changed.emit(value)
+            
+        game_world = value
+        world_changed.emit(value)
 
 func add_player(player: PlayerController):
     assert(game_world)

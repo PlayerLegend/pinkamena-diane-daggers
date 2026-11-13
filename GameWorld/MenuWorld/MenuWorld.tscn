@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://cqkmoffcsra57"]
+
+[ext_resource type="Script" uid="uid://plvixc2wbprw" path="res://GameWorld/MenuWorld/menu_world.gd" id="1_yuh1h"]
+
+[node name="MenuWorld" type="Node3D" unique_id=2065405798]
+script = ExtResource("1_yuh1h")
+metadata/_custom_type_script = "uid://4pbiob3hlex8"

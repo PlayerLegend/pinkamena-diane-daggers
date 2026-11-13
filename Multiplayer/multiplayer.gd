@@ -12,6 +12,9 @@ signal net_is_connected(host: String, port: int)
 @export var game_world_manager: GameWorldManager
 
 func _on_world_changed(new_world: GameWorld):
+    if not new_world:
+        return
+        
     for actor in actors_parent.get_children():
         if actor is PlayerController:
             new_world.add_player(actor)

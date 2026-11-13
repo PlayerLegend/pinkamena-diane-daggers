@@ -5,6 +5,7 @@ extends Node
 @export var guide_map_fps: GUIDEMappingContext
 @onready var escape_menu: EscapeMenu = $EscapeMenu
 @export var start_world_scene: PackedScene
+@export var menu_world_scene: PackedScene
 @onready var game_world_manager: GameWorldManager = $GameWorldManager
 
 @export var boid_types: Array[BoidType]
@@ -14,7 +15,10 @@ func _on_save_config() -> void:
     Config.save()
 
 func set_world(next: PackedScene):
-    game_world_manager.game_world = next.instantiate()
+    if next:
+        game_world_manager.game_world = next.instantiate()
+    else:
+        game_world_manager.game_world = null
 
 func _helper_start_server(port: int):
     set_world(start_world_scene)
@@ -33,8 +37,9 @@ func _helper_show_game():
 func _helper_show_menu():
     GUIDE.disable_mapping_context(guide_map_fps)
     Input.set_mouse_mode.call_deferred(Input.MOUSE_MODE_VISIBLE)
-    escape_menu.show()
-    main_menu.hide()
+    #escape_menu.show()
+    main_menu.show()
+    set_world(null)
     
 func _on_netsim_server_created():
     _helper_start_server.call_deferred(NetworkSimulator.server_port)

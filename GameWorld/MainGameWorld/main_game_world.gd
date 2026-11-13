@@ -21,3 +21,4 @@ func add_player(player: PlayerController):
     super(player)
     player.projectile_parent = projectile_parent
     print("Tried to set projectile parent ", projectile_parent)
+    player.visible = true

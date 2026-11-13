@@ -49,10 +49,10 @@ func _process(_delta: float) -> void:
         if game_world_manager.game_world:
             time_display.text = String.num(game_world_manager.game_world.time, 1)
     
-    if player_controller:
-        camera_3d.global_transform = player_controller.get_camera_global_transform()
-    elif main_menu:
+    if not player_controller or game_world_manager.game_world is MenuWorld:
         camera_3d.global_transform = main_menu.get_camera_global_transform()
+    else:
+        camera_3d.global_transform = player_controller.get_camera_global_transform()
     
 func _ready():
     get_viewport().disable_3d = true

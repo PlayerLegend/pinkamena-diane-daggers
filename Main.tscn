@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://b5q43yj7pgvd5" path="res://Multiplayer/Multiplayer.tscn" id="2_uu6xs"]
 [ext_resource type="Script" uid="uid://ccb31lioy8b6j" path="res://BoidManager/boid_type.gd" id="3_fpfj3"]
 [ext_resource type="PackedScene" uid="uid://b3an81cjlarsw" path="res://GameWorld/PreambleWorld/PreambleWorld.tscn" id="3_j4qnp"]
+[ext_resource type="PackedScene" uid="uid://cqkmoffcsra57" path="res://GameWorld/MenuWorld/MenuWorld.tscn" id="4_fpfj3"]
 [ext_resource type="Resource" uid="uid://ck5s2ghgryskv" path="res://BoidManager/skull_1.tres" id="4_sc1dx"]
 [ext_resource type="PackedScene" uid="uid://punkfa765yoh" path="res://Menu/EscapeMenu/EscapeMenu.tscn" id="5_3dxm6"]
 [ext_resource type="Resource" uid="uid://begmqtybc0sut" path="res://BoidManager/skull_2.tres" id="5_kjvhd"]
@@ -29,6 +30,7 @@ script = ExtResource("1_glv2v")
 multiplayer_handler = NodePath("MultiplayerHandler")
 guide_map_fps = ExtResource("2_lgr22")
 start_world_scene = ExtResource("3_j4qnp")
+menu_world_scene = ExtResource("4_fpfj3")
 boid_types = Array[ExtResource("3_fpfj3")]([ExtResource("4_sc1dx"), ExtResource("5_kjvhd"), ExtResource("6_5tuhn"), ExtResource("7_2gh4u")])
 
 [node name="Screen" parent="." unique_id=1531499629 node_paths=PackedStringArray("main_menu", "game_world_manager") instance=ExtResource("19_2gh4u")]

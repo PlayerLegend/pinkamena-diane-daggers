@@ -37,3 +37,9 @@ func _on_start_game_trigger_body_entered(body: Node3D) -> void:
     if body is PlayerController:
         _light_energy_target = 0
         beckon.visible = false
+    
+func add_player(player: PlayerController):
+    super(player)
+    player.projectile_parent = null
+    player.visible = false
+    
