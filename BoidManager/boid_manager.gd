@@ -132,15 +132,12 @@ func add_boid_by_name(type_name: StringName, xform: Transform3D, velocity: Vecto
     return _spawn(_name_to_index[type_name], xform, velocity)
 
 
-## Number of live boids of one type, or of all types if `type` is null.
-func get_boid_count(type: BoidType = null) -> int:
-    if type == null:
-        var total := 0
-        for c in _type_counts:
-            total += c
-        return total
-    var t := _types.find(type)
-    return _type_counts[t] if t != -1 else 0
+## Number of live boids across all registered types.
+func get_boid_count() -> int:
+    var total := 0
+    for c in _type_counts:
+        total += c
+    return total
 
 ## Boid mesh, null if invalid index
 func get_boid_mesh(index: int) -> Mesh:
@@ -152,15 +149,9 @@ func get_boid_mesh(index: int) -> Mesh:
 ## Returns the index of the first live boid whose collision sphere contains `point`
 ## (distance to the boid's center <= its collision_radius), or -1 if none does.
 ## No ordering is guaranteed when several boids overlap the point.
-## If `type` is null, boids of every type are considered.
-func get_boid_at_point(point: Vector3, type: BoidType = null) -> int:
+func get_boid_at_point(point: Vector3) -> int:
     if _types.is_empty():
         return -1
-    var wanted := -1
-    if type != null:
-        wanted = _types.find(type)
-        if wanted == -1:
-            return -1
 
     _ensure_grid_current()
 
@@ -175,8 +166,6 @@ func get_boid_at_point(point: Vector3, type: BoidType = null) -> int:
                 for slot in range(_cell_start[cell], _cell_start[cell + 1]):
                     var other := _cell_items[slot]
                     var t := _boid_type[other]
-                    if wanted != -1 and t != wanted:
-                        continue
                     if other >= _type_base[t] + _type_counts[t]:
                         continue
                     var r: float = _types[t].collision_radius
@@ -185,20 +174,15 @@ func get_boid_at_point(point: Vector3, type: BoidType = null) -> int:
     return -1
 
 ## Returns the indices of all live boids whose collision sphere touches the query sphere
-## (distance between centers <= radius + the boid's collision_radius). If `type` is null,
-## boids of every type are considered. Returns an empty array if none match.
+## (distance between centers <= radius + the boid's collision_radius). Returns an empty
+## array if none match.
 ##
 ## Indices are slots; remove_boid() swaps the last boid into the freed slot, so when
 ## removing several results, iterate the array backwards (sort it first if needed).
-func get_boids_in_area(center: Vector3, radius: float, type: BoidType = null) -> PackedInt32Array:
+func get_boids_in_area(center: Vector3, radius: float) -> PackedInt32Array:
     var results := PackedInt32Array()
     if _types.is_empty():
         return results
-    var wanted := -1
-    if type != null:
-        wanted = _types.find(type)
-        if wanted == -1:
-            return results
 
     _ensure_grid_current()
 
@@ -214,8 +198,6 @@ func get_boids_in_area(center: Vector3, radius: float, type: BoidType = null) ->
                 for slot in range(_cell_start[cell], _cell_start[cell + 1]):
                     var other := _cell_items[slot]
                     var t := _boid_type[other]
-                    if wanted != -1 and t != wanted:
-                        continue
                     if other >= _type_base[t] + _type_counts[t]:
                         continue
                     var reach: float = radius + _types[t].collision_radius
@@ -226,16 +208,10 @@ func get_boids_in_area(center: Vector3, radius: float, type: BoidType = null) ->
 
 ## Casts a ray against the boids' collision spheres and returns the index of the closest
 ## boid hit, or -1 if nothing was hit. `direction` does not need to be normalized.
-## If `type` is null, boids of every type are considered.
 ## A ray starting inside a boid's sphere counts as a hit on that boid.
-func raycast(start: Vector3, direction: Vector3, distance: float, type: BoidType = null) -> int:
+func raycast(start: Vector3, direction: Vector3, distance: float) -> int:
     if _types.is_empty() or distance <= 0.0 or direction.is_zero_approx():
         return -1
-    var wanted := -1
-    if type != null:
-        wanted = _types.find(type)
-        if wanted == -1:
-            return -1
 
     _ensure_grid_current()
 
@@ -292,8 +268,6 @@ func raycast(start: Vector3, direction: Vector3, distance: float, type: BoidType
                     for slot in range(_cell_start[cell], _cell_start[cell + 1]):
                         var other := _cell_items[slot]
                         var t := _boid_type[other]
-                        if wanted != -1 and t != wanted:
-                            continue
                         if other >= _type_base[t] + _type_counts[t]:
                             continue
                         var hit_t := _ray_sphere_distance(start, dir, _pos[other], _types[t].collision_radius, distance)
