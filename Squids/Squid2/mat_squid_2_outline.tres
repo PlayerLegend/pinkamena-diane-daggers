@@ -1,0 +1,13 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://4oj54wrbd8v7"]
+
+[ext_resource type="Shader" uid="uid://crg60oti12e6c" path="res://Squids/squid.gdshader" id="1_yfe80"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_yfe80")
+shader_parameter/amplitude = 15.0
+shader_parameter/scale_amplitude = 0.07
+shader_parameter/time_period = 3.0
+shader_parameter/height_period = 1.0
+shader_parameter/phase_offset = 0.0
+shader_parameter/tint_color = Color(0.1847868, 0, 0.029536007, 1)

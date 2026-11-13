@@ -26,18 +26,17 @@
 [ext_resource type="PackedScene" uid="uid://cpbdy64obvfj6" path="res://Gibs/Ball1/Ball1Gib.tscn" id="23_hhcpw"]
 [ext_resource type="PackedScene" uid="uid://bh07fmuqqi32k" path="res://Gibs/Hat1/Hat1Gib.tscn" id="24_mxvw5"]
 
-[sub_resource type="ViewportTexture" id="ViewportTexture_devvj"]
+[sub_resource type="ViewportTexture" id="ViewportTexture_mxvw5"]
 viewport_path = NodePath("ScreenEffects")
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_3b0ty"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xrxkg"]
 resource_local_to_scene = true
 shader = ExtResource("20_devvj")
-shader_parameter/screen_render = SubResource("ViewportTexture_devvj")
+shader_parameter/screen_render = SubResource("ViewportTexture_mxvw5")
 
-[sub_resource type="Environment" id="Environment_q8hc1"]
+[sub_resource type="Environment" id="Environment_sqvbp"]
 background_mode = 1
 ambient_light_source = 1
-reflected_light_source = 1
 
 [node name="Main" type="Node" unique_id=1203969749 node_paths=PackedStringArray("multiplayer_handler")]
 script = ExtResource("1_glv2v")
@@ -79,13 +78,13 @@ emission_strength = 0.71
 script = ExtResource("18_kjvhd")
 
 [node name="Screen" parent="." unique_id=1531499629 instance=ExtResource("19_2gh4u")]
-material = SubResource("ShaderMaterial_3b0ty")
+material = SubResource("ShaderMaterial_xrxkg")
 render_height = 400
 
 [node name="EscapeMenu" parent="." unique_id=506815160 instance=ExtResource("5_3dxm6")]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=660186046]
-environment = SubResource("Environment_q8hc1")
+environment = SubResource("Environment_sqvbp")
 
 [node name="GibThrower" type="Node3D" parent="." unique_id=2068006607 node_paths=PackedStringArray("static_mesh_manager", "decal_canvas")]
 script = ExtResource("21_devvj")

@@ -1,0 +1,23 @@
+[gd_resource type="Sky" format=3 uid="uid://cwxqgpk6spv6o"]
+
+[ext_resource type="Shader" uid="uid://uqotogn00gdq" path="res://Sky/Sky.gdshader" id="1_tyiuw"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_w3rk5"]
+noise_type = 3
+frequency = 0.084
+
+[sub_resource type="NoiseTexture3D" id="NoiseTexture3D_hri7i"]
+noise = SubResource("FastNoiseLite_w3rk5")
+seamless = true
+seamless_blend_skirt = 0.353
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sqvbp"]
+shader = ExtResource("1_tyiuw")
+shader_parameter/noise_tex = SubResource("NoiseTexture3D_hri7i")
+shader_parameter/speed = 0.05
+shader_parameter/scale = 1.0
+shader_parameter/color_a = Color(0.5254902, 0.84313726, 0.96862745, 1)
+shader_parameter/color_b = Color(0.8235294, 0.043137256, 1, 1)
+
+[resource]
+sky_material = SubResource("ShaderMaterial_sqvbp")

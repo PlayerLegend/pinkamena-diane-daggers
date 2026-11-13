@@ -23,7 +23,7 @@ func _process(delta: float) -> void:
     var result = space_state.intersect_ray(query)
     if result:
         if decal_canvas:
-            decal_canvas.add_splatter(position, randf_range(0.5,1.5) * 2)
+            decal_canvas.add_splatter(position, randf_range(0.5,1.5))
             #decal_canvas = null
         var normal: Vector3 = result["normal"]
         var dot: float = velocity.dot(normal)

@@ -9,7 +9,17 @@
 [ext_resource type="Script" uid="uid://d350u8evihs1u" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="6_2jqbt"]
 [ext_resource type="Script" uid="uid://dour8fehaaugp" path="res://addons/netfox/tick-interpolator.gd" id="7_2ha80"]
 [ext_resource type="Material" uid="uid://c6rasamdiaqqi" path="res://Squids/Squid2/mat_squid_2.tres" id="7_ndf3c"]
+[ext_resource type="Shader" uid="uid://dxc4bygxwyqs6" path="res://Squids/Squid2/Glass.gdshader" id="8_2ha80"]
+[ext_resource type="Material" uid="uid://4oj54wrbd8v7" path="res://Squids/Squid2/mat_squid_2_outline.tres" id="8_2jqbt"]
 [ext_resource type="PackedScene" uid="uid://c0kp5ysyaagut" path="res://Xtal/XtalTarget.tscn" id="8_fceyh"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_eaxmq"]
+render_priority = 0
+shader = ExtResource("8_2ha80")
+shader_parameter/refraction_strength = 0.03
+shader_parameter/blur = 0.0
+shader_parameter/tint = Color(0.9882353, 0.69803923, 0.8235294, 1)
+shader_parameter/geo_refraction_strength = 0.05300000903727001
 
 [node name="Squid2" type="AnimatableBody3D" unique_id=1405901256 node_paths=PackedStringArray("rollback_synchronizer", "spawn_output")]
 script = ExtResource("1_2lgke")
@@ -24,6 +34,8 @@ metadata/_custom_type_script = "uid://bjcbs7mr6mqi2"
 transform = Transform3D(1.45, 0, 0, 0, 1.45, 0, 0, 0, 1.45, 0, 0, 0)
 mesh = ExtResource("2_a8ki5")
 surface_material_override/0 = ExtResource("7_ndf3c")
+surface_material_override/1 = SubResource("ShaderMaterial_eaxmq")
+surface_material_override/2 = ExtResource("8_2jqbt")
 
 [node name="RollbackSynchronizer" type="Node" parent="." unique_id=168263957 node_paths=PackedStringArray("root")]
 script = ExtResource("6_2jqbt")

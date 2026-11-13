@@ -1,10 +1,12 @@
 shader_type spatial;
+//render_mode unshaded;
 
 uniform float amplitude : hint_range(0.0, 180.0) = 15;        // peak rotation in degrees
 uniform float scale_amplitude : hint_range(0.0, 1.0) = 0.07;  // peak radial scale change (0.2 = ±20%)
 uniform float time_period : hint_range(0.1, 10.0) = 3;       // seconds per full cycle
 uniform float height_period : hint_range(0.1, 20.0) = 1.0;   // world units (model-space Y) per full wave
 uniform float phase_offset : hint_range(-3.14159, 3.14159) = 0.0;
+uniform vec4 tint_color : source_color = vec4(1.0);
 
 uniform sampler2D albedo_texture : source_color;
 
@@ -42,5 +44,5 @@ void vertex() {
 }
 
 void fragment() {
-    ALBEDO = texture(albedo_texture, UV).rgb;
+    ALBEDO = (texture(albedo_texture, UV) * tint_color).rgb;
 }
