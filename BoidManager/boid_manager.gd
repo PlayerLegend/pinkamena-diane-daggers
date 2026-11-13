@@ -35,7 +35,7 @@ signal boid_removed(
     mesh: Mesh,
     position: Vector3,
     velocity: Vector3,
-    forward: Vector3,
+    rot: Quaternion,
     health: int,
 )
 
@@ -415,7 +415,7 @@ func remove_boid(index: int) -> bool:
     var removed_mesh := _multimeshes[t].mesh
     var removed_pos := _pos[index]
     var removed_vel := _vel[index]
-    var removed_fwd := -(_get_rot(index) * Vector3.FORWARD)
+    var removed_rot := _get_rot(index)
     var removed_health := _health[index]
 
     if index != last:
@@ -445,7 +445,7 @@ func remove_boid(index: int) -> bool:
         removed_mesh,
         removed_pos,
         removed_vel,
-        removed_fwd,
+        removed_rot,
         removed_health
     )
     return true
