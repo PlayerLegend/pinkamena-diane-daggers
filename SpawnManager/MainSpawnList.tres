@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="SpawnSchedule" format=3 uid="uid://d1d8nej4fn0wp"]
+
+[ext_resource type="Script" uid="uid://bomdw8w5jyq4k" path="res://SpawnManager/spawn_event.gd" id="1_wfb4x"]
+[ext_resource type="Script" uid="uid://dwtccihovqa1h" path="res://SpawnManager/spawn_schedule.gd" id="2_jclvc"]
+[ext_resource type="PackedScene" uid="uid://emivj6qf322m" path="res://Squids/Squid1/Squid1.tscn" id="2_wslsv"]
+[ext_resource type="PackedScene" uid="uid://cnvu48qqm5pwm" path="res://Squids/Squid2/squid2.tscn" id="3_wslsv"]
+[ext_resource type="PackedScene" uid="uid://b5gkindyf3e41" path="res://Spiders/Spider1/Spider1.tscn" id="4_p5kec"]
+[ext_resource type="Resource" uid="uid://bunlfv6wjcd41" path="res://SpawnManager/Squid1Squid2Wave.tres" id="5_34b8k"]
+
+[sub_resource type="Resource" id="Resource_wslsv"]
+script = ExtResource("1_wfb4x")
+delay = 3.0
+scenes = Array[PackedScene]([ExtResource("2_wslsv")])
+metadata/_custom_type_script = "uid://bomdw8w5jyq4k"
+
+[sub_resource type="Resource" id="Resource_p5kec"]
+script = ExtResource("1_wfb4x")
+delay = 5.0
+scenes = Array[PackedScene]([ExtResource("2_wslsv")])
+metadata/_custom_type_script = "uid://bomdw8w5jyq4k"
+
+[sub_resource type="Resource" id="Resource_34b8k"]
+script = ExtResource("1_wfb4x")
+delay = 5.0
+scenes = Array[PackedScene]([ExtResource("2_wslsv")])
+metadata/_custom_type_script = "uid://bomdw8w5jyq4k"
+
+[sub_resource type="Resource" id="Resource_ao6tc"]
+script = ExtResource("1_wfb4x")
+delay = 5.0
+scenes = Array[PackedScene]([ExtResource("2_wslsv")])
+metadata/_custom_type_script = "uid://bomdw8w5jyq4k"
+
+[sub_resource type="Resource" id="Resource_0k8x7"]
+script = ExtResource("1_wfb4x")
+delay = 15.0
+scenes = Array[PackedScene]([ExtResource("3_wslsv"), ExtResource("4_p5kec")])
+metadata/_custom_type_script = "uid://bomdw8w5jyq4k"
+
+[resource]
+script = ExtResource("2_jclvc")
+events = Array[ExtResource("1_wfb4x")]([SubResource("Resource_wslsv"), SubResource("Resource_p5kec"), SubResource("Resource_34b8k"), SubResource("Resource_ao6tc"), SubResource("Resource_0k8x7"), ExtResource("5_34b8k"), ExtResource("5_34b8k"), ExtResource("5_34b8k")])
+metadata/_custom_type_script = "uid://dwtccihovqa1h"

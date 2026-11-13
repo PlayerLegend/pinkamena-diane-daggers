@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://b50t5xujkven0"]
+
+[ext_resource type="Script" uid="uid://5wuishhlvper" path="res://SpawnManager/spawn_manager.gd" id="1_5fo2r"]
+[ext_resource type="Resource" uid="uid://d1d8nej4fn0wp" path="res://SpawnManager/MainSpawnList.tres" id="2_c0g46"]
+
+[node name="SpawnManager" type="Node3D" unique_id=1985212331]
+script = ExtResource("1_5fo2r")
+schedule = ExtResource("2_c0g46")
