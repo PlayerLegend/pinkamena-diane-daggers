@@ -8,7 +8,7 @@ extends LineProjectile
 var mesh: Mesh:
     set(value):
         mesh_instance_3d.mesh = value
-        if projectile_material:
+        if mesh_instance_3d.mesh and projectile_material:
             mesh_instance_3d.set_surface_override_material(0, projectile_material)
 
 func _ready() -> void:

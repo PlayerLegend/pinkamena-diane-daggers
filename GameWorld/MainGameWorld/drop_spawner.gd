@@ -4,6 +4,7 @@ extends Node3D
 @export var decal_canvas: DecalCanvas
 @export var gib_scenes: Array[PackedScene]
 @export var boid_manager: BoidManager
+@export var xtal_pickup_scene: PackedScene
 
 func _ready():
     boid_manager.boid_removed.connect(_on_boid_removed)
@@ -22,17 +23,27 @@ func throw_gib(pos: Vector3, vel: Vector3):
     gib.rotation.z = randf_range(0,1) * PI
     gib.avelocity = avel
 
+func spawn_xtal(pos: Vector3):
+    var xtal = xtal_pickup_scene.instantiate()
+    add_child(xtal)
+    xtal.position = pos
+
 func _on_boid_removed(
-    _type: BoidType,
-    boid_mesh: Mesh,
+    type: BoidType,
+    _boid_mesh: Mesh,
     pos: Vector3,
     velocity: Vector3,
-    forward: Vector3,
-    health: int
+    _rot: Quaternion,
+    _health: int
 ):
     var randvel = Vector3(
         randf_range(-1,1),
         randf_range(0,1),
         randf_range(-1,1)
     ) * 2.0
-    throw_gib(pos, velocity + Vector3.UP * 2.0 + randvel)
+    
+    for i in range(type.gibs_count):
+        throw_gib(pos, velocity + Vector3.UP * 2.0 + randvel)
+        
+    if type.drops_xtal:
+        spawn_xtal(pos)

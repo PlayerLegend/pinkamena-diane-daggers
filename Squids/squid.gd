@@ -3,7 +3,7 @@ extends SlideBody3D
 class_name Squid
 
 var fly_direction: Vector3
-@export var arena_radius: float = 11 * 3 * 0.5
+@export var arena_radius: float = 11 * 3 * 1.05
 
 @export var rollback_synchronizer: RollbackSynchronizer
 

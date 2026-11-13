@@ -1,14 +1,12 @@
+class_name WeaponLetters
+
 extends BaseWeapon
 
-class_name WeaponLetters
 
 @export var projectile_scene: PackedScene
 @export var projectile_source: Node3D
 
 @onready var markov_chain: MarkovChain
-
-
-var cooldown: float
 
 const GLYPH_DIR := "res://Blend/Text/glyphs/"
 const GLYPH_CHARS := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
@@ -24,20 +22,12 @@ var _cached_passage: String = ""
 ## Index of the next character to hand out from the cached passage.
 var _letter_index: int = 0
 
-func _process(delta: float):
-    cooldown = max(0, cooldown - delta)
+@export var attack_progression: LettersAttackProgression
 
-func _can_fire() -> bool:
-    if cooldown > 0:
-        return false
-        
-    return true
+
 
 func _can_peer_use(_peer_id: int) -> bool:
     return true
-    
-func _after_fire(_projectile: Node):
-    cooldown = 60.0 / 900.0
     
 func _spawn() -> Node3D:
     assert(projectile_parent)
@@ -69,7 +59,6 @@ func _ready() -> void:
     markov_chain.load_from_file("res://passages.txt")
     _build_glyph_dict(GLYPH_CHARS)
     _refresh_passage()
-
 
 ## Returns true if the single-character string is an uppercase letter (A-Z).
 func _is_upper_char(c: String) -> bool:

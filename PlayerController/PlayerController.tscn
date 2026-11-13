@@ -9,8 +9,11 @@
 [ext_resource type="Script" uid="uid://diyujlfe1yjb4" path="res://PlayerController/input.gd" id="5_t3w4r"]
 [ext_resource type="Resource" uid="uid://c07vvdykoowbv" path="res://PlayerController/actions/walk.tres" id="6_3o4bl"]
 [ext_resource type="Resource" uid="uid://hgfhhv1mxdba" path="res://PlayerController/actions/jump.tres" id="7_s3jlx"]
+[ext_resource type="PackedScene" uid="uid://8l0xp31pvhy8" path="res://Weapons/Letters/LetterProjectile.tscn" id="7_t4tlh"]
+[ext_resource type="Resource" uid="uid://cfavmrjp8ixy5" path="res://Weapons/Letters/MainAttackProgression.tres" id="8_c0akw"]
 [ext_resource type="Resource" uid="uid://b4auhpv3w0wae" path="res://PlayerController/actions/shoot.tres" id="8_m11co"]
-[ext_resource type="PackedScene" uid="uid://huy88qkm8eir" path="res://Weapons/Letters/LettersWeapon.tscn" id="10_m11co"]
+[ext_resource type="PackedScene" uid="uid://cjgdfnd8fabk2" path="res://Weapons/Letters/LettersWeaponShot.tscn" id="8_tj7lp"]
+[ext_resource type="PackedScene" uid="uid://huy88qkm8eir" path="res://Weapons/Letters/LettersWeaponStreaming.tscn" id="10_m11co"]
 [ext_resource type="Script" uid="uid://xd0y40m27r0g" path="res://PlayerController/body_light.gd" id="12_87n76"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_ycagd"]
@@ -43,7 +46,12 @@ script = ExtResource("4_0458q")
 guide_action_shoot = ExtResource("8_m11co")
 input = NodePath("../../../Input")
 
-[node name="Letters" parent="CamLook/Camera3D/WeaponsController" unique_id=426797018 instance=ExtResource("10_m11co")]
+[node name="LettersWeaponStreaming" parent="CamLook/Camera3D/WeaponsController" unique_id=426797018 instance=ExtResource("10_m11co")]
+projectile_scene = ExtResource("7_t4tlh")
+attack_progression = ExtResource("8_c0akw")
+
+[node name="LettersWeaponShot" parent="CamLook/Camera3D/WeaponsController" unique_id=1495723169 instance=ExtResource("8_tj7lp")]
+projectile_scene = ExtResource("7_t4tlh")
 
 [node name="RollbackSynchronizer" type="Node" parent="." unique_id=43548597 node_paths=PackedStringArray("root")]
 script = ExtResource("3_ps8a3")

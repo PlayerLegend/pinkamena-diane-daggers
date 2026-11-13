@@ -31,7 +31,7 @@ func _ready():
 func _helper_find_player() -> PlayerController:
     var dist = INF
     var result = null
-    for player in get_tree().get_nodes_in_group("players"):
+    for player in get_tree().get_nodes_in_group("chase_targets"):
         assert(player is PlayerController)
         var player_dist = (player.global_position - global_position).length_squared()
         if player_dist < dist:

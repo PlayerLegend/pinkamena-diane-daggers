@@ -61,6 +61,10 @@ extends Resource
 @export var avoid_target_distance := 3.0
 @export var chase_target_weight := 0.3
 
+@export_group("Drops")
+@export var drops_xtal: bool = false
+@export var gibs_count: int = 0
+@export var confetti_count: int = 10
 
 func _sync_materials() -> void:
     if mesh == null:

@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://cjgdfnd8fabk2"]
+
+[ext_resource type="Script" uid="uid://5stjf60oiehq" path="res://Weapons/Letters/letters_weapon_shot.gd" id="1_xld72"]
+
+[node name="LettersWeaponShot" type="Node3D" unique_id=426797018 node_paths=PackedStringArray("projectile_source")]
+script = ExtResource("1_xld72")
+projectile_source = NodePath("ProjectileSource")
+
+[node name="ProjectileSource" type="Marker3D" parent="." unique_id=1139055256]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.42262268, -0.7628056)

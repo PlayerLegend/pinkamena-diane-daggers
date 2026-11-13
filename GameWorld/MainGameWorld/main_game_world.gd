@@ -10,6 +10,7 @@ func _ready():
     omni_light_3d.light_energy = 0
 
 func _process(delta: float) -> void:
+    super(delta)
     omni_light_3d.light_energy = lerp(
         omni_light_3d.light_energy, 
         _light_energy_target, 

@@ -12,13 +12,24 @@ class_name PlayerController
 @export var guide_action_look:GUIDEAction
 @export var body_light: PlayerLight
 @export var camera_offset: float = 0.5
+@export var weapons_controller: PlayerControllerWeapons
+
 @export var projectile_parent: Node:
     set(value):
         weapons_controller.projectile_parent = value
     get:
         return weapons_controller.projectile_parent
         
-@export var weapons_controller: PlayerControllerWeapons
+signal attack_power_changed(player: PlayerController)
+
+var attack_power: int:
+    set(value):
+        if value != weapons_controller.attack_power:
+            attack_power_changed.emit(self)
+            body_light.energy_scale = 10.0
+        weapons_controller.attack_power = value
+    get:
+        return weapons_controller.attack_power
 
 var _light_fade_target: float
 
@@ -34,13 +45,11 @@ var _light_fade_target: float
 @onready var input = $Input
 @onready var camera = $CamLook/Camera3D
 @onready var rollback_synchronizer = $RollbackSynchronizer
-@onready var projectile_source = $CamLook/Camera3D/Attack
+#@onready var projectile_source = $CamLook/Camera3D/Attack
 @onready var camera_controller = $CamLook
 
 var up_direction := Vector3(0,1,0)
 var explosion_knock: Vector3 # needs to be applied during _rollback_tick
-
-var shot_power: int
 
 var look_direction: Vector3
 
@@ -153,7 +162,10 @@ func _helper_phys_apply_explosion_knock():
     explosion_knock = Vector3(0,0,0)    
 
 func _process(delta: float):
-    body_light.energy_scale = lerp(body_light.energy_scale, _light_fade_target, delta)
+    var light_decay = delta
+    if body_light.energy_scale > 1.0:
+        light_decay *= 10
+    body_light.energy_scale = lerp(body_light.energy_scale, _light_fade_target, light_decay)
     _debug_find_stale()
     var local_direction = quaternion.inverse() * up_direction
     camera_controller.position = camera_controller.position.slerp(local_direction * camera_offset, delta)

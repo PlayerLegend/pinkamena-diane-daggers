@@ -5,7 +5,7 @@
 [ext_resource type="Material" uid="uid://bmgrj0ssscwt4" path="res://Blend/Xtal/mat_xtal.tres" id="3_0ol7q"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_i3m7n"]
-radius = 0.16494143
+radius = 0.38633
 
 [node name="XtalTarget" type="StaticBody3D" unique_id=1797207347]
 script = ExtResource("1_ft7po")

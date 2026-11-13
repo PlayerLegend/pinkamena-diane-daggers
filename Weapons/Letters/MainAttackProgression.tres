@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="LettersAttackProgression" format=3 uid="uid://cfavmrjp8ixy5"]
+
+[ext_resource type="Script" uid="uid://ckechdgvt1kbk" path="res://Weapons/Letters/letters_attack_type.gd" id="1_232l1"]
+[ext_resource type="Script" uid="uid://dv0juoercrfxk" path="res://Weapons/Letters/letters_attack_progression.gd" id="2_e8ypr"]
+
+[sub_resource type="Resource" id="Resource_tm4f2"]
+script = ExtResource("1_232l1")
+stream_rate = 20.0
+shot_count = 10.0
+metadata/_custom_type_script = "uid://ckechdgvt1kbk"
+
+[sub_resource type="Resource" id="Resource_c466d"]
+script = ExtResource("1_232l1")
+stream_rate = 20.0
+shot_count = 20.0
+score_threshold = 10
+metadata/_custom_type_script = "uid://ckechdgvt1kbk"
+
+[sub_resource type="Resource" id="Resource_232l1"]
+script = ExtResource("1_232l1")
+stream_rate = 40.0
+shot_count = 40.0
+score_threshold = 70
+metadata/_custom_type_script = "uid://ckechdgvt1kbk"
+
+[sub_resource type="Resource" id="Resource_e8ypr"]
+script = ExtResource("1_232l1")
+stream_rate = 100.0
+shot_count = 60.0
+score_threshold = 220
+metadata/_custom_type_script = "uid://ckechdgvt1kbk"
+
+[resource]
+script = ExtResource("2_e8ypr")
+levels = Array[ExtResource("1_232l1")]([SubResource("Resource_tm4f2"), SubResource("Resource_c466d"), SubResource("Resource_232l1"), SubResource("Resource_e8ypr")])
+metadata/_custom_type_script = "uid://dv0juoercrfxk"

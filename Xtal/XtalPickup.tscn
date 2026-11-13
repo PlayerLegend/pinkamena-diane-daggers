@@ -6,10 +6,15 @@
 [ext_resource type="Script" uid="uid://d350u8evihs1u" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="4_pm31x"]
 [ext_resource type="Script" uid="uid://dour8fehaaugp" path="res://addons/netfox/tick-interpolator.gd" id="5_vqjms"]
 
-[node name="XtalPickup" type="Node3D" unique_id=1250629480]
+[sub_resource type="SphereShape3D" id="SphereShape3D_qdswm"]
+
+[node name="XtalPickup" type="AnimatableBody3D" unique_id=115710670]
 top_level = true
+collision_layer = 0
+collision_mask = 8
+sync_to_physics = false
 script = ExtResource("1_iy387")
-floor_collision_mask = 8
+metadata/_custom_type_script = "uid://bjcbs7mr6mqi2"
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1180036008]
 mesh = ExtResource("2_pam7v")
@@ -27,3 +32,6 @@ script = ExtResource("5_vqjms")
 root = NodePath("..")
 properties = Array[String]([":position", ":velocity"])
 metadata/_custom_type_script = "uid://dour8fehaaugp"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1124975638]
+shape = SubResource("SphereShape3D_qdswm")

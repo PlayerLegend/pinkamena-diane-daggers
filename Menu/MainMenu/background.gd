@@ -15,6 +15,8 @@ func _ready():
     visibility_changed.connect(_on_visibility_changed)
 
 func _physics_process(delta: float) -> void:
+    if not visible:
+        return
     if boid_cooldown <= 0:
         boid_cooldown = 0.05
         var boid_position = _random_boid_position()

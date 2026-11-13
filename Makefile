@@ -1,5 +1,6 @@
 BLENDER       ?= blender
-EXPORT_SCRIPT ?= blender-obj-export.py
+OBJ_EXPORT_SCRIPT ?= blender-obj-export.py
+GLB_EXPORT_SCRIPT ?= blender-glb-export.py
 
 OBJ_BLEND_FILES ?= \
 	Squids/Squid1/squid1.blend \
@@ -9,10 +10,17 @@ OBJ_BLEND_FILES ?= \
 	Skulls/Skull1/skull1.blend \
 	Skulls/Skull2/skull2.blend
 
-OBJ_FILES := $(OBJ_BLEND_FILES:.blend=.obj)
+GLB_BLEND_FILES ?= \
+	Blend/PinkiePie/PinkiePie.blend
 
-all: $(OBJ_FILES)
+OBJ_FILES := $(OBJ_BLEND_FILES:.blend=.obj)
+GLB_FILES := $(GLB_BLEND_FILES:.blend=.glb)
+
+all: $(OBJ_FILES) $(GLB_FILES)
 	@echo $(OBJ_FILES)
 
 %.obj: %.blend $(EXPORT_SCRIPT)
-	$(BLENDER) --background "$<" --python $(EXPORT_SCRIPT) -- "$@"
+	$(BLENDER) --background "$<" --python $(OBJ_EXPORT_SCRIPT) -- "$@"
+
+%.glb: %.blend $(EXPORT_SCRIPT)
+	$(BLENDER) --background "$<" --python $(GLB_EXPORT_SCRIPT) -- "$@"

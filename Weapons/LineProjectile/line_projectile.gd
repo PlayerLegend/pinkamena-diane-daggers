@@ -5,7 +5,7 @@ class_name LineProjectile
 var fly_start: Vector3
 var fly_direction: Vector3
 var fly_elapsed: float
-var fly_lifetime: float = 2.0
+var fly_lifetime: float = 1.5
 @export var fly_speed: float = 1.0
 @export var fly_finish_scene: PackedScene
 @export var fly_finish_node: Node

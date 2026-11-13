@@ -4,11 +4,21 @@ class_name Screen
 
 @onready var subviewport: SubViewport = $SubViewport
 @onready var camera_3d: Camera3D = $SubViewport/Camera3D
+@export var time_display: Label
+@export var score_display: Label
 
 @export var render_height: int = 0
 @export var enable_fps_counter: bool = false
-@export var player_controller: PlayerController
+@export var player_controller: PlayerController:
+    set(value):
+        if value is PlayerController:
+            value.attack_power_changed.connect(_on_player_attack_power_changed)
+            player_controller = value
 @export var main_menu: MainMenu
+@export var game_world_manager: GameWorldManager
+
+func _on_player_attack_power_changed(_player: PlayerController):
+    pass
 
 func _process(_delta: float) -> void:
     if not camera_3d:
@@ -30,6 +40,14 @@ func _process(_delta: float) -> void:
         subviewport.size = render_resolution
 
     camera_3d.make_current()
+    
+    if score_display.visible:
+        if player_controller:
+            score_display.text = str(player_controller.attack_power)
+            
+    if time_display.visible:
+        if game_world_manager.game_world:
+            time_display.text = String.num(game_world_manager.game_world.time, 1)
     
     if player_controller:
         camera_3d.global_transform = player_controller.get_camera_global_transform()

@@ -2,7 +2,12 @@ class_name GameWorld
 extends Node3D
 
 @export var player_light: bool
-signal change_world(next_world: PackedScene)
+signal world_finished(next_world: PackedScene)
+
+var time: float
+
+func _process(delta: float):
+    time += delta
 
 func _helper_find_spawn() -> Node3D:
     return get_tree().get_nodes_in_group("player_spawns").pick_random()

@@ -4,13 +4,20 @@ extends Node
 @onready var main_menu: MainMenu = $MainMenu
 @export var guide_map_fps: GUIDEMappingContext
 @onready var escape_menu: EscapeMenu = $EscapeMenu
+@export var start_world_scene: PackedScene
+@onready var game_world_manager: GameWorldManager = $GameWorldManager
 
 @export var boid_types: Array[BoidType]
+@onready var screen: Screen = $Screen
 
 func _on_save_config() -> void:
     Config.save()
 
+func set_world(next: PackedScene):
+    game_world_manager.game_world = next.instantiate()
+
 func _helper_start_server(port: int):
+    set_world(start_world_scene)
     multiplayer_handler.server_start(port)
     _helper_show_game()
 
@@ -39,12 +46,9 @@ func _on_netsim_client_connected():
 
 func _input(event: InputEvent) -> void:
     if event.is_action_pressed("ui_cancel"):
-        print("Input")
         if GUIDE.is_mapping_context_enabled(guide_map_fps):
-            print("Menu")
             _helper_show_menu()
         else:
-            print("Game")
             _helper_show_game()
 
 func _ready():
