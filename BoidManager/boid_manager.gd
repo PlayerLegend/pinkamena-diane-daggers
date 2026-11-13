@@ -69,7 +69,7 @@ var _max_collision_radius := 0.0  # largest collision_radius of any registered t
 # --- Boid data (structure of arrays). Type t owns slots [_type_base[t], _type_base[t] + max_boids) ---
 var _pos := PackedVector3Array()
 var _vel := PackedVector3Array()
-var _fwd := PackedVector3Array()
+var _rot := PackedFloat32Array()  # orientation quaternion, 4 floats (xyzw) per boid
 var _steer := PackedVector3Array()
 var _avoid_push := PackedVector3Array()
 var _boid_type := PackedInt32Array()
@@ -361,16 +361,7 @@ func get_boid_position(index: int) -> Vector3:
 func get_boid_transform(index: int) -> Transform3D:
     if _type_of_slot(index) == -1:
         return Transform3D(Basis.IDENTITY, Vector3.INF)
-    var forward := _fwd[index]
-    if forward.length_squared() < 0.0001:
-        return Transform3D(Basis.IDENTITY, _pos[index])
-    forward = forward.normalized()
-    # Build basis with -Z facing forward, matching the render basis in _integrate()
-    var z := -forward
-    var up := Vector3.UP if absf(forward.y) < 0.99 else Vector3.RIGHT
-    var x := up.cross(z).normalized()
-    var y := z.cross(x)
-    return Transform3D(Basis(x, y, z), _pos[index])
+    return Transform3D(Basis(_get_rot(index)), _pos[index])
 
 
 ## Health of a boid, or 0 if the index is not a live boid.
@@ -419,13 +410,13 @@ func remove_boid(index: int) -> bool:
     var removed_mesh := _multimeshes[t].mesh
     var removed_pos := _pos[index]
     var removed_vel := _vel[index]
-    var removed_fwd := _fwd[index]
+    var removed_fwd := -(_get_rot(index) * Vector3.FORWARD)
     var removed_health := _health[index]
 
     if index != last:
         _pos[index] = _pos[last]
         _vel[index] = _vel[last]
-        _fwd[index] = _fwd[last]
+        _set_rot(index, _get_rot(last))
         _steer[index] = _steer[last]
         _avoid_push[index] = _avoid_push[last]
         _health[index] = _health[last]
@@ -471,6 +462,31 @@ func _ensure_grid_current() -> void:
         _build_grid()
 
 
+## Reads the orientation quaternion of boid `i` (stored as 4 floats: x, y, z, w).
+func _get_rot(i: int) -> Quaternion:
+    var o := i * 4
+    return Quaternion(_rot[o], _rot[o + 1], _rot[o + 2], _rot[o + 3])
+
+
+## Writes the orientation quaternion of boid `i`.
+func _set_rot(i: int, q: Quaternion) -> void:
+    var o := i * 4
+    _rot[o] = q.x
+    _rot[o + 1] = q.y
+    _rot[o + 2] = q.z
+    _rot[o + 3] = q.w
+
+
+## Quaternion whose local -Z axis points along `forward`, using the same up-vector
+## convention as the render basis (flip to RIGHT when moving near-vertical).
+func _quat_from_forward(forward: Vector3) -> Quaternion:
+    var z := -forward
+    var up := Vector3.UP if absf(forward.y) < 0.99 else Vector3.RIGHT
+    var x := up.cross(z).normalized()
+    var y := z.cross(x)
+    return Basis(x, y, z).get_rotation_quaternion()
+
+
 func _spawn(t: int, xform: Transform3D, velocity: Vector3) -> int:
     var bt := _types[t]
     if _type_counts[t] >= bt.max_boids:
@@ -487,9 +503,9 @@ func _spawn(t: int, xform: Transform3D, velocity: Vector3) -> int:
     _health[i] = bt.max_health
     _flash_end[i] = 0.0
     if velocity.length_squared() > 0.0001:
-        _fwd[i] = velocity.normalized()
+        _set_rot(i, _quat_from_forward(velocity.normalized()))
     else:
-        _fwd[i] = -xform.basis.z.normalized()
+        _set_rot(i, _quat_from_forward(-xform.basis.z.normalized()))
     _grid_dirty_gen += 1
     return i
 
@@ -560,7 +576,7 @@ func register_type(bt: BoidType) -> int:
 func _resize_boid_arrays() -> void:
     _pos.resize(_capacity)
     _vel.resize(_capacity)
-    _fwd.resize(_capacity)
+    _rot.resize(_capacity * 4)
     _steer.resize(_capacity)
     _avoid_push.resize(_capacity)
     _boid_type.resize(_capacity)
@@ -843,21 +859,22 @@ func _integrate(delta: float) -> void:
             _vel[i] = boid_vel
             _pos[i] = boid_pos
 
-            # Smoothed facing direction
-            var forward := _fwd[i]
+            # Rotate the orientation quaternion toward the velocity direction (shortest arc),
+            # turning `turn_t` of the way each tick.
+            var q := _get_rot(i)
             if boid_vel.length_squared() > 0.01:
-                forward = forward.lerp(boid_vel.normalized(), turn_t)
-                if forward.length_squared() < 0.0001:
-                    forward = boid_vel.normalized()
-                else:
-                    forward = forward.normalized()
-                _fwd[i] = forward
+                var target := _quat_from_forward(boid_vel.normalized())
+                var delta_q := q.inverse() * target
+                if delta_q.w < 0.0:
+                    delta_q = -delta_q  # shortest arc
+                var step := Quaternion.IDENTITY.slerp(delta_q, turn_t)
+                q = (q * step).normalized()
+                _set_rot(i, q)
 
-            # Build basis (-Z faces forward), avoiding degeneracy when moving straight up/down
-            var z := -forward
-            var up := Vector3.UP if absf(forward.y) < 0.99 else Vector3.RIGHT
-            var x := up.cross(z).normalized()
-            var y := z.cross(x)
+            var basis := Basis(q)
+            var x := basis.x
+            var y := basis.y
+            var z := basis.z
 
             # MultiMesh TRANSFORM_3D layout: 3 rows of (basis column x, y, z, origin),
             # followed by 4 floats of custom data (use_custom_data = true)
