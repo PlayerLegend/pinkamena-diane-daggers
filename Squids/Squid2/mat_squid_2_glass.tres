@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://ba0iq7h7ct67l"]
+
+[ext_resource type="Shader" uid="uid://dxc4bygxwyqs6" path="res://Squids/Squid2/Glass.gdshader" id="1_pkdh1"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_pkdh1")
+shader_parameter/refraction_strength = 0.03
+shader_parameter/blur = 0.0
+shader_parameter/tint = Color(0.98039216, 0.28235295, 0.57254905, 1)
+shader_parameter/geo_refraction_strength = -0.015999994240229992

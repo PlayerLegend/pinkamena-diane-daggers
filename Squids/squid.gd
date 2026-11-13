@@ -3,7 +3,7 @@ extends SlideBody3D
 class_name Squid
 
 var fly_direction: Vector3
-@export var arena_radius: float = 11 * 3
+@export var arena_radius: float = 11 * 3 * 0.5
 
 @export var rollback_synchronizer: RollbackSynchronizer
 
@@ -27,6 +27,8 @@ func _ready():
     fly_direction.x = randf_range(-1,1)
     fly_direction.z = randf_range(-1,1)
     fly_direction = fly_direction.normalized()
+    
+    rotation.y = randf_range(0,1) * PI
     
     var height = position.y
     position = -arena_radius * fly_direction

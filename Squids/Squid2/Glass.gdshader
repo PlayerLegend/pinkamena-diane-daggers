@@ -11,6 +11,8 @@ uniform vec4 tint : source_color = vec4(0.9, 0.95, 1.0, 1.0);
 uniform float geo_refraction_strength : hint_range(-0.2, 0.2) = 0.05;
 //uniform vec3 albedo : source_color;
 
+
+
 void fragment() {
     // Decode the normal map to -1..1 and use xy as a 2D screen offset
     vec3 n = texture(normal_map, UV).rgb * 2.0 - 1.0;
@@ -26,9 +28,9 @@ void fragment() {
     
     ALBEDO = tint.rgb;
     EMISSION = refracted * tint.rgb;
-
+    
     // Keep the surface glossy so lights and reflections still glint on it
     //ROUGHNESS = roughness;
     //SPECULAR = 0.8;
-    //NORMAL_MAP = texture(normal_map, UV).rgb;
+    NORMAL_MAP = texture(normal_map, UV).rgb;
 }

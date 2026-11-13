@@ -10,6 +10,8 @@ uniform sampler2D albedo_texture : source_color;
 global uniform float flash_effect_time_now;
 varying flat float flash_end;
 
+uniform vec3 flash_color : source_color = vec3(0.0, 0.573, 0.859);
+
 // Precomputed per-frame (uniform expressions — Godot hoists these once)
 float get_angle() {
     float t = sin(TIME * (6.28318530718 / period));
@@ -41,8 +43,11 @@ void fragment() {
     float active = step(flash_effect_time_now, flash_end) * step(0.001, flash_end);
 
     if (active > 0.5) {
-        ALBEDO = vec3(0.494, 0.831, 1.0);
-        EMISSION = vec3(0.0, 0.573, 0.859);
+        //ALBEDO = vec3(0.494, 0.831, 1.0);
+        ALBEDO = vec3(1.0);
+        //EMISSION = ALBEDO;
+        //EMISSION = vec3(0.0, 0.573, 0.859);
+        EMISSION = flash_color;
     }
     else {
         ALBEDO = texture(albedo_texture, UV).rgb;

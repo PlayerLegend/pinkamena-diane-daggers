@@ -32,6 +32,10 @@ BoidManager="*uid://c4jr8b24c4o7r"
 
 enabled=PackedStringArray("res://addons/guide/plugin.cfg", "res://addons/netfox.extras/plugin.cfg", "res://addons/netfox.internals/plugin.cfg", "res://addons/netfox/plugin.cfg")
 
+[filesystem]
+
+import/blender/enabled=false
+
 [layer_names]
 
 3d_render/layer_1="Enemies"
