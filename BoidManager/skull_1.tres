@@ -13,3 +13,4 @@ alignment_weight = 0.05
 cohesion_weight = 0.1
 projectile_avoidance_weight = 0.8
 projectile_avoidance_distance = 2.0
+target_group = &"players"

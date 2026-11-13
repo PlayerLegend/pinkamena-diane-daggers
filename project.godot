@@ -26,7 +26,6 @@ NetworkRollback="*uid://gas743comroj"
 NetworkEvents="*uid://bdmobxxptryj0"
 NetworkPerformance="*uid://cqgf7aqmjfoa3"
 Config="*uid://ywtjblr0co4t"
-BoidManager="*uid://c4jr8b24c4o7r"
 
 [editor_plugins]
 
@@ -35,6 +34,10 @@ enabled=PackedStringArray("res://addons/guide/plugin.cfg", "res://addons/netfox.
 [filesystem]
 
 import/blender/enabled=false
+
+[gui]
+
+theme/custom="uid://yoxiy2q5374h"
 
 [layer_names]
 

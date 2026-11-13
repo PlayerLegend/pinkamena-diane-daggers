@@ -1,12 +1,12 @@
-extends VBoxContainer
+extends Control
 
 var _is_collecting_area: bool = false
 var _motion_sum: float
 var _area_min: float
 var _area_max: float
 
-@onready var _gui_area := $Options/Area
-@onready var _gui_degrees := $Options/Degrees
+@export var _gui_area: LineEdit
+@export var _gui_degrees: LineEdit
 
 func _helper_get_area() -> float:
     var result = _gui_area.text

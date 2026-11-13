@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://punkfa765yoh"]
 
-[ext_resource type="PackedScene" uid="uid://b1vh3dqy5xcdv" path="res://menu/MouseConfig/MouseConfig.tscn" id="1_54j8g"]
-[ext_resource type="Script" uid="uid://dyw5h70qf0v0d" path="res://menu/EscapeMenu/escape_menu.gd" id="1_405ps"]
-[ext_resource type="PackedScene" uid="uid://co8tu78tmwalb" path="res://menu/SaveConfig/SaveConfig.tscn" id="3_yi8df"]
+[ext_resource type="PackedScene" uid="uid://b1vh3dqy5xcdv" path="res://Menu/MouseConfig/MouseConfig.tscn" id="1_54j8g"]
+[ext_resource type="Script" uid="uid://dyw5h70qf0v0d" path="res://Menu/EscapeMenu/escape_menu.gd" id="1_405ps"]
+[ext_resource type="PackedScene" uid="uid://co8tu78tmwalb" path="res://Menu/SaveConfig/SaveConfig.tscn" id="3_yi8df"]
 
 [node name="EscapeMenu" type="ColorRect" unique_id=506815160]
 anchors_preset = 15
@@ -38,6 +38,3 @@ size_flags_horizontal = 3
 
 [node name="SaveConfig" parent="VBox" unique_id=1684529909 instance=ExtResource("3_yi8df")]
 layout_mode = 2
-
-[connection signal="set_mouse_scale" from="VBox/HBoxContainer/MouseConfig" to="." method="_on_mouse_config_set_mouse_scale"]
-[connection signal="save_config" from="VBox/SaveConfig" to="." method="_on_save_config_save_config"]

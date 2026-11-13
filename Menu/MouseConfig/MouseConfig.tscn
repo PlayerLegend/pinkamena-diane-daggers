@@ -2,43 +2,43 @@
 
 [ext_resource type="Script" uid="uid://x7k30fktawr7" path="res://Menu/MouseConfig/mouse_config.gd" id="1_w4g6m"]
 
-[node name="Mouse Config" type="VBoxContainer" unique_id=1093324099]
+[node name="Mouse Config" type="VBoxContainer" unique_id=1093324099 node_paths=PackedStringArray("_gui_area", "_gui_degrees")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_w4g6m")
+_gui_area = NodePath("Area")
+_gui_degrees = NodePath("Degrees")
 
 [node name="Title" type="RichTextLabel" parent="." unique_id=996862371]
+visible = false
 layout_mode = 2
 size_flags_vertical = 0
 text = "Mouse Config"
 fit_content = true
+autowrap_trim_flags = 0
 
-[node name="Options" type="HBoxContainer" parent="." unique_id=238246399]
+[node name="RecordArea" type="Button" parent="." unique_id=903265427]
 layout_mode = 2
-
-[node name="RecordArea" type="Button" parent="Options" unique_id=903265427]
-layout_mode = 2
-size_flags_horizontal = 3
+size_flags_horizontal = 2
 size_flags_stretch_ratio = 0.24
 button_mask = 3
 text = "Record Mouse Area"
 
-[node name="Area" type="LineEdit" parent="Options" unique_id=1076465743]
+[node name="Area" type="LineEdit" parent="." unique_id=1076465743]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.67
 placeholder_text = "Area"
 
-[node name="Degrees" type="LineEdit" parent="Options" unique_id=1622908676]
+[node name="Degrees" type="LineEdit" parent="." unique_id=1622908676]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.67
-placeholder_text = "Degrees"
+placeholder_text = "Degrees  "
 
 [connection signal="visibility_changed" from="." to="." method="_on_visibility_changed"]
-[connection signal="button_down" from="Options/RecordArea" to="." method="_on_record_area_button_down"]
-[connection signal="text_changed" from="Options/Area" to="." method="_on_area_text_changed"]
-[connection signal="text_changed" from="Options/Degrees" to="." method="_on_degrees_text_changed"]
+[connection signal="button_down" from="RecordArea" to="." method="_on_record_area_button_down"]
+[connection signal="text_changed" from="Area" to="." method="_on_area_text_changed"]
+[connection signal="text_changed" from="Degrees" to="." method="_on_degrees_text_changed"]

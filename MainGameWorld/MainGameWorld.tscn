@@ -1,0 +1,45 @@
+[gd_scene format=3 uid="uid://o0rbejo44tmp"]
+
+[ext_resource type="PackedScene" uid="uid://clbho01tu8i5" path="res://Arena/Arena.tscn" id="1_no7po"]
+[ext_resource type="PackedScene" uid="uid://dxsgsfp420pha" path="res://DecalCanvas/DecalCanvas.tscn" id="2_f6jl5"]
+[ext_resource type="PackedScene" uid="uid://b50t5xujkven0" path="res://SpawnManager/SpawnManager.tscn" id="3_ic5cg"]
+[ext_resource type="Resource" uid="uid://d1d8nej4fn0wp" path="res://SpawnManager/MainSpawnList.tres" id="4_agc1l"]
+[ext_resource type="Script" uid="uid://cxxd4g8kyoy7q" path="res://MainGameWorld/afterimage_spawner.gd" id="5_w8jjk"]
+[ext_resource type="PackedScene" uid="uid://byuu4u3gn4vmi" path="res://StaticMeshManager/StaticMeshManager.tscn" id="6_tm6md"]
+[ext_resource type="Script" uid="uid://euu43r4wd805" path="res://MainGameWorld/gib_thrower.gd" id="7_hckcl"]
+[ext_resource type="PackedScene" uid="uid://cp3pewe063a34" path="res://Gibs/Cupcake/CupcakeGib.tscn" id="8_iucek"]
+[ext_resource type="PackedScene" uid="uid://cpbdy64obvfj6" path="res://Gibs/Ball1/Ball1Gib.tscn" id="9_uoo4q"]
+[ext_resource type="PackedScene" uid="uid://bh07fmuqqi32k" path="res://Gibs/Hat1/Hat1Gib.tscn" id="10_axmv6"]
+
+[sub_resource type="Environment" id="Environment_0lili"]
+background_mode = 1
+ambient_light_source = 1
+
+[node name="MainGameWorld" type="Node3D" unique_id=1684900846]
+
+[node name="Arena" parent="." unique_id=1057556895 instance=ExtResource("1_no7po")]
+
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1097827450]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.139495, 0)
+omni_range = 81.01641
+
+[node name="DecalCanvas" parent="." unique_id=1855920060 instance=ExtResource("2_f6jl5")]
+emission_strength = 0.71
+
+[node name="SpawnManager" parent="." unique_id=1985212331 node_paths=PackedStringArray("spawn_parent") instance=ExtResource("3_ic5cg")]
+repeat = ExtResource("4_agc1l")
+spawn_parent = NodePath("")
+
+[node name="AfterimageSpawner" type="Node3D" parent="." unique_id=901342506]
+script = ExtResource("5_w8jjk")
+
+[node name="StaticMeshManager" parent="." unique_id=1745606803 instance=ExtResource("6_tm6md")]
+
+[node name="GibThrower" type="Node3D" parent="." unique_id=1049974983 node_paths=PackedStringArray("static_mesh_manager", "decal_canvas")]
+script = ExtResource("7_hckcl")
+gib_scenes = Array[PackedScene]([ExtResource("8_iucek"), ExtResource("9_uoo4q"), ExtResource("10_axmv6")])
+static_mesh_manager = NodePath("")
+decal_canvas = NodePath("")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=595729715]
+environment = SubResource("Environment_0lili")

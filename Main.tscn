@@ -11,37 +11,23 @@
 [ext_resource type="Resource" uid="uid://wn0bn3cywsmk" path="res://BoidManager/skull_3.tres" id="6_5tuhn"]
 [ext_resource type="PackedScene" uid="uid://cve8ibikysj1w" path="res://Menu/MainMenu/MainMenu.tscn" id="6_lgr22"]
 [ext_resource type="Resource" uid="uid://iad02ocldrpf" path="res://BoidManager/skull_4.tres" id="7_2gh4u"]
-[ext_resource type="Script" uid="uid://okas2ady2mej" path="res://enemies.gd" id="8_03owx"]
-[ext_resource type="PackedScene" uid="uid://clbho01tu8i5" path="res://Arena/Arena.tscn" id="12_5vvyt"]
-[ext_resource type="PackedScene" uid="uid://dxsgsfp420pha" path="res://DecalCanvas/DecalCanvas.tscn" id="17_sc1dx"]
-[ext_resource type="Script" uid="uid://cxxd4g8kyoy7q" path="res://afterimage_spawner.gd" id="18_kjvhd"]
+[ext_resource type="Script" uid="uid://okas2ady2mej" path="res://MainGameWorld/enemies.gd" id="8_03owx"]
 [ext_resource type="PackedScene" uid="uid://bp8u34bitp0w4" path="res://Screen/Screen.tscn" id="19_2gh4u"]
 [ext_resource type="Shader" uid="uid://bn42irgcwd7lh" path="res://Screen/Screen.gdshader" id="20_devvj"]
-[ext_resource type="Script" uid="uid://euu43r4wd805" path="res://gib_thrower.gd" id="21_devvj"]
-[ext_resource type="PackedScene" uid="uid://byuu4u3gn4vmi" path="res://StaticMeshManager/StaticMeshManager.tscn" id="22_3b0ty"]
-[ext_resource type="PackedScene" uid="uid://cp3pewe063a34" path="res://Gibs/Cupcake/CupcakeGib.tscn" id="22_bg4s2"]
-[ext_resource type="PackedScene" uid="uid://b50t5xujkven0" path="res://SpawnManager/SpawnManager.tscn" id="23_bg4s2"]
-[ext_resource type="PackedScene" uid="uid://cpbdy64obvfj6" path="res://Gibs/Ball1/Ball1Gib.tscn" id="23_hhcpw"]
-[ext_resource type="Resource" uid="uid://d1d8nej4fn0wp" path="res://SpawnManager/MainSpawnList.tres" id="24_hhcpw"]
-[ext_resource type="PackedScene" uid="uid://bh07fmuqqi32k" path="res://Gibs/Hat1/Hat1Gib.tscn" id="24_mxvw5"]
 
-[sub_resource type="ViewportTexture" id="ViewportTexture_hhcpw"]
+[sub_resource type="ViewportTexture" id="ViewportTexture_c2ibq"]
 viewport_path = NodePath("ScreenEffects")
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_mxvw5"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_j4qnp"]
 resource_local_to_scene = true
 shader = ExtResource("20_devvj")
-shader_parameter/screen_render = SubResource("ViewportTexture_hhcpw")
-
-[sub_resource type="Environment" id="Environment_sqvbp"]
-background_mode = 1
-ambient_light_source = 1
+shader_parameter/screen_render = SubResource("ViewportTexture_c2ibq")
 
 [node name="Main" type="Node" unique_id=1203969749 node_paths=PackedStringArray("multiplayer_handler")]
 script = ExtResource("1_glv2v")
-multiplayer_handler = NodePath("MultiplayerHandler")
 guide_map_fps = ExtResource("2_lgr22")
 boid_types = Array[ExtResource("3_fpfj3")]([ExtResource("4_sc1dx"), ExtResource("5_kjvhd"), ExtResource("6_5tuhn"), ExtResource("7_2gh4u")])
+multiplayer_handler = NodePath("MultiplayerHandler")
 
 [node name="MultiplayerHandler" parent="." unique_id=1652064301 node_paths=PackedStringArray("screen") instance=ExtResource("2_uu6xs")]
 screen = NodePath("../Screen")
@@ -56,37 +42,10 @@ metadata/_custom_type_script = "uid://blxd2e2temnsn"
 [node name="Enemies" type="Node" parent="." unique_id=200551601]
 script = ExtResource("8_03owx")
 
-[node name="Arena" parent="." unique_id=1057556895 instance=ExtResource("12_5vvyt")]
-
 [node name="Screen" parent="." unique_id=1531499629 instance=ExtResource("19_2gh4u")]
-material = SubResource("ShaderMaterial_mxvw5")
+material = SubResource("ShaderMaterial_j4qnp")
 render_height = 400
 
-[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1252718192]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.139495, 0)
-omni_range = 81.01641
-
 [node name="EscapeMenu" parent="." unique_id=506815160 instance=ExtResource("5_3dxm6")]
-
-[node name="DecalCanvas" parent="." unique_id=1855920060 instance=ExtResource("17_sc1dx")]
-emission_strength = 0.71
-
-[node name="SpawnManager" parent="." unique_id=1985212331 node_paths=PackedStringArray("spawn_parent") instance=ExtResource("23_bg4s2")]
-repeat = ExtResource("24_hhcpw")
-spawn_parent = NodePath("../Enemies")
-
-[node name="AfterimageSpawner" type="Node3D" parent="." unique_id=184789913]
-script = ExtResource("18_kjvhd")
-
-[node name="StaticMeshManager" parent="." unique_id=1745606803 instance=ExtResource("22_3b0ty")]
-
-[node name="GibThrower" type="Node3D" parent="." unique_id=2068006607 node_paths=PackedStringArray("static_mesh_manager", "decal_canvas")]
-script = ExtResource("21_devvj")
-static_mesh_manager = NodePath("../StaticMeshManager")
-decal_canvas = NodePath("../DecalCanvas")
-gib_scenes = Array[PackedScene]([ExtResource("22_bg4s2"), ExtResource("23_hhcpw"), ExtResource("24_mxvw5")])
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=660186046]
-environment = SubResource("Environment_sqvbp")
 
 [connection signal="child_entered_tree" from="Enemies" to="Enemies" method="_on_child_entered_tree"]

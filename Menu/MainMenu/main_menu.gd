@@ -1,4 +1,4 @@
-extends VBoxContainer
+extends Control
 
 signal net_host(port: int)
 signal net_connect(host: String, port: int)
@@ -23,3 +23,11 @@ func _on_mouse_config_set_mouse_scale(mscale: float, area: float, degrees: float
 
 func _on_save_config_save_config() -> void:
     save_config.emit()
+
+
+func _on_play_button_pressed() -> void:
+    net_host.emit(32357)
+
+
+func _on_exit_button_pressed() -> void:
+    get_tree().quit()

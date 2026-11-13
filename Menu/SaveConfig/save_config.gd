@@ -1,4 +1,4 @@
 extends Control
 
-func _on_save_config_button_down() -> void:
+func _on_pressed() -> void:
     Config.save()

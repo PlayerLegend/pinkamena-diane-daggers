@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="BoidType" format=3 uid="uid://dgggbwe0wep0e"]
+
+[ext_resource type="Material" uid="uid://ccxd18s7i7rc6" path="res://Skulls/Skull3/mat_skull_3.tres" id="1_en7la"]
+[ext_resource type="ArrayMesh" uid="uid://mor87fxp7iva" path="res://Skulls/Skull1/skull1.obj" id="2_pxgrb"]
+[ext_resource type="Script" uid="uid://ccb31lioy8b6j" path="res://BoidManager/boid_type.gd" id="3_svlf1"]
+
+[resource]
+script = ExtResource("3_svlf1")
+type_name = &"skull1"
+mesh = ExtResource("2_pxgrb")
+material_overrides = Array[Material]([ExtResource("1_en7la"), null])
+max_speed = 4.0
+min_speed = 1.475
+separation_weight = 0.385
+alignment_weight = 0.05
+cohesion_weight = 0.3
+turn_speed = 1.0
