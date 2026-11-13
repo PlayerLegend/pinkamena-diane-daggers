@@ -149,6 +149,41 @@ func get_boid_mesh(index: int) -> Mesh:
         return null
     return _multimeshes[t].mesh
 
+## Returns the index of the first live boid whose collision sphere contains `point`
+## (distance to the boid's center <= its collision_radius), or -1 if none does.
+## No ordering is guaranteed when several boids overlap the point.
+## If `type` is null, boids of every type are considered.
+func get_boid_at_point(point: Vector3, type: BoidType = null) -> int:
+    if _types.is_empty():
+        return -1
+    var wanted := -1
+    if type != null:
+        wanted = _types.find(type)
+        if wanted == -1:
+            return -1
+
+    _ensure_grid_current()
+
+    var max_cell := _dim - 1
+    var cell_reach := int(ceil(_max_collision_radius * _inv_cell))
+    var center_cell := _cell_coords(point)
+
+    for cz in range(maxi(center_cell.z - cell_reach, 0), mini(center_cell.z + cell_reach, max_cell) + 1):
+        for cy in range(maxi(center_cell.y - cell_reach, 0), mini(center_cell.y + cell_reach, max_cell) + 1):
+            for cx in range(maxi(center_cell.x - cell_reach, 0), mini(center_cell.x + cell_reach, max_cell) + 1):
+                var cell := cx + _dim * (cy + _dim * cz)
+                for slot in range(_cell_start[cell], _cell_start[cell + 1]):
+                    var other := _cell_items[slot]
+                    var t := _boid_type[other]
+                    if wanted != -1 and t != wanted:
+                        continue
+                    if other >= _type_base[t] + _type_counts[t]:
+                        continue
+                    var r: float = _types[t].collision_radius
+                    if _pos[other].distance_squared_to(point) <= r * r:
+                        return other
+    return -1
+
 ## Returns the indices of all live boids whose collision sphere touches the query sphere
 ## (distance between centers <= radius + the boid's collision_radius). If `type` is null,
 ## boids of every type are considered. Returns an empty array if none match.
