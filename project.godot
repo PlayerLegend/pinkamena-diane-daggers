@@ -49,7 +49,7 @@ import/blender/enabled=false
 
 [netfox]
 
-autoconnect/enabled=true
+autoconnect/enabled=false
 
 [physics]
 
