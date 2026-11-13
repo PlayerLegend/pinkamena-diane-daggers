@@ -12,8 +12,8 @@ extends Node3D
 ##     flock.add_boid_by_name(&"default", transform, velocity)  # type must already be registered
 ## and, to interact with the flock, just add nodes to the groups named below
 ## (no per-tick calls needed):
-##     add_to_group("projectiles")   # nearby boids are pushed away
-##     add_to_group("players")       # boids seek the nearest one
+##     add_to_group("avoid_targets")   # nearby boids are pushed away
+##     add_to_group("chase_targets")   # boids seek the nearest one
 ##
 ## Group members must be Node3D; their global_position is sampled once per physics tick.
 ##
@@ -50,7 +50,11 @@ const TIME_PARAM := &"flash_effect_time_now"
 
 @export_group("Avoidance")
 ## Nodes in this group push boids away.
-@export var projectile_group := &"projectiles"
+@export var avoid_target_group := &"avoid_targets"
+
+@export_group("Targets")
+## Nodes in this group are chased by every boid type.
+@export var chase_target_group := &"chase_targets"
 
 # --- Per-type data (indexed by type index) ---
 var _types: Array[BoidType] = []
@@ -67,7 +71,7 @@ var _pos := PackedVector3Array()
 var _vel := PackedVector3Array()
 var _fwd := PackedVector3Array()
 var _steer := PackedVector3Array()
-var _proj_push := PackedVector3Array()
+var _avoid_push := PackedVector3Array()
 var _boid_type := PackedInt32Array()
 var _health := PackedInt32Array()
 var _flash_end := PackedFloat32Array()  # absolute time (seconds, see _now()) when the flash ends; 0 = none
@@ -87,8 +91,8 @@ var _grid_built_gen := 0
 # --- Positions sampled from the groups at the start of each tick ---
 var _group_positions := {}  # StringName -> PackedVector3Array (reused between ticks)
 var _gathered := {}         # groups already sampled this tick
-var _proj_list := PackedVector3Array()
-var _target_lists: Array = []  # PackedVector3Array per type
+var _avoid_list := PackedVector3Array()
+var _chase_list := PackedVector3Array()
 
 func _ready() -> void:
     top_level = true
@@ -423,7 +427,7 @@ func remove_boid(index: int) -> bool:
         _vel[index] = _vel[last]
         _fwd[index] = _fwd[last]
         _steer[index] = _steer[last]
-        _proj_push[index] = _proj_push[last]
+        _avoid_push[index] = _avoid_push[last]
         _health[index] = _health[last]
         _flash_end[index] = _flash_end[last]
         _boid_type[index] = _boid_type[last]
@@ -479,7 +483,7 @@ func _spawn(t: int, xform: Transform3D, velocity: Vector3) -> int:
         _pos[i].y = maxf(_pos[i].y, bt.floor_height)
     _vel[i] = velocity
     _steer[i] = Vector3.ZERO
-    _proj_push[i] = Vector3.ZERO
+    _avoid_push[i] = Vector3.ZERO
     _health[i] = bt.max_health
     _flash_end[i] = 0.0
     if velocity.length_squared() > 0.0001:
@@ -549,7 +553,6 @@ func register_type(bt: BoidType) -> int:
     buf.resize(bt.max_boids * FLOATS_PER_INSTANCE)
     _buffers.append(buf)
 
-    _target_lists.append(PackedVector3Array())
     return t
 
 
@@ -559,7 +562,7 @@ func _resize_boid_arrays() -> void:
     _vel.resize(_capacity)
     _fwd.resize(_capacity)
     _steer.resize(_capacity)
-    _proj_push.resize(_capacity)
+    _avoid_push.resize(_capacity)
     _boid_type.resize(_capacity)
     _health.resize(_capacity)
     _flash_end.resize(_capacity)
@@ -602,9 +605,8 @@ func _sample_group(group: StringName) -> PackedVector3Array:
 
 func _gather_group_positions() -> void:
     _gathered.clear()
-    _proj_list = _sample_group(projectile_group)
-    for t in _types.size():
-        _target_lists[t] = _sample_group(_types[t].target_group)
+    _avoid_list = _sample_group(avoid_target_group)
+    _chase_list = _sample_group(chase_target_group)
 
 
 func _cell_coords(point: Vector3) -> Vector3i:
@@ -649,23 +651,23 @@ func _build_grid() -> void:
     _grid_built_gen = _grid_dirty_gen
 
 
-## Pushes boids near each projectile away from it. Each type uses its own avoidance
+## Pushes boids near each avoid target away from it. Each type uses its own avoidance
 ## distance.
-func _apply_projectiles() -> void:
-    _proj_push.fill(Vector3.ZERO)
-    if _proj_list.is_empty():
+func _apply_avoidance() -> void:
+    _avoid_push.fill(Vector3.ZERO)
+    if _avoid_list.is_empty():
         return
     var max_cell := _dim - 1
 
     for t in _types.size():
         if _type_counts[t] == 0:
             continue
-        var radius := _types[t].projectile_avoidance_distance
+        var radius := _types[t].avoid_target_distance
         var radius_sq := radius * radius
         var cell_reach := int(ceil(radius * _inv_cell))
 
-        for proj_pos in _proj_list:
-            var center_cell := _cell_coords(proj_pos)
+        for avoid_pos in _avoid_list:
+            var center_cell := _cell_coords(avoid_pos)
             for cz in range(maxi(center_cell.z - cell_reach, 0), mini(center_cell.z + cell_reach, max_cell) + 1):
                 for cy in range(maxi(center_cell.y - cell_reach, 0), mini(center_cell.y + cell_reach, max_cell) + 1):
                     for cx in range(maxi(center_cell.x - cell_reach, 0), mini(center_cell.x + cell_reach, max_cell) + 1):
@@ -674,10 +676,10 @@ func _apply_projectiles() -> void:
                             var other := _cell_items[slot]
                             if _boid_type[other] != t:
                                 continue
-                            var offset := _pos[other] - proj_pos
+                            var offset := _pos[other] - avoid_pos
                             var dist_sq := offset.length_squared()
                             if dist_sq < radius_sq and dist_sq > 0.01:
-                                _proj_push[other] += offset / dist_sq  # stronger when closer
+                                _avoid_push[other] += offset / dist_sq  # stronger when closer
 
 
 func _physics_process(delta: float) -> void:
@@ -693,7 +695,7 @@ func _physics_process(delta: float) -> void:
 
     _gather_group_positions()
     _build_grid()
-    _apply_projectiles()
+    _apply_avoidance()
     _compute_steering()
     _integrate(delta)
 
@@ -707,6 +709,7 @@ func _steer_towards(direction: Vector3, current_vel: Vector3, speed: float) -> V
 
 func _compute_steering() -> void:
     var max_cell := _dim - 1
+    var has_targets := not _chase_list.is_empty()
 
     for t in _types.size():
         var bt := _types[t]
@@ -714,8 +717,6 @@ func _compute_steering() -> void:
         var nr_sq := bt.neighbor_radius * bt.neighbor_radius
         var sep_sq := bt.separation_radius * bt.separation_radius
         var max_speed := bt.max_speed
-        var targets: PackedVector3Array = _target_lists[t]
-        var has_targets := not targets.is_empty()
 
         for i in range(base, base + _type_counts[t]):
             var boid_pos := _pos[i]
@@ -760,7 +761,7 @@ func _compute_steering() -> void:
                             break
 
             # --- Combine rules ---
-            var steering := _steer_towards(_proj_push[i], boid_vel, max_speed) * bt.projectile_avoidance_weight
+            var steering := _steer_towards(_avoid_push[i], boid_vel, max_speed) * bt.avoid_target_weight
 
             steering += _steer_towards(separation_push, boid_vel, max_speed) * bt.separation_weight
 
@@ -773,17 +774,17 @@ func _compute_steering() -> void:
             steering += _stay_in_bounds(bt, boid_pos, boid_vel) * bt.bounds_weight
             steering += _avoid_floor(bt, boid_pos, boid_vel) * bt.floor_weight
 
-            # --- Chase the nearest node in the target group ---
+            # --- Chase the nearest node in the chase target group ---
             if has_targets:
                 var best_sq := INF
                 var best_dir := Vector3.ZERO
-                for target_pos in targets:
+                for target_pos in _chase_list:
                     var to_target := target_pos - boid_pos
                     var target_sq := to_target.length_squared()
                     if target_sq < best_sq:
                         best_sq = target_sq
                         best_dir = to_target
-                steering += _steer_towards(best_dir, boid_vel, max_speed) * bt.target_weight
+                steering += _steer_towards(best_dir, boid_vel, max_speed) * bt.chase_target_weight
 
             _steer[i] = steering
 

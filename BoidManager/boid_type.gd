@@ -44,10 +44,6 @@ extends Resource
 @export var neighbor_radius := 3.0  ## Perception radius (the manager's grid cell size is the largest of these)
 @export var max_neighbors := 24  ## Early-out cap per boid in dense clumps
 
-@export_group("Avoidance")
-@export var projectile_avoidance_weight := 1.0
-@export var projectile_avoidance_distance := 3.0
-
 @export_group("Bounds")
 @export var bounds_weight := 1.1  ## Bounds shape itself lives on the BoidManager
 
@@ -61,8 +57,9 @@ extends Resource
 @export var turn_speed := 4.0  ## Smoothing for facing direction
 
 @export_group("Targets")
-@export var target_group := &"players"  ## Boids chase the nearest node in this group
-@export var target_weight := 0.3
+@export var avoid_target_weight := 1.0
+@export var avoid_target_distance := 3.0
+@export var chase_target_weight := 0.3
 
 
 func _sync_materials() -> void:
