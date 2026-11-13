@@ -44,6 +44,9 @@ const FLOATS_PER_INSTANCE := 12 + 4
 ## Name of the global shader uniform holding the current time (see _now()).
 const TIME_PARAM := &"flash_effect_time_now"
 
+@export_group("Precache Types")
+@export var precache_boid_types: Array[BoidType]
+
 @export_group("Bounds")
 @export var bounds_center := Vector3.ZERO
 @export var bounds_radius := 40.0
@@ -98,6 +101,8 @@ func _ready() -> void:
     top_level = true
     global_transform = Transform3D.IDENTITY
     _ensure_time_param()
+    for type in precache_boid_types:
+        register_type(type)
 
 
 func _ensure_time_param() -> void:
@@ -445,7 +450,29 @@ func remove_boid(index: int) -> bool:
     )
     return true
     
+## Removes every live boid of every type. Registered types are kept, so add_boid()
+## and add_boid_by_name() keep working without re-registering. Also resets the
+## spatial hash so the next query sees an empty grid.
+func clear() -> void:
+    if _types.is_empty():
+        return
 
+    for t in _types.size():
+        if _type_counts[t] == 0:
+            continue
+        _type_counts[t] = 0
+        var mm := _multimeshes[t]
+        mm.visible_instance_count = 0
+        # Optional: zero the buffer so no stale transforms linger in GPU memory.
+        # Not required for correctness (visible_instance_count = 0 hides them),
+        # but cheap insurance against any code reading mm.buffer directly.
+        var buf: PackedFloat32Array = _buffers[t]
+        buf.fill(0.0)
+        _buffers[t] = buf
+        mm.buffer = buf
+
+    _grid_dirty_gen += 1
+    
 ## Returns the type index owning this slot if it holds a live boid, otherwise -1.
 func _type_of_slot(index: int) -> int:
     if index < 0 or index >= _capacity:

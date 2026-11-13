@@ -4,48 +4,47 @@
 [ext_resource type="Resource" uid="uid://7m4a0rjn1046" path="res://PlayerController/mappings/fps.tres" id="2_lgr22"]
 [ext_resource type="PackedScene" uid="uid://b5q43yj7pgvd5" path="res://Multiplayer/Multiplayer.tscn" id="2_uu6xs"]
 [ext_resource type="Script" uid="uid://ccb31lioy8b6j" path="res://BoidManager/boid_type.gd" id="3_fpfj3"]
-[ext_resource type="Script" uid="uid://blxd2e2temnsn" path="res://PlayerSpawner/player_spawner.gd" id="4_cm0pq"]
 [ext_resource type="Resource" uid="uid://ck5s2ghgryskv" path="res://BoidManager/skull_1.tres" id="4_sc1dx"]
 [ext_resource type="PackedScene" uid="uid://punkfa765yoh" path="res://Menu/EscapeMenu/EscapeMenu.tscn" id="5_3dxm6"]
 [ext_resource type="Resource" uid="uid://begmqtybc0sut" path="res://BoidManager/skull_2.tres" id="5_kjvhd"]
 [ext_resource type="Resource" uid="uid://wn0bn3cywsmk" path="res://BoidManager/skull_3.tres" id="6_5tuhn"]
 [ext_resource type="PackedScene" uid="uid://cve8ibikysj1w" path="res://Menu/MainMenu/MainMenu.tscn" id="6_lgr22"]
 [ext_resource type="Resource" uid="uid://iad02ocldrpf" path="res://BoidManager/skull_4.tres" id="7_2gh4u"]
-[ext_resource type="Script" uid="uid://okas2ady2mej" path="res://MainGameWorld/enemies.gd" id="8_03owx"]
+[ext_resource type="Script" uid="uid://okas2ady2mej" path="res://GameWorld/MainGameWorld/enemies.gd" id="8_03owx"]
 [ext_resource type="PackedScene" uid="uid://bp8u34bitp0w4" path="res://Screen/Screen.tscn" id="19_2gh4u"]
 [ext_resource type="Shader" uid="uid://bn42irgcwd7lh" path="res://Screen/Screen.gdshader" id="20_devvj"]
 
-[sub_resource type="ViewportTexture" id="ViewportTexture_c2ibq"]
+[sub_resource type="ViewportTexture" id="ViewportTexture_c6i3y"]
 viewport_path = NodePath("ScreenEffects")
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_j4qnp"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_c2ibq"]
 resource_local_to_scene = true
 shader = ExtResource("20_devvj")
-shader_parameter/screen_render = SubResource("ViewportTexture_c2ibq")
+shader_parameter/screen_render = SubResource("ViewportTexture_c6i3y")
 
 [node name="Main" type="Node" unique_id=1203969749 node_paths=PackedStringArray("multiplayer_handler")]
 script = ExtResource("1_glv2v")
+multiplayer_handler = NodePath("MultiplayerHandler")
 guide_map_fps = ExtResource("2_lgr22")
 boid_types = Array[ExtResource("3_fpfj3")]([ExtResource("4_sc1dx"), ExtResource("5_kjvhd"), ExtResource("6_5tuhn"), ExtResource("7_2gh4u")])
-multiplayer_handler = NodePath("MultiplayerHandler")
+
+[node name="Screen" parent="." unique_id=1531499629 node_paths=PackedStringArray("main_menu") instance=ExtResource("19_2gh4u")]
+material = SubResource("ShaderMaterial_c2ibq")
+render_height = 400
+main_menu = NodePath("../MainMenu")
 
 [node name="MultiplayerHandler" parent="." unique_id=1652064301 node_paths=PackedStringArray("screen") instance=ExtResource("2_uu6xs")]
 screen = NodePath("../Screen")
 
-[node name="PlayerSpawner" type="Node3D" parent="." unique_id=1716587127]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 24, 0)
-script = ExtResource("4_cm0pq")
-metadata/_custom_type_script = "uid://blxd2e2temnsn"
-
 [node name="MainMenu" parent="." unique_id=468765123 instance=ExtResource("6_lgr22")]
+size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [node name="Enemies" type="Node" parent="." unique_id=200551601]
 script = ExtResource("8_03owx")
 
-[node name="Screen" parent="." unique_id=1531499629 instance=ExtResource("19_2gh4u")]
-material = SubResource("ShaderMaterial_j4qnp")
-render_height = 400
-
 [node name="EscapeMenu" parent="." unique_id=506815160 instance=ExtResource("5_3dxm6")]
+visible = false
 
+[connection signal="net_host" from="MainMenu" to="." method="_on_main_menu_net_host"]
 [connection signal="child_entered_tree" from="Enemies" to="Enemies" method="_on_child_entered_tree"]

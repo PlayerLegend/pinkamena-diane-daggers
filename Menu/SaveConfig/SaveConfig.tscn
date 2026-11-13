@@ -5,7 +5,7 @@
 [node name="SaveConfigButton" type="Button" unique_id=1790253667]
 offset_right = 8.0
 offset_bottom = 8.0
-text = "Save Config"
+text = "SAVE CONFIG"
 script = ExtResource("1_m8a4p")
 
 [connection signal="pressed" from="." to="." method="_on_pressed"]

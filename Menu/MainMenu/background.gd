@@ -12,6 +12,7 @@ func _random_boid_position():
 
 func _ready():
     boid_target_point.add_to_group("chase_targets")
+    visibility_changed.connect(_on_visibility_changed)
 
 func _physics_process(delta: float) -> void:
     if boid_cooldown <= 0:
@@ -24,3 +25,11 @@ func _physics_process(delta: float) -> void:
     for boid in boid_manager.get_boids_in_area(boid_target_point.position, 1.0):
         boid_manager.remove_boid(boid)
     
+func _on_visibility_changed() -> void:
+    boid_manager.clear()
+    print("SET VISIBLE ", visible)
+    if visible:
+        boid_target_point.add_to_group("chase_targets")
+    else:
+        boid_target_point.remove_from_group("chase_targets")
+        print("REMOVED FROM GROUP")

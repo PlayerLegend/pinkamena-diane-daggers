@@ -3,9 +3,10 @@ extends Node3D
 @export var static_mesh_manager: StaticMeshManager
 @export var decal_canvas: DecalCanvas
 @export var gib_scenes: Array[PackedScene]
+@export var boid_manager: BoidManager
 
 func _ready():
-    BoidManager.boid_removed.connect(_on_boid_removed)
+    boid_manager.boid_removed.connect(_on_boid_removed)
 
 func throw_gib(pos: Vector3, vel: Vector3):
     var gib_scene = gib_scenes.pick_random()

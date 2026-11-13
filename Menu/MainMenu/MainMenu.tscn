@@ -20,9 +20,16 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_lwrix")
 
+[node name="Container" type="Container" parent="." unique_id=2088187908]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.06
+
 [node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1187475636]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.35
+offset_transform_position = Vector2(0.585, 0)
 
 [node name="Container" type="Container" parent="VBoxContainer" unique_id=334262914]
 layout_mode = 2
@@ -79,6 +86,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 18.121035, 0)
 [node name="OmniLight3D" type="OmniLight3D" parent="Background" unique_id=1331810512]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.25945, 2.0248275)
 light_color = Color(0.9711314, 0, 0.46871656, 1)
+light_energy = 1.455
 omni_range = 5.735613
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Background" unique_id=2113383334]

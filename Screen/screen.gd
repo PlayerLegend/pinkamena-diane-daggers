@@ -8,6 +8,7 @@ class_name Screen
 @export var render_height: int = 0
 @export var enable_fps_counter: bool = false
 @export var player_controller: PlayerController
+@export var main_menu: MainMenu
 
 func _process(_delta: float) -> void:
     if not camera_3d:
@@ -29,8 +30,11 @@ func _process(_delta: float) -> void:
         subviewport.size = render_resolution
 
     camera_3d.make_current()
+    
     if player_controller:
         camera_3d.global_transform = player_controller.get_camera_global_transform()
+    elif main_menu:
+        camera_3d.global_transform = main_menu.get_camera_global_transform()
     
 func _ready():
     get_viewport().disable_3d = true

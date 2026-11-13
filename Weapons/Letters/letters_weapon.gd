@@ -7,6 +7,7 @@ class_name WeaponLetters
 
 @onready var markov_chain: MarkovChain
 
+
 var cooldown: float
 
 const GLYPH_DIR := "res://Blend/Text/glyphs/"
@@ -39,9 +40,10 @@ func _after_fire(_projectile: Node):
     cooldown = 60.0 / 900.0
     
 func _spawn() -> Node3D:
+    assert(projectile_parent)
     var new_projectile: LetterProjectile = projectile_scene.instantiate()
     new_projectile.add_to_group("LetterProjectiles")
-    add_child(new_projectile)
+    projectile_parent.add_child(new_projectile)
     var offset_dir: Vector3 = randf_range(-1, 1) * global_basis.x + randf_range(-1,1) * global_basis.y
     var offset = offset_dir.normalized() * randf_range(0,0.1)
     var dir = (-2.0 * global_basis.z + offset).normalized()

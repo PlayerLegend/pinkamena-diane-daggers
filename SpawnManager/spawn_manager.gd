@@ -7,7 +7,7 @@ signal enemy_spawned(enemy: Node)
 ## Looped after the last event of `schedule`.
 @export var repeat: SpawnSchedule
 ## Enemies are added as children of this node.
-@export var spawn_parent: Node
+@export var spawn_parent: MultiplayerSpawner
 
 var _events: Array[SpawnEvent]
 var _next := 0

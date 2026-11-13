@@ -2,6 +2,7 @@ class_name AfterimageSpawner
 extends Node3D
 
 var afterimage_scene = preload("res://Skulls/SkullAfterimage.tscn")
+@export var boid_manager: BoidManager
 
 func _on_boid_removed(
     _type: BoidType,
@@ -23,4 +24,4 @@ func _on_boid_removed(
     
 
 func _ready():
-    BoidManager.boid_removed.connect(_on_boid_removed)
+    boid_manager.boid_removed.connect(_on_boid_removed)

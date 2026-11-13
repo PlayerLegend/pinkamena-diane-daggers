@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://b3an81cjlarsw"]
+
+[ext_resource type="Script" uid="uid://fk7s5sahtynl" path="res://GameWorld/PreambleWorld/preamble_world.gd" id="1_ialdn"]
+[ext_resource type="PackedScene" uid="uid://clbho01tu8i5" path="res://Arena/Arena.tscn" id="2_je4gd"]
+[ext_resource type="PackedScene" uid="uid://o0rbejo44tmp" path="res://GameWorld/MainGameWorld/MainGameWorld.tscn" id="2_yuuwi"]
+[ext_resource type="Script" uid="uid://blxd2e2temnsn" path="res://PlayerSpawner/player_spawner.gd" id="3_yuuwi"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_q8hc1"]
+height = 3.9750977
+radius = 1.6713867
+
+[node name="PreambleWorld" type="Node3D" unique_id=1563315569]
+script = ExtResource("1_ialdn")
+next_world = ExtResource("2_yuuwi")
+metadata/_custom_type_script = "uid://4pbiob3hlex8"
+
+[node name="Arena" parent="." unique_id=1057556895 instance=ExtResource("2_je4gd")]
+
+[node name="PlayerSpawner" type="Node3D" parent="." unique_id=367191380]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.134716, 8.93288)
+script = ExtResource("3_yuuwi")
+metadata/_custom_type_script = "uid://blxd2e2temnsn"
+
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1955246628]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1887293, 0)
+omni_range = 81.01641
+
+[node name="StartGameTrigger" type="Area3D" parent="." unique_id=778394831]
+collision_layer = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StartGameTrigger" unique_id=44472562]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9875488, 0)
+shape = SubResource("CylinderShape3D_q8hc1")

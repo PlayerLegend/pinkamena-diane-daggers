@@ -1,21 +1,18 @@
 extends Node
 
 @export var multiplayer_handler: MultiplayerHandler
-@onready var main_menu: VBoxContainer = $MainMenu
+@onready var main_menu: MainMenu = $MainMenu
 @export var guide_map_fps: GUIDEMappingContext
-@onready var escape_menu: ColorRect = $EscapeMenu
+@onready var escape_menu: EscapeMenu = $EscapeMenu
 
 @export var boid_types: Array[BoidType]
 
-func _helper_register_boid_types():
-    for type in boid_types:
-        BoidManager.register_type(type)
-        
 func _on_save_config() -> void:
     Config.save()
 
 func _helper_start_server(port: int):
     multiplayer_handler.server_start(port)
+    _helper_show_game()
 
 func _helper_connect_server(host: String, port: int):
     multiplayer_handler.client_connect(host, port)
@@ -53,3 +50,6 @@ func _input(event: InputEvent) -> void:
 func _ready():
     NetworkSimulator.server_created.connect(_on_netsim_server_created)
     NetworkSimulator.client_connected.connect(_on_netsim_client_connected)
+
+func _on_main_menu_net_host(port: int) -> void:
+    _helper_start_server.call_deferred(port)

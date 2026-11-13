@@ -21,10 +21,12 @@ frequency = 0.4738
 [sub_resource type="NoiseTexture3D" id="NoiseTexture3D_87n76"]
 noise = SubResource("FastNoiseLite_87n76")
 
-[node name="PlayerController" type="AnimatableBody3D" unique_id=401983748]
+[node name="PlayerController" type="AnimatableBody3D" unique_id=401983748 node_paths=PackedStringArray("body_light", "weapons_controller")]
 collision_mask = 47
 sync_to_physics = false
 script = ExtResource("1_u0xto")
+body_light = NodePath("OmniLight3D")
+weapons_controller = NodePath("CamLook/Camera3D/WeaponsController")
 metadata/_custom_type_script = "uid://bjcbs7mr6mqi2"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1865844835]
@@ -36,12 +38,12 @@ guide_action_look = ExtResource("3_s3jlx")
 
 [node name="Camera3D" type="Camera3D" parent="CamLook" unique_id=1026726029]
 
-[node name="Weapons" type="Node3D" parent="CamLook/Camera3D" unique_id=1770874646 node_paths=PackedStringArray("input")]
+[node name="WeaponsController" type="Node3D" parent="CamLook/Camera3D" unique_id=1770874646 node_paths=PackedStringArray("input")]
 script = ExtResource("4_0458q")
 guide_action_shoot = ExtResource("8_m11co")
 input = NodePath("../../../Input")
 
-[node name="Letters" parent="CamLook/Camera3D/Weapons" unique_id=426797018 instance=ExtResource("10_m11co")]
+[node name="Letters" parent="CamLook/Camera3D/WeaponsController" unique_id=426797018 instance=ExtResource("10_m11co")]
 
 [node name="RollbackSynchronizer" type="Node" parent="." unique_id=43548597 node_paths=PackedStringArray("root")]
 script = ExtResource("3_ps8a3")

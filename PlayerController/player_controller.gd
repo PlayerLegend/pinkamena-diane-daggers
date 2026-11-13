@@ -10,9 +10,27 @@ class_name PlayerController
 @export var walk_jump_speed: float = 8
 @export var walk_air_control: float = 0.3
 @export var guide_action_look:GUIDEAction
-@export var body_light: OmniLight3D
+@export var body_light: PlayerLight
 @export var camera_offset: float = 0.5
+@export var projectile_parent: Node:
+    set(value):
+        weapons_controller.projectile_parent = value
+    get:
+        return weapons_controller.projectile_parent
+        
+@export var weapons_controller: PlayerControllerWeapons
 
+var _light_fade_target: float
+
+@export var enable_light: bool:
+    set(value):
+        if value:
+            _light_fade_target = 1.0
+        else:
+            _light_fade_target = 0
+        enable_light = value
+        print("Set enable light to ", _light_fade_target)
+        
 @onready var input = $Input
 @onready var camera = $CamLook/Camera3D
 @onready var rollback_synchronizer = $RollbackSynchronizer
@@ -135,6 +153,7 @@ func _helper_phys_apply_explosion_knock():
     explosion_knock = Vector3(0,0,0)    
 
 func _process(delta: float):
+    body_light.energy_scale = lerp(body_light.energy_scale, _light_fade_target, delta)
     _debug_find_stale()
     var local_direction = quaternion.inverse() * up_direction
     camera_controller.position = camera_controller.position.slerp(local_direction * camera_offset, delta)
@@ -202,7 +221,9 @@ func get_camera_global_transform():
 
 func _ready():
     await get_tree().process_frame
-    add_to_group("players")
+    body_light.energy_scale = 0
+    print("Set body light to ", body_light.light_energy)
+    add_to_group("chase_targets")
     set_multiplayer_authority(1)
     input.set_multiplayer_authority(name.to_int())
     camera.set_multiplayer_authority(name.to_int())

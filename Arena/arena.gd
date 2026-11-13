@@ -31,7 +31,6 @@ func _ready():
     multimesh.instance_count = count
     multimesh.visible_instance_count = count
     
-    var i = 0
     for x in range(-spawn_radius, spawn_radius):
         for y in range(-spawn_radius, spawn_radius):
             if x * x + y * y > limit:
@@ -54,7 +53,6 @@ func _ready():
             tile.position.y = -tile_width / 2
             
             tiles.append(tile)
-            i += 1
     
     multimesh_instance.multimesh = multimesh
     multimesh_instance.layers = tile_render_layer
