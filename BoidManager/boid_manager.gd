@@ -9,7 +9,7 @@ extends Node3D
 ## Usage from other nodes:
 ##     flock.add_boid(preload("res://boids/default_boid.tres"), transform, velocity)
 ##     flock.add_boid_by_name(&"default", transform, velocity)  # type must already be registered
-## and, to interact with the flock, just add nodes to the groups named in a BoidType
+## and, to interact with the flock, just add nodes to the groups named below
 ## (no per-tick calls needed):
 ##     add_to_group("projectiles")   # nearby boids are pushed away
 ##     add_to_group("players")       # boids seek the nearest one
@@ -47,6 +47,10 @@ const TIME_PARAM := &"flash_effect_time_now"
 @export var bounds_center := Vector3.ZERO
 @export var bounds_radius := 40.0
 
+@export_group("Avoidance")
+## Nodes in this group push boids away.
+@export var projectile_group := &"projectiles"
+
 # --- Per-type data (indexed by type index) ---
 var _types: Array[BoidType] = []
 var _type_base := PackedInt32Array()    # first boid slot of each type
@@ -82,7 +86,7 @@ var _grid_built_gen := 0
 # --- Positions sampled from the groups at the start of each tick ---
 var _group_positions := {}  # StringName -> PackedVector3Array (reused between ticks)
 var _gathered := {}         # groups already sampled this tick
-var _proj_lists: Array = []    # PackedVector3Array per type
+var _proj_list := PackedVector3Array()
 var _target_lists: Array = []  # PackedVector3Array per type
 
 func _ready() -> void:
@@ -511,7 +515,6 @@ func register_type(bt: BoidType) -> int:
     buf.resize(bt.max_boids * FLOATS_PER_INSTANCE)
     _buffers.append(buf)
 
-    _proj_lists.append(PackedVector3Array())
     _target_lists.append(PackedVector3Array())
     return t
 
@@ -565,8 +568,8 @@ func _sample_group(group: StringName) -> PackedVector3Array:
 
 func _gather_group_positions() -> void:
     _gathered.clear()
+    _proj_list = _sample_group(projectile_group)
     for t in _types.size():
-        _proj_lists[t] = _sample_group(_types[t].projectile_group)
         _target_lists[t] = _sample_group(_types[t].target_group)
 
 
@@ -612,21 +615,22 @@ func _build_grid() -> void:
     _grid_built_gen = _grid_dirty_gen
 
 
-## Pushes boids near each projectile away from it. Each type uses its own projectile
-## group and distance, and only that type's boids are affected.
+## Pushes boids near each projectile away from it. Each type uses its own avoidance
+## distance.
 func _apply_projectiles() -> void:
     _proj_push.fill(Vector3.ZERO)
+    if _proj_list.is_empty():
+        return
     var max_cell := _dim - 1
 
     for t in _types.size():
-        var proj_list: PackedVector3Array = _proj_lists[t]
-        if proj_list.is_empty() or _type_counts[t] == 0:
+        if _type_counts[t] == 0:
             continue
         var radius := _types[t].projectile_avoidance_distance
         var radius_sq := radius * radius
         var cell_reach := int(ceil(radius * _inv_cell))
 
-        for proj_pos in proj_list:
+        for proj_pos in _proj_list:
             var center_cell := _cell_coords(proj_pos)
             for cz in range(maxi(center_cell.z - cell_reach, 0), mini(center_cell.z + cell_reach, max_cell) + 1):
                 for cy in range(maxi(center_cell.y - cell_reach, 0), mini(center_cell.y + cell_reach, max_cell) + 1):

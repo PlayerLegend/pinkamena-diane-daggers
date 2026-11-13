@@ -45,7 +45,6 @@ extends Resource
 @export var max_neighbors := 24  ## Early-out cap per boid in dense clumps
 
 @export_group("Avoidance")
-@export var projectile_group := &"projectiles"  ## Nodes in this group push boids away
 @export var projectile_avoidance_weight := 1.0
 @export var projectile_avoidance_distance := 3.0
 
