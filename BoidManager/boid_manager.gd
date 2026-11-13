@@ -85,15 +85,21 @@ var _gathered := {}         # groups already sampled this tick
 var _proj_lists: Array = []    # PackedVector3Array per type
 var _target_lists: Array = []  # PackedVector3Array per type
 
-
 func _ready() -> void:
     top_level = true
     global_transform = Transform3D.IDENTITY
-    # Global uniform so every boid shader reads the same clock the flash times are compared against
-    if not RenderingServer.global_shader_parameter_get_list().has(TIME_PARAM):
-        RenderingServer.global_shader_parameter_add(
-            TIME_PARAM, RenderingServer.GLOBAL_VAR_TYPE_FLOAT, _now())
+    _ensure_time_param()
 
+
+func _ensure_time_param() -> void:
+    # Declared in Project Settings > Shader Globals? Then it already exists.
+    if ProjectSettings.has_setting("shader_globals/" + String(TIME_PARAM)):
+        return
+    # Otherwise create it. Only runs once per session; safe because nothing
+    # else has registered it. add_parameter errors if it already exists,
+    # so keep this guarded by the check above.
+    RenderingServer.global_shader_parameter_add(
+        TIME_PARAM, RenderingServer.GLOBAL_VAR_TYPE_FLOAT, _now())
 
 func _process(_delta: float) -> void:
     RenderingServer.global_shader_parameter_set(TIME_PARAM, _now())
