@@ -209,6 +209,28 @@ func get_boids_in_area(center: Vector3, radius: float) -> PackedInt32Array:
                         results.append(other)
     return results
 
+## Returns the indices of all live boids whose center lies outside the query sphere:
+## the distance from `center` to the boid's center is greater than `radius`.
+## This function iterates all live boids directly and does not touch the spatial hash.
+##
+## Indices are slots; remove_boid() swaps the last boid into the freed slot, so when
+## removing several results, iterate the array backwards (sort it first if needed).
+func get_boids_outside(center: Vector3, radius: float) -> PackedInt32Array:
+    var results := PackedInt32Array()
+    if _types.is_empty():
+        return results
+
+    var radius_sq := radius * radius
+
+    for t in _types.size():
+        var base := _type_base[t]
+        var count := _type_counts[t]
+        if count == 0:
+            continue
+        for i in range(base, base + count):
+            if _pos[i].distance_squared_to(center) > radius_sq:
+                results.append(i)
+    return results
 
 ## Casts a ray against the boids' collision spheres and returns the index of the closest
 ## boid hit, or -1 if nothing was hit. `direction` does not need to be normalized.
