@@ -1,3 +1,4 @@
+class_name BoidManager
 extends Node3D
 ## Many flocks in one node. Boids are plain data (packed arrays), neighbors are found
 ## with one shared uniform spatial hash grid, and each BoidType is drawn through its
@@ -181,8 +182,8 @@ func get_boid_at_point(point: Vector3) -> int:
 ## (distance between centers <= radius + the boid's collision_radius). Returns an empty
 ## array if none match.
 ##
-## Indices are slots; remove_boid() swaps the last boid into the freed slot, so when
-## removing several results, iterate the array backwards (sort it first if needed).
+## Indices are returned in descending slot order, so you can iterate forward and call
+## remove_boid() on each without the swap invalidating later indices.
 func get_boids_in_area(center: Vector3, radius: float) -> PackedInt32Array:
     var results := PackedInt32Array()
     if _types.is_empty():
@@ -207,14 +208,15 @@ func get_boids_in_area(center: Vector3, radius: float) -> PackedInt32Array:
                     var reach: float = radius + _types[t].collision_radius
                     if _pos[other].distance_squared_to(center) <= reach * reach:
                         results.append(other)
-    return results
+    return _sorted_desc(results)
 
-## Returns the indices of all live boids whose center lies outside the query sphere:
-## the distance from `center` to the boid's center is greater than `radius`.
-## This function iterates all live boids directly and does not touch the spatial hash.
+
+## Returns the indices of all live boids whose center lies outside the query sphere
+## (distance from `center` to the boid's center > radius). Iterates all live boids
+## directly and does not touch the spatial hash.
 ##
-## Indices are slots; remove_boid() swaps the last boid into the freed slot, so when
-## removing several results, iterate the array backwards (sort it first if needed).
+## Indices are returned in descending slot order, so you can iterate forward and call
+## remove_boid() on each without the swap invalidating later indices.
 func get_boids_outside(center: Vector3, radius: float) -> PackedInt32Array:
     var results := PackedInt32Array()
     if _types.is_empty():
@@ -230,7 +232,17 @@ func get_boids_outside(center: Vector3, radius: float) -> PackedInt32Array:
         for i in range(base, base + count):
             if _pos[i].distance_squared_to(center) > radius_sq:
                 results.append(i)
-    return results
+    return _sorted_desc(results)
+
+
+## Sorts slot indices descending so callers can iterate forward while removing:
+## remove_boid() swaps the highest live slot of the type into the freed one, and that
+## higher index has already been visited when iterating a descending array.
+func _sorted_desc(indices: PackedInt32Array) -> PackedInt32Array:
+    indices.sort()
+    indices.reverse()
+    return indices
+
 
 ## Casts a ray against the boids' collision spheres and returns the index of the closest
 ## boid hit, or -1 if nothing was hit. `direction` does not need to be normalized.
@@ -386,9 +398,9 @@ func set_boid_flash(index: int, duration: float) -> bool:
 ## Removes a live boid. Returns false if the index is not a live boid.
 ##
 ## NOTE: indices are slots, and removal swaps the LAST live boid of the same type into
-## the freed slot. So after removing index i, the boid that used to have the highest
-## index of that type now has index i. If you hold indices over time (or loop over
-## them), iterate backwards or re-query after removing.
+## the freed slot. Functions that return multiple indices (get_boids_in_area,
+## get_boids_outside) return them in descending order so you can iterate forward and
+## remove each safely.
 func remove_boid(index: int) -> bool:
     var t := _type_of_slot(index)
     if t == -1:
