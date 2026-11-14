@@ -30,7 +30,7 @@ func _jump_stop() -> void:
 
 func _gather() -> void:
     # Multiplayer authority on input is lost when changing to menu world a second time
-    if is_multiplayer_authority() or true:
+    if is_multiplayer_authority():
         walk = guide_action_walk.value_axis_2d
         look = camera.global_transform.basis.get_rotation_quaternion()
         
@@ -40,6 +40,8 @@ func _gather() -> void:
             _jump_was_pressed = false
             _jump_reset = false
     else:
+        #set_multiplayer_authority(1)
+        print("Not multiplayer authority, is ", get_multiplayer_authority())
         camera.global_transform.basis = Basis(look)
 
 func _gather_always() -> void:

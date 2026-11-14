@@ -12,6 +12,7 @@ extends GameWorld
 
 func _ready() -> void:
     start_game_trigger.body_entered.connect(_on_start_game_trigger_body_entered)
+    omni_light_3d.light_energy = 0.01
 
 func _light_waiver() -> float:
     return (1.0 + 0.5 * sin(Time.get_ticks_msec() / 1000.0))
@@ -42,4 +43,4 @@ func add_player(player: PlayerController):
     super(player)
     player.projectile_parent = null
     player.visible = false
-    
+    print("Player ", player, " set to position ", player.global_position)

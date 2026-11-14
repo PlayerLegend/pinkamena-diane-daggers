@@ -40,6 +40,7 @@ func _spawn() -> Node3D:
     new_projectile.set_path(projectile_source.global_position + offset, dir, global_basis.y)
     new_projectile.fly_finish_node = self
     new_projectile.mesh = _glyph_meshes.get(get_letter(), _fallback_mesh)
+    print("Spawned new projectile at ", projectile_source.global_position)
     return new_projectile
 
 func _get_data(projectile: Node) -> Dictionary:

@@ -47,11 +47,9 @@ func spawn_boid(boid_type: BoidType):
     var offs = Vector3(randf_range(-1,1), 5, randf_range(-1,1)).normalized()
     var new_vel = 3 * offs
     boid_manager.add_boid(boid_type, new_xform, new_vel)
-    print("Added boid ", boid_type)
 
 func attack_idle(delta: float):
     if not boid_manager:
-        print("No boid manager")
         return
     attack_cooldown -= delta
     spawn_cooldown -= delta

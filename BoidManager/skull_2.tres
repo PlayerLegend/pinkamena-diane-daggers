@@ -34,4 +34,3 @@ max_health = 5
 collision_radius = 0.5
 drops_xtal = true
 gibs_count = 1
-confetti_count = 10

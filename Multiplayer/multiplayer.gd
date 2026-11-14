@@ -12,12 +12,11 @@ signal net_is_connected(host: String, port: int)
 @export var game_world_manager: GameWorldManager
 
 func _on_world_changed(new_world: GameWorld):
-    if not new_world:
-        return
-        
+    assert(new_world)
     for actor in actors_parent.get_children():
         if actor is PlayerController:
             new_world.add_player(actor)
+            print("Set player in world ", actor)
                 
 func _deferred_create_player(id: int) -> void:
     var new_player: PlayerController = scene_spawn_player.instantiate()

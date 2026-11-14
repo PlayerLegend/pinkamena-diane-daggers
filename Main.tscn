@@ -17,13 +17,13 @@
 [ext_resource type="PackedScene" uid="uid://bp8u34bitp0w4" path="res://Screen/Screen.tscn" id="19_2gh4u"]
 [ext_resource type="Shader" uid="uid://bn42irgcwd7lh" path="res://Screen/Screen.gdshader" id="20_devvj"]
 
-[sub_resource type="ViewportTexture" id="ViewportTexture_j4qnp"]
+[sub_resource type="ViewportTexture" id="ViewportTexture_fpfj3"]
 viewport_path = NodePath("ScreenEffects")
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_fpfj3"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sc1dx"]
 resource_local_to_scene = true
 shader = ExtResource("20_devvj")
-shader_parameter/screen_render = SubResource("ViewportTexture_j4qnp")
+shader_parameter/screen_render = SubResource("ViewportTexture_fpfj3")
 
 [node name="Main" type="Node" unique_id=1203969749 node_paths=PackedStringArray("multiplayer_handler")]
 script = ExtResource("1_glv2v")
@@ -34,7 +34,7 @@ menu_world_scene = ExtResource("4_fpfj3")
 boid_types = Array[ExtResource("3_fpfj3")]([ExtResource("4_sc1dx"), ExtResource("5_kjvhd"), ExtResource("6_5tuhn"), ExtResource("7_2gh4u")])
 
 [node name="Screen" parent="." unique_id=1531499629 node_paths=PackedStringArray("main_menu", "game_world_manager") instance=ExtResource("19_2gh4u")]
-material = SubResource("ShaderMaterial_fpfj3")
+material = SubResource("ShaderMaterial_sc1dx")
 render_height = 400
 main_menu = NodePath("../MainMenu")
 game_world_manager = NodePath("../GameWorldManager")

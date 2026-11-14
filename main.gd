@@ -11,6 +11,8 @@ extends Node
 @export var boid_types: Array[BoidType]
 @onready var screen: Screen = $Screen
 
+var server_is_started: bool
+
 func _on_save_config() -> void:
     Config.save()
 
@@ -22,7 +24,9 @@ func set_world(next: PackedScene):
 
 func _helper_start_server(port: int):
     set_world(start_world_scene)
-    multiplayer_handler.server_start(port)
+    if not server_is_started:
+        multiplayer_handler.server_start(port)
+    server_is_started = true
     _helper_show_game()
 
 func _helper_connect_server(host: String, port: int):
@@ -39,7 +43,7 @@ func _helper_show_menu():
     Input.set_mouse_mode.call_deferred(Input.MOUSE_MODE_VISIBLE)
     #escape_menu.show()
     main_menu.show()
-    set_world(null)
+    set_world(menu_world_scene)
     
 func _on_netsim_server_created():
     _helper_start_server.call_deferred(NetworkSimulator.server_port)

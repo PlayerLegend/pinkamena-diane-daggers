@@ -14,6 +14,8 @@ func _helper_find_spawn() -> Node3D:
 
 func add_player(player: PlayerController):
     var target_spawn = _helper_find_spawn()
-    if target_spawn:
-        player.transform = target_spawn.transform
-        player.enable_light = player_light
+    assert(target_spawn)
+    print("Base add player")
+    player.teleport_to = target_spawn.transform
+    player.transform = player.teleport_to
+    player.enable_light = player_light

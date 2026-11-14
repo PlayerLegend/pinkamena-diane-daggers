@@ -37,7 +37,6 @@ func _fire_stream():
     if not projectile_parent:
         print("no proj parent")
         return
-        
     for child in get_children():
         if child is WeaponLettersStream:
             if not child.can_fire():

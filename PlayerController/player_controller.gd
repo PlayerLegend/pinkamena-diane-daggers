@@ -14,6 +14,8 @@ class_name PlayerController
 @export var camera_offset: float = 0.5
 @export var weapons_controller: PlayerControllerWeapons
 
+var teleport_to: Variant = null
+
 @export var projectile_parent: Node:
     set(value):
         weapons_controller.projectile_parent = value
@@ -210,8 +212,18 @@ func _rollback_tick(delta: float, _tick, _is_fresh):
     
     #delta *= NetworkTime.physics_factor
     
+    #if not is_multiplayer_authority():
+        #set_multiplayer_authority(1, true)
+        
     if not is_multiplayer_authority() and _is_fresh:
         return
+        
+    if teleport_to != null:
+        assert(teleport_to is Transform3D)
+        global_transform = teleport_to
+        teleport_to = null
+        velocity = Vector3.ZERO
+        print("TELEPORT TRIGGERED")
     
     _helper_phys_rollback_else(delta)
     
@@ -243,8 +255,8 @@ func _on_visibility_changed():
 func _ready():
     await get_tree().process_frame
     body_light.energy_scale = 0
-    print("Set body light to ", body_light.light_energy)
     set_chase_group()
+    visibility_changed.connect(_on_visibility_changed)
     set_multiplayer_authority(1)
     input.set_multiplayer_authority(name.to_int())
     camera.set_multiplayer_authority(name.to_int())
