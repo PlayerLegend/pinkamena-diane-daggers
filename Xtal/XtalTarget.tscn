@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://c0kp5ysyaagut"]
 
 [ext_resource type="Script" uid="uid://kw33tt4rml4n" path="res://Xtal/xtal_target.gd" id="1_ft7po"]
+[ext_resource type="AudioStream" uid="uid://bhax236lo2wxi" path="res://Sounds/shing-hit.wav" id="2_07u0w"]
 [ext_resource type="ArrayMesh" uid="uid://dhsxh5jue710o" path="res://Blend/Xtal/Xtal.obj" id="2_pie0t"]
 [ext_resource type="Material" uid="uid://bmgrj0ssscwt4" path="res://Blend/Xtal/mat_xtal.tres" id="3_0ol7q"]
 
@@ -16,3 +17,6 @@ surface_material_override/0 = ExtResource("3_0ol7q")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1278029869]
 shape = SubResource("SphereShape3D_i3m7n")
+
+[node name="HitSound" type="AudioStreamPlayer3D" parent="." unique_id=1034116574]
+stream = ExtResource("2_07u0w")

@@ -5,12 +5,13 @@ extends SlideBody3D
 @export var arena_radius: float = 11 * 3
 @export var weak_point: StaticBody3D
 @export var visual_mesh: SpiderMesh
-
 @export var animation_tree: AnimationTree
 var dead_time: float
+@export var hit_sound: AudioStreamPlayer3D
 
 func take_damage(amount: int):
     visual_mesh.flash()
+    hit_sound.play()
     health -= 1
     if health <= 0:
         var playback: AnimationNodeStateMachinePlayback = animation_tree.get("parameters/playback")
