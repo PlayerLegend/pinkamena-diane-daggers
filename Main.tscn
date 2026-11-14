@@ -8,12 +8,14 @@
 [ext_resource type="PackedScene" uid="uid://cqkmoffcsra57" path="res://GameWorld/MenuWorld/MenuWorld.tscn" id="4_fpfj3"]
 [ext_resource type="Resource" uid="uid://ck5s2ghgryskv" path="res://BoidManager/skull_1.tres" id="4_sc1dx"]
 [ext_resource type="PackedScene" uid="uid://punkfa765yoh" path="res://Menu/EscapeMenu/EscapeMenu.tscn" id="5_3dxm6"]
+[ext_resource type="AudioStream" uid="uid://dd41c6ci7oxcr" path="res://Sounds/start1.wav" id="5_5tuhn"]
 [ext_resource type="Resource" uid="uid://begmqtybc0sut" path="res://BoidManager/skull_2.tres" id="5_kjvhd"]
 [ext_resource type="Resource" uid="uid://wn0bn3cywsmk" path="res://BoidManager/skull_3.tres" id="6_5tuhn"]
 [ext_resource type="PackedScene" uid="uid://cve8ibikysj1w" path="res://Menu/MainMenu/MainMenu.tscn" id="6_lgr22"]
 [ext_resource type="Resource" uid="uid://iad02ocldrpf" path="res://BoidManager/skull_4.tres" id="7_2gh4u"]
 [ext_resource type="Script" uid="uid://okas2ady2mej" path="res://GameWorld/MainGameWorld/enemies.gd" id="8_03owx"]
 [ext_resource type="PackedScene" uid="uid://dai0brt4vaj1j" path="res://GameWorld/GameWorldManager.tscn" id="14_c2ibq"]
+[ext_resource type="PackedScene" uid="uid://dwy14u3tmrvwk" path="res://NonSpatialAudio/NonSpatialAudio.tscn" id="17_sc1dx"]
 [ext_resource type="PackedScene" uid="uid://bp8u34bitp0w4" path="res://Screen/Screen.tscn" id="19_2gh4u"]
 [ext_resource type="Shader" uid="uid://bn42irgcwd7lh" path="res://Screen/Screen.gdshader" id="20_devvj"]
 
@@ -31,6 +33,7 @@ multiplayer_handler = NodePath("MultiplayerHandler")
 guide_map_fps = ExtResource("2_lgr22")
 start_world_scene = ExtResource("3_j4qnp")
 menu_world_scene = ExtResource("4_fpfj3")
+game_start_audio = ExtResource("5_5tuhn")
 boid_types = Array[ExtResource("3_fpfj3")]([ExtResource("4_sc1dx"), ExtResource("5_kjvhd"), ExtResource("6_5tuhn"), ExtResource("7_2gh4u")])
 
 [node name="Screen" parent="." unique_id=1531499629 node_paths=PackedStringArray("main_menu", "game_world_manager") instance=ExtResource("19_2gh4u")]
@@ -55,5 +58,8 @@ visible = false
 
 [node name="GameWorldManager" parent="." unique_id=1819187747 instance=ExtResource("14_c2ibq")]
 
+[node name="NonSpatialAudio" parent="." unique_id=1970840907 instance=ExtResource("17_sc1dx")]
+
 [connection signal="net_host" from="MainMenu" to="." method="_on_main_menu_net_host"]
 [connection signal="child_entered_tree" from="Enemies" to="Enemies" method="_on_child_entered_tree"]
+[connection signal="world_changed" from="GameWorldManager" to="." method="_on_game_world_manager_world_changed"]

@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dnvu8f43fvant" path="res://GameWorld/MainGameWorld/main_game_world.gd" id="1_lc3mr"]
 [ext_resource type="PackedScene" uid="uid://clbho01tu8i5" path="res://Arena/Arena.tscn" id="2_se08m"]
+[ext_resource type="PackedScene" uid="uid://cqkmoffcsra57" path="res://GameWorld/MenuWorld/MenuWorld.tscn" id="2_u6lad"]
 [ext_resource type="PackedScene" uid="uid://dxsgsfp420pha" path="res://DecalCanvas/DecalCanvas.tscn" id="3_qbr1c"]
 [ext_resource type="PackedScene" uid="uid://b50t5xujkven0" path="res://SpawnManager/SpawnManager.tscn" id="4_ebbfy"]
 [ext_resource type="Resource" uid="uid://d1d8nej4fn0wp" path="res://SpawnManager/MainSpawnList.tres" id="5_u6lad"]
@@ -23,6 +24,7 @@ ambient_light_source = 1
 
 [node name="MainGameWorld" type="Node3D" unique_id=1209546168]
 script = ExtResource("1_lc3mr")
+menu_world = ExtResource("2_u6lad")
 player_light = true
 metadata/_custom_type_script = "uid://4pbiob3hlex8"
 
@@ -62,6 +64,10 @@ script = ExtResource("12_se08m")
 boid_manager = NodePath("../BoidManager")
 
 [node name="BoidManager" parent="." unique_id=1957767101 instance=ExtResource("12_15qal")]
+bounds_center = null
+bounds_radius = null
+avoid_target_group = null
+chase_target_group = null
 
 [node name="PlayerSpawner" type="Node3D" parent="." unique_id=517530346]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.134716, 0)

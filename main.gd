@@ -7,6 +7,8 @@ extends Node
 @export var start_world_scene: PackedScene
 @export var menu_world_scene: PackedScene
 @onready var game_world_manager: GameWorldManager = $GameWorldManager
+@export var game_start_audio: AudioStream
+@onready var non_spatial_audio: SoundPlayer = $NonSpatialAudio
 
 @export var boid_types: Array[BoidType]
 @onready var screen: Screen = $Screen
@@ -38,6 +40,13 @@ func _helper_show_game():
     main_menu.hide()
     escape_menu.hide()
 
+func _process(_delta: float):
+    if game_world_manager.game_world is MenuWorld and not main_menu.visible:
+        main_menu.show()
+        GUIDE.disable_mapping_context(guide_map_fps)
+        Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+        
+
 func _helper_show_menu():
     GUIDE.disable_mapping_context(guide_map_fps)
     Input.set_mouse_mode.call_deferred(Input.MOUSE_MODE_VISIBLE)
@@ -66,3 +75,7 @@ func _ready():
 
 func _on_main_menu_net_host(port: int) -> void:
     _helper_start_server.call_deferred(port)
+
+
+func _on_game_world_manager_world_changed(_new_world: GameWorld) -> void:
+    non_spatial_audio.play_sound(game_start_audio)

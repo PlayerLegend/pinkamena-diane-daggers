@@ -9,5 +9,4 @@ void fragment() {
         discard;
     }
     COLOR = vec4(c.rgb, 1.0);
-    EMISSION = COLOR;
 }

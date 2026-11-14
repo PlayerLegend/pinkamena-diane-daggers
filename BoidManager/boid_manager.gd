@@ -27,6 +27,11 @@ extends Node3D
 ## _now() clock) per boid. It reaches shaders as INSTANCE_CUSTOM.x, and the current
 ## time is available as the global shader uniform `flash_effect_time_now`. A shader compares the
 ## two, e.g. `step(flash_effect_time_now, INSTANCE_CUSTOM.x)` is 1.0 while the flash is active.
+##
+## Idle audio: boids are plain data, so sound comes from a fixed pool of
+## AudioStreamPlayer3D voices handed to the boids nearest the active camera. Each type
+## with an idle_sound has idle_reserved_voices voices that only it can use; on top of
+## those, `idle_shared_voices` voices go to the nearest remaining boids of any type.
 
 ## Emitted when a boid is removed via remove_boid(). All values describe the boid
 ## as it was just before removal. `mesh` is the type's rendered mesh.
@@ -43,6 +48,8 @@ signal boid_removed(
 const FLOATS_PER_INSTANCE := 12 + 4
 ## Name of the global shader uniform holding the current time (see _now()).
 const TIME_PARAM := &"flash_effect_time_now"
+## How often (seconds) voices are reassigned to the nearest boids.
+const AUDIO_UPDATE_INTERVAL := 0.15
 
 @export_group("Precache Types")
 @export var precache_boid_types: Array[BoidType]
@@ -58,6 +65,11 @@ const TIME_PARAM := &"flash_effect_time_now"
 @export_group("Targets")
 ## Nodes in this group are chased by every boid type.
 @export var chase_target_group := &"chase_targets"
+
+@export_group("Audio")
+## Extra voices shared by all types. The nearest boids that aren't covered by a
+## type's reserved voices compete for these. Total voices = sum of reserved + this.
+@export var idle_shared_voices := 8
 
 # --- Per-type data (indexed by type index) ---
 var _types: Array[BoidType] = []
@@ -97,10 +109,19 @@ var _gathered := {}         # groups already sampled this tick
 var _avoid_list := PackedVector3Array()
 var _chase_list := PackedVector3Array()
 
+# --- Idle audio: one global voice pool, shared by all types ---
+var _voices: Array[AudioStreamPlayer3D] = []
+var _voice_boid := PackedInt32Array()      # boid slot each voice follows, or -1
+var _idle_streams: Array = []              # per type: looping AudioStream or null
+var _idle_reserved := PackedInt32Array()   # per type: reserved voice count
+var _audio_timer := 0.0
+
 func _ready() -> void:
     top_level = true
     global_transform = Transform3D.IDENTITY
     _ensure_time_param()
+    for v in idle_shared_voices:
+        _add_voice()
     for type in precache_boid_types:
         register_type(type)
 
@@ -418,6 +439,9 @@ func remove_boid(index: int) -> bool:
     var removed_rot := _get_rot(index)
     var removed_health := _health[index]
 
+    # Free this boid's voice and re-point the voice of the boid that gets swapped in.
+    _audio_on_remove(index, last)
+
     if index != last:
         _pos[index] = _pos[last]
         _vel[index] = _vel[last]
@@ -449,13 +473,15 @@ func remove_boid(index: int) -> bool:
         removed_health
     )
     return true
-    
+
 ## Removes every live boid of every type. Registered types are kept, so add_boid()
 ## and add_boid_by_name() keep working without re-registering. Also resets the
 ## spatial hash so the next query sees an empty grid.
 func clear() -> void:
     if _types.is_empty():
         return
+
+    _release_all_voices()
 
     for t in _types.size():
         if _type_counts[t] == 0:
@@ -472,7 +498,7 @@ func clear() -> void:
         mm.buffer = buf
 
     _grid_dirty_gen += 1
-    
+
 ## Returns the type index owning this slot if it holds a live boid, otherwise -1.
 func _type_of_slot(index: int) -> int:
     if index < 0 or index >= _capacity:
@@ -596,6 +622,7 @@ func register_type(bt: BoidType) -> int:
     buf.resize(bt.max_boids * FLOATS_PER_INSTANCE)
     _buffers.append(buf)
 
+    _setup_idle(t, bt)
     return t
 
 
@@ -741,6 +768,7 @@ func _physics_process(delta: float) -> void:
     _apply_avoidance()
     _compute_steering()
     _integrate(delta)
+    _update_audio(delta)
 
 
 ## Reynolds steering: desired velocity minus current velocity.
@@ -932,3 +960,179 @@ func _integrate(delta: float) -> void:
 
     # Positions changed, so the grid no longer matches _pos[] for queries.
     _grid_dirty_gen += 1
+
+
+# ---------------------------------------------------------------------------
+# Idle audio
+# ---------------------------------------------------------------------------
+
+func _setup_idle(_t: int, bt: BoidType) -> void:
+    if bt.idle_sound == null or bt.idle_max_voices <= 0:
+        _idle_streams.append(null)
+        _idle_reserved.append(0)
+        return
+    _idle_streams.append(_make_looping(bt.idle_sound))
+    var reserved := clampi(bt.idle_reserved_voices, 0, bt.idle_max_voices)
+    _idle_reserved.append(reserved)
+    for i in reserved:
+        _add_voice()  # grows the pool so reserved voices always exist
+
+
+func _add_voice() -> void:
+    var p := AudioStreamPlayer3D.new()
+    p.name = "IdleVoice_%d" % _voices.size()
+    # Fallback loop for streams without built-in looping (e.g. WAV).
+    # stop() doesn't emit `finished`, so released voices stay silent.
+    p.finished.connect(_on_voice_finished.bind(p))
+    add_child(p)
+    _voices.append(p)
+    _voice_boid.append(-1)
+
+
+## Returns a looping version of the stream where the stream type supports it.
+func _make_looping(stream: AudioStream) -> AudioStream:
+    if stream is AudioStreamOggVorbis and not stream.loop:
+        var s: AudioStreamOggVorbis = stream.duplicate()
+        s.loop = true
+        return s
+    if stream is AudioStreamMP3 and not stream.loop:
+        var s: AudioStreamMP3 = stream.duplicate()
+        s.loop = true
+        return s
+    return stream
+
+
+func _on_voice_finished(player: AudioStreamPlayer3D) -> void:
+    player.play()
+
+
+func _release_voice(v: int) -> void:
+    _voices[v].stop()
+    _voice_boid[v] = -1
+
+
+func _release_all_voices() -> void:
+    for v in _voices.size():
+        if _voice_boid[v] != -1:
+            _release_voice(v)
+
+
+## Keeps voice bookkeeping valid across remove_boid()'s swap-with-last.
+## Slots are globally unique across types, so no type check is needed.
+func _audio_on_remove(index: int, last: int) -> void:
+    for v in _voices.size():
+        if _voice_boid[v] == index:
+            _release_voice(v)
+    if index != last:
+        for v in _voices.size():
+            if _voice_boid[v] == last:
+                _voice_boid[v] = index  # that boid is about to live in `index`
+
+
+func _update_audio(delta: float) -> void:
+    if _voices.is_empty():
+        return
+    _audio_timer -= delta
+    if _audio_timer <= 0.0:
+        _audio_timer = AUDIO_UPDATE_INTERVAL
+        var cam := get_viewport().get_camera_3d()
+        if cam != null:
+            _assign_voices(cam.global_position)
+    # Voices follow their boid every tick
+    for v in _voices.size():
+        var b := _voice_boid[v]
+        if b != -1:
+            _voices[v].global_position = _pos[b]
+
+
+## 1) Each type nominates its nearest boids (up to idle_max_voices). The first
+##    `reserved` of them are guaranteed a voice.
+## 2) The rest of the nominees from all types compete by distance for the shared voices.
+## 3) Boids that already have a voice keep it (no restart); the rest take free voices.
+func _assign_voices(listener: Vector3) -> void:
+    var desired := {}           # boid slot -> true (still needs a voice)
+    var contenders: Array = []  # Vector2(distance_sq, slot) beyond the reserved quota
+
+    for t in _types.size():
+        if _idle_streams[t] == null:
+            continue
+        var bt := _types[t]
+        var k := bt.idle_max_voices
+        var max_sq := bt.idle_max_distance * bt.idle_max_distance
+
+        # Nearest k boids of this type within range, sorted ascending by distance.
+        var sel_idx := PackedInt32Array()
+        var sel_d := PackedFloat32Array()
+        var base := _type_base[t]
+        for i in range(base, base + _type_counts[t]):
+            var d := _pos[i].distance_squared_to(listener)
+            if d > max_sq:
+                continue
+            if sel_idx.size() == k:
+                if d >= sel_d[k - 1]:
+                    continue
+                sel_idx[k - 1] = i
+                sel_d[k - 1] = d
+            else:
+                sel_idx.append(i)
+                sel_d.append(d)
+            var j := sel_idx.size() - 1
+            while j > 0 and sel_d[j - 1] > sel_d[j]:
+                var tmp_d := sel_d[j - 1]
+                sel_d[j - 1] = sel_d[j]
+                sel_d[j] = tmp_d
+                var tmp_i := sel_idx[j - 1]
+                sel_idx[j - 1] = sel_idx[j]
+                sel_idx[j] = tmp_i
+                j -= 1
+
+        var reserved := _idle_reserved[t]
+        for s in sel_idx.size():
+            if s < reserved:
+                desired[sel_idx[s]] = true
+            else:
+                contenders.append(Vector2(sel_d[s], sel_idx[s]))
+
+    # Shared voices go to the nearest contenders across all types.
+    contenders.sort_custom(func(a: Vector2, b: Vector2) -> bool: return a.x < b.x)
+    for c in mini(contenders.size(), idle_shared_voices):
+        desired[int(contenders[c].y)] = true
+
+    # Keep voices whose boid is still wanted; free the rest.
+    for v in _voices.size():
+        var b := _voice_boid[v]
+        if b == -1:
+            continue
+        if desired.has(b):
+            desired[b] = false  # already has a voice
+        else:
+            _release_voice(v)
+
+    # Hand free voices to newly wanted boids.
+    var next_free := 0
+    for b in desired:
+        if not desired[b]:
+            continue
+        while next_free < _voices.size() and _voice_boid[next_free] != -1:
+            next_free += 1
+        if next_free >= _voices.size():
+            break
+        _start_voice(next_free, b)
+
+
+func _start_voice(v: int, boid: int) -> void:
+    var t := _boid_type[boid]
+    var bt := _types[t]
+    var p := _voices[v]
+    p.stop()
+    p.stream = _idle_streams[t]
+    p.volume_db = bt.idle_volume_db
+    p.max_distance = bt.idle_max_distance
+    p.unit_size = bt.idle_unit_size
+    p.bus = bt.idle_bus
+    p.pitch_scale = 1.0 + randf_range(-bt.idle_pitch_variation, bt.idle_pitch_variation)
+    p.global_position = _pos[boid]
+    _voice_boid[v] = boid
+    # Random start offset so voices on the same stream don't phase together
+    var length := p.stream.get_length()
+    p.play(randf() * length if length > 0.0 else 0.0)

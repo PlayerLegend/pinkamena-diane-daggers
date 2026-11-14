@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="BoidType" format=3 uid="uid://ck5s2ghgryskv"]
 
 [ext_resource type="ArrayMesh" uid="uid://mor87fxp7iva" path="res://Skulls/Skull1/skull1.obj" id="1_1qsmd"]
+[ext_resource type="AudioStream" uid="uid://bs80bp5tlrp2m" path="res://Sounds/laugh1.wav" id="1_ink1v"]
 [ext_resource type="Material" uid="uid://ccxd18s7i7rc6" path="res://Skulls/Skull3/mat_skull_3.tres" id="1_v877s"]
 [ext_resource type="Script" uid="uid://ccb31lioy8b6j" path="res://BoidManager/boid_type.gd" id="2_v877s"]
 
@@ -13,3 +14,11 @@ alignment_weight = 0.05
 cohesion_weight = 0.1
 avoid_target_weight = 7.0
 avoid_target_distance = 1.5
+idle_sound = ExtResource("1_ink1v")
+idle_volume_db = null
+idle_max_distance = null
+idle_unit_size = null
+idle_reserved_voices = null
+idle_max_voices = null
+idle_pitch_variation = null
+idle_bus = null

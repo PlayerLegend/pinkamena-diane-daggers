@@ -13,6 +13,7 @@
 [ext_resource type="Resource" uid="uid://cfavmrjp8ixy5" path="res://Weapons/Letters/MainAttackProgression.tres" id="8_c0akw"]
 [ext_resource type="Resource" uid="uid://b4auhpv3w0wae" path="res://PlayerController/actions/shoot.tres" id="8_m11co"]
 [ext_resource type="PackedScene" uid="uid://cjgdfnd8fabk2" path="res://Weapons/Letters/LettersWeaponShot.tscn" id="8_tj7lp"]
+[ext_resource type="AudioStream" uid="uid://wsqe8v4y62uh" path="res://Sounds/pew1.wav" id="9_c0akw"]
 [ext_resource type="PackedScene" uid="uid://huy88qkm8eir" path="res://Weapons/Letters/LettersWeaponStreaming.tscn" id="10_m11co"]
 [ext_resource type="Script" uid="uid://xd0y40m27r0g" path="res://PlayerController/body_light.gd" id="12_87n76"]
 
@@ -49,9 +50,13 @@ input = NodePath("../../../Input")
 [node name="LettersWeaponStreaming" parent="CamLook/Camera3D/WeaponsController" unique_id=426797018 instance=ExtResource("10_m11co")]
 projectile_scene = ExtResource("7_t4tlh")
 attack_progression = ExtResource("8_c0akw")
+shot_sound = ExtResource("9_c0akw")
+shot_volume_db = -19.5
 
 [node name="LettersWeaponShot" parent="CamLook/Camera3D/WeaponsController" unique_id=1495723169 instance=ExtResource("8_tj7lp")]
 projectile_scene = ExtResource("7_t4tlh")
+shot_sound = ExtResource("9_c0akw")
+shot_volume_db = -17.5
 
 [node name="RollbackSynchronizer" type="Node" parent="." unique_id=43548597 node_paths=PackedStringArray("root")]
 script = ExtResource("3_ps8a3")

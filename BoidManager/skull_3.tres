@@ -2,6 +2,7 @@
 
 [ext_resource type="Material" uid="uid://ccxd18s7i7rc6" path="res://Skulls/Skull3/mat_skull_3.tres" id="1_1qupm"]
 [ext_resource type="ArrayMesh" uid="uid://c1dly1rpqymky" path="res://Skulls/Skull3/skull3.obj" id="1_ht0fv"]
+[ext_resource type="AudioStream" uid="uid://7pph22xfht21" path="res://Sounds/laugh4.wav" id="1_kls28"]
 [ext_resource type="Script" uid="uid://ccb31lioy8b6j" path="res://BoidManager/boid_type.gd" id="2_1qupm"]
 [ext_resource type="Material" uid="uid://drvefn2je5i2m" path="res://Skulls/Skull3/mat_skull_3_outline.material" id="2_qmsj5"]
 
@@ -18,6 +19,7 @@ separation_weight = 1.0
 separation_radius = 2.035
 floor_height = 0.52
 chase_target_weight = 1.0
+idle_sound = ExtResource("1_kls28")
 drops_xtal = true
 gibs_count = 2
 confetti_count = 20

@@ -61,6 +61,22 @@ extends Resource
 @export var avoid_target_distance := 3.0
 @export var chase_target_weight := 0.3
 
+@export_group("Audio")
+## Looping sound played by nearby boids of this type. Leave empty for silence.
+## Ogg/MP3 streams are forced to loop automatically.
+@export var idle_sound: AudioStream
+@export var idle_volume_db := 0.0
+## Boids farther than this from the camera are silent and never get a voice.
+@export var idle_max_distance := 20.0
+@export var idle_unit_size := 5.0  ## AudioStreamPlayer3D.unit_size
+## Voices guaranteed to this type (the nearest boids get them). Other types can't take these.
+@export var idle_reserved_voices := 2
+## Hard cap on voices this type can hold: reserved + whatever it wins from the shared pool.
+@export var idle_max_voices := 8
+## Random pitch offset (+/-) per voice assignment, so voices don't sound identical.
+@export var idle_pitch_variation := 0.1
+@export var idle_bus := &"Master"
+
 @export_group("Drops")
 @export var drops_xtal: bool = false
 @export var gibs_count: int = 0

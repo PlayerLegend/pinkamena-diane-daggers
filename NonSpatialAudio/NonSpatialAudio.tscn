@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://dwy14u3tmrvwk"]
+
+[ext_resource type="Script" uid="uid://bdqik4gy5kwfq" path="res://NonSpatialAudio/non_spatial_audio.gd" id="1_bq1c8"]
+
+[node name="NonSpatialAudio" type="Node" unique_id=1970840907]
+script = ExtResource("1_bq1c8")

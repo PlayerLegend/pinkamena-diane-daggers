@@ -25,7 +25,22 @@ var _letter_index: int = 0
 @export var attack_progression: LettersAttackProgression
 
 
+@export var shot_sound: AudioStream
+@export_range(-40.0, 6.0, 0.5) var shot_volume_db: float = 0.0
+@export_range(0.0, 0.3, 0.01) var shot_pitch_variance: float = 0.05
 
+func _play_shot_sound() -> void:
+    if shot_sound == null:
+        return
+    var player := AudioStreamPlayer3D.new()
+    player.stream = shot_sound
+    player.volume_db = shot_volume_db
+    player.pitch_scale = 1.0 + randf_range(-shot_pitch_variance, shot_pitch_variance)
+    projectile_parent.add_child(player)
+    player.global_position = projectile_source.global_position
+    player.finished.connect(player.queue_free)
+    player.play()
+    
 func _can_peer_use(_peer_id: int) -> bool:
     return true
     
@@ -40,7 +55,7 @@ func _spawn() -> Node3D:
     new_projectile.set_path(projectile_source.global_position + offset, dir, global_basis.y)
     new_projectile.fly_finish_node = self
     new_projectile.mesh = _glyph_meshes.get(get_letter(), _fallback_mesh)
-    print("Spawned new projectile at ", projectile_source.global_position)
+    _play_shot_sound()
     return new_projectile
 
 func _get_data(projectile: Node) -> Dictionary:
