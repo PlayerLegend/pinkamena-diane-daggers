@@ -50,9 +50,10 @@ func _process(_delta: float):
 func _helper_show_menu():
     GUIDE.disable_mapping_context(guide_map_fps)
     Input.set_mouse_mode.call_deferred(Input.MOUSE_MODE_VISIBLE)
-    #escape_menu.show()
-    main_menu.show()
-    set_world(menu_world_scene)
+    if not main_menu.visible:
+        main_menu.visible = true
+    if not game_world_manager.game_world is MenuWorld:
+        set_world(menu_world_scene)
     
 func _on_netsim_server_created():
     _helper_start_server.call_deferred(NetworkSimulator.server_port)
@@ -69,13 +70,18 @@ func _input(event: InputEvent) -> void:
         else:
             _helper_show_game()
 
+func _on_player_joined(player: PlayerController, id: int):
+    if id == 1:
+        screen.player_controller = player
+
 func _ready():
     NetworkSimulator.server_created.connect(_on_netsim_server_created)
     NetworkSimulator.client_connected.connect(_on_netsim_client_connected)
+    set_world(menu_world_scene)
+    multiplayer_handler.player_joined.connect(_on_player_joined)
 
 func _on_main_menu_net_host(port: int) -> void:
     _helper_start_server.call_deferred(port)
-
 
 func _on_game_world_manager_world_changed(_new_world: GameWorld) -> void:
     non_spatial_audio.play_sound(game_start_audio)

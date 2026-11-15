@@ -6,8 +6,11 @@ class_name MultiplayerHandler
 @onready var actors_parent := $Actors
 @export var screen: Screen
 
-signal create_player(id: int)
-signal net_is_connected(host: String, port: int)
+var local_player: PlayerController
+
+signal player_joined(player: PlayerController, id: int)
+#signal create_player(id: int)
+#signal net_is_connected(host: String, port: int)
 
 @export var game_world_manager: GameWorldManager
 
@@ -26,9 +29,12 @@ func _deferred_create_player(id: int) -> void:
     game_world_manager.add_player(new_player)
     
     if id == 1:
-        screen.player_controller = new_player
+        assert(!local_player)
+        local_player = new_player
+        
+    player_joined.emit(new_player, id)
 
-func _on_create_player(id: int) -> void:
+func _create_player(id: int) -> void:
     _deferred_create_player.call_deferred(id)
 
 func server_start(port: int) -> void:
@@ -37,7 +43,7 @@ func server_start(port: int) -> void:
     multiplayer.multiplayer_peer = peer
     _deferred_create_player.call_deferred(1)
     #game_started.emit()
-    net_is_connected.emit("127.0.0.1", port)
+    #net_is_connected.emit("127.0.0.1", port)
 
 func client_connect(host: String, port: int) -> void:
     print("Connecting to ", host, " port ", port)
@@ -45,7 +51,7 @@ func client_connect(host: String, port: int) -> void:
     peer.create_client(host,port)
     multiplayer.multiplayer_peer = peer
     #game_started.emit()
-    net_is_connected.emit(host, port)
+    #net_is_connected.emit(host, port)
 
 func client_disconnect():
     multiplayer.multiplayer_peer.close()
@@ -57,9 +63,8 @@ func set_mouse_scale(mouse_scale: float):
             child.set_mouse_scale(mouse_scale)
 
 func _on_peer_connected(id: int) -> void:
-    create_player.emit(id)
+    _create_player(id)
     
 func _ready():
     game_world_manager.world_changed.connect(_on_world_changed)
     multiplayer.peer_connected.connect(_on_peer_connected)
-    create_player.connect(_on_create_player)
