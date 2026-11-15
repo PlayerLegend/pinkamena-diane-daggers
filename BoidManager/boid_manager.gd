@@ -17,6 +17,10 @@ extends Node3D
 ##
 ## Group members must be Node3D; their global_position is sampled once per physics tick.
 ##
+## Chase targets may also expose a `look_direction` property (Vector3, world space).
+## Types with should_flee enabled flee from targets looking at them and chase targets
+## looking away, blending by the dot product. Without the property, the node's -Z is used.
+##
 ## The node is forced to top_level with an identity transform, so all simulation
 ## happens in world space. Up to 63 types are supported.
 ##
@@ -108,6 +112,7 @@ var _group_positions := {}  # StringName -> PackedVector3Array (reused between t
 var _gathered := {}         # groups already sampled this tick
 var _avoid_list := PackedVector3Array()
 var _chase_list := PackedVector3Array()
+var _chase_looks := PackedVector3Array()  # world-space look direction per chase target (parallel to _chase_list)
 
 # --- Idle audio: one global voice pool, shared by all types ---
 var _voices: Array[AudioStreamPlayer3D] = []
@@ -395,8 +400,8 @@ func get_boid_health(index: int) -> int:
     if _type_of_slot(index) == -1:
         return 0
     return _health[index]
-    
-    
+
+
 ## BoidType resource of the boid in this slot, or null if the index is not a live boid.
 func get_boid_type(index: int) -> BoidType:
     var t := _type_of_slot(index)
@@ -684,7 +689,27 @@ func _sample_group(group: StringName) -> PackedVector3Array:
 func _gather_group_positions() -> void:
     _gathered.clear()
     _avoid_list = _sample_group(avoid_target_group)
-    _chase_list = _sample_group(chase_target_group)
+    _sample_chase_targets()
+
+
+## Like _sample_group(), but also records where each target is looking.
+## A target can expose a `look_direction` (Vector3, world space) property; otherwise
+## its facing (-Z) is used.
+func _sample_chase_targets() -> void:
+    _chase_list.clear()
+    _chase_looks.clear()
+    if chase_target_group.is_empty():
+        return
+    for node in get_tree().get_nodes_in_group(chase_target_group):
+        if not (node is Node3D and node.is_inside_tree()):
+            continue
+        var look: Vector3 = -node.global_transform.basis.z
+        if "look_direction" in node:
+            var v = node.get("look_direction")
+            if v is Vector3 and not v.is_zero_approx():
+                look = v
+        _chase_list.append(node.global_position)
+        _chase_looks.append(look.normalized())
 
 
 func _cell_coords(point: Vector3) -> Vector3i:
@@ -854,16 +879,28 @@ func _compute_steering() -> void:
             steering += _avoid_floor(bt, boid_pos, boid_vel) * bt.floor_weight
 
             # --- Chase the nearest node in the chase target group ---
+            # With should_flee, the boid blends between chasing and fleeing based on
+            # whether the target is looking at it.
             if has_targets:
                 var best_sq := INF
                 var best_dir := Vector3.ZERO
-                for target_pos in _chase_list:
-                    var to_target := target_pos - boid_pos
+                var best_idx := -1
+                for k in _chase_list.size():
+                    var to_target := _chase_list[k] - boid_pos
                     var target_sq := to_target.length_squared()
                     if target_sq < best_sq:
                         best_sq = target_sq
                         best_dir = to_target
-                steering += _steer_towards(best_dir, boid_vel, max_speed) * bt.chase_target_weight
+                        best_idx = k
+
+                var chase_steer := _steer_towards(best_dir, boid_vel, max_speed)
+                if bt.should_flee and best_idx != -1 and best_sq > 0.0001:
+                    var flee_steer := _steer_towards(-best_dir, boid_vel, max_speed)
+                    # +1 = target looks straight at the boid, -1 = looks directly away
+                    var facing := _chase_looks[best_idx].dot(-best_dir / sqrt(best_sq))
+                    var flee_amount := clampf(facing * 0.5 + 0.5, 0.0, 1.0)
+                    chase_steer = chase_steer.lerp(flee_steer, flee_amount)
+                steering += chase_steer * bt.chase_target_weight
 
             _steer[i] = steering
 
