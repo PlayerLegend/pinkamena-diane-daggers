@@ -60,6 +60,7 @@ extends Resource
 @export var avoid_target_weight := 1.0
 @export var avoid_target_distance := 3.0
 @export var chase_target_weight := 0.3
+@export var death_type: String = "Unset"
 
 @export_group("Audio")
 ## Looping sound played by nearby boids of this type. Leave empty for silence.

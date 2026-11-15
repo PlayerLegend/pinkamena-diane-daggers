@@ -3,6 +3,7 @@ extends Node3D
 
 @export var player_light: bool
 signal world_finished(next_world: PackedScene)
+signal requested_sound(sound: AudioStream)
 
 var time: float
 
@@ -22,3 +23,6 @@ func _helper_find_spawn() -> Transform3D:
 func add_player(player: PlayerController):
     player.teleport(_helper_find_spawn())
     player.enable_light = player_light
+
+func play_sound(sound: AudioStream):
+    requested_sound.emit(sound)

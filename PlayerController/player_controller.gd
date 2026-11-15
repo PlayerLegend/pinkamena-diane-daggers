@@ -13,6 +13,7 @@ class_name PlayerController
 @export var body_light: PlayerLight
 @export var camera_offset: float = 0.5
 @export var weapons_controller: PlayerControllerWeapons
+@onready var xtal_pickup_sound: AudioStreamPlayer3D = $XtalPickupSound
 
 var _teleport_to: Variant = null
 
@@ -29,6 +30,8 @@ var attack_power: int:
         if value != weapons_controller.attack_power:
             attack_power_changed.emit(self)
             body_light.energy_scale = 10.0
+            if value > weapons_controller.attack_power:
+                xtal_pickup_sound.play()
         weapons_controller.attack_power = value
     get:
         return weapons_controller.attack_power

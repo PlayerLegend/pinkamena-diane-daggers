@@ -6,9 +6,11 @@ extends Node
 @onready var escape_menu: EscapeMenu = $EscapeMenu
 @export var start_world_scene: PackedScene
 @export var menu_world_scene: PackedScene
+@export var main_world_scene: PackedScene
 @onready var game_world_manager: GameWorldManager = $GameWorldManager
 @export var game_start_audio: AudioStream
-@onready var non_spatial_audio: SoundPlayer = $NonSpatialAudio
+@export var game_over_audio: AudioStream
+@onready var non_spatial_audio: MultiVoicePlayer = $NonSpatialAudio
 @export var game_over_screen: GameOverScreen
 
 var current_menu: Control
@@ -89,8 +91,15 @@ func _on_player_joined(player: PlayerController, id: int):
     if id == 1:
         screen.player_controller = player
 
-func _on_player_died(_player: PlayerController):
+func _on_player_died(player: PlayerController, stats: GameOverStats):
     _show_menu(game_over_screen)
+    game_over_screen.set_stats(stats)
+    player.visible = false
+    non_spatial_audio.play_sound(game_over_audio)
+
+func _restart_game():
+    _set_world(main_world_scene)
+    _show_game()
 
 func _ready():
     assert(main_menu)
@@ -100,10 +109,12 @@ func _ready():
     assert(game_start_audio)
     assert(game_over_screen)
     assert(boid_types)
+    assert(main_world_scene)
     
     NetworkSimulator.server_created.connect(_on_netsim_server_created)
     NetworkSimulator.client_connected.connect(_on_netsim_client_connected)
     multiplayer_handler.player_joined.connect(_on_player_joined)
+    game_over_screen.did_press_retry.connect(_restart_game)
     _show_menu(main_menu)
 
 func _on_main_menu_net_host(port: int) -> void:
@@ -113,4 +124,5 @@ func _on_game_world_manager_world_changed(new_world: GameWorld) -> void:
     non_spatial_audio.play_sound(game_start_audio)
     if new_world is MainGameWorld:
         new_world.player_died.connect(_on_player_died)
+        print("Connected player died signal")
         

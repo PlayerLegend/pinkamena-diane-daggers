@@ -19,7 +19,7 @@ func _helper_apply_afterimage_material() -> void:
     if afterimage_material == null or mesh == null:
         return
     for i in mesh.get_surface_count():
-        var mat := mesh.surface_get_material(i)
+        #var mat := mesh.surface_get_material(i)
         #if mat is BaseMaterial3D:
             #afterimage_material.set_shader_parameter(&"albedo_texture", mat.albedo_texture)
         set_surface_override_material(i, afterimage_material)

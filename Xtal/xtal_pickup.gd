@@ -2,11 +2,13 @@ class_name XtalPickup
 extends SlideBody3D
 
 @export var target_height: float = 1
+@onready var hum_sound: AudioStreamPlayer3D = $HumSound
 
 var time: float
 
 func _ready():
     sync_to_physics = false
+    hum_sound.play()
 
 func get_height() -> float:
     var query := PhysicsRayQueryParameters3D.create(
@@ -39,6 +41,8 @@ func _helper_find_player() -> PlayerController:
     var result = null
     for player in get_tree().get_nodes_in_group("chase_targets"):
         if player is PlayerController:
+            if not player.visible:
+                continue
             var player_dist = (player.global_position - global_position).length_squared()
             if player_dist < dist:
                 result = player

@@ -1,4 +1,4 @@
-class_name SoundPlayer
+class_name MultiVoicePlayer
 extends Node
 ## Plays non-spatial sounds with a fixed number of simultaneous voices.
 ## Add this node to a scene (or make it an Autoload) and call play_sound().

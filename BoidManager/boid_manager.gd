@@ -395,6 +395,14 @@ func get_boid_health(index: int) -> int:
     if _type_of_slot(index) == -1:
         return 0
     return _health[index]
+    
+    
+## BoidType resource of the boid in this slot, or null if the index is not a live boid.
+func get_boid_type(index: int) -> BoidType:
+    var t := _type_of_slot(index)
+    if t == -1:
+        return null
+    return _types[t]
 
 
 ## Sets a boid's health. Does NOT remove the boid at 0 or below; call remove_boid()

@@ -3,3 +3,4 @@
 /android/
 *.double.png
 *.blend1
+export/

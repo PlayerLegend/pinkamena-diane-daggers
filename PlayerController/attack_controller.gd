@@ -10,8 +10,8 @@ var attack_charge: float
 var attack_pressed: bool
 var attack_released: bool
 
-@export var attack_stream_threshold: float = 0.1
-@export var attack_shot_setback: float = -0.1
+@export var attack_stream_threshold: float = 0.15
+@export var attack_shot_setback: float = -0.5
 
 var attack_power: int
 #var _active: bool
@@ -56,20 +56,18 @@ func _process(delta: float):
             _fire_stream()
     
     if attack_released:
-        if attack_charge < attack_stream_threshold:
+        if attack_charge > 0 and attack_charge < attack_stream_threshold:
             _fire_shot()
         
     if attack_released:
         attack_pressed = false
         attack_released = false
     
-    if not attack_pressed:
-        if attack_charge < -delta:
-            attack_charge += delta  
-        elif attack_charge > delta:
-            attack_charge -= delta
-        else:
-            attack_charge = 0
+    if not attack_pressed and attack_charge > 0:
+        attack_charge = max(attack_charge - delta, 0)
+    
+    if attack_charge < 0:
+        attack_charge = min(attack_charge + delta, 0)
         
 func _start_attack():
     attack_pressed = true

@@ -32,5 +32,6 @@ mesh = ExtResource("1_tce42")
 material_overrides = Array[Material]([SubResource("ShaderMaterial_esx3d"), SubResource("ShaderMaterial_kipis"), null, null])
 max_health = 5
 collision_radius = 0.5
+death_type = "ponky"
 drops_xtal = true
 gibs_count = 1

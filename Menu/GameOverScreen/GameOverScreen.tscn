@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://1disatc1y3uy"]
 
 [ext_resource type="Script" uid="uid://bmxga50kv8bf1" path="res://Menu/GameOverScreen/game_over_screen.gd" id="1_2yisb"]
-[ext_resource type="PackedScene" uid="uid://vvvdwpqek57b" path="res://Menu/GameOverScreen/GameOverStats.tscn" id="1_s3iue"]
+[ext_resource type="PackedScene" uid="uid://vvvdwpqek57b" path="res://Menu/GameOverScreen/GameOverStatsDisplay.tscn" id="1_s3iue"]
 
-[node name="GameOverScreen" type="Control" unique_id=96042216]
+[node name="GameOverScreen" type="Control" unique_id=96042216 node_paths=PackedStringArray("retry_button")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,6 +11,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_2yisb")
+retry_button = NodePath("HBoxContainer/Control/RetryButton")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1056181385]
 layout_mode = 1
@@ -24,7 +25,7 @@ grow_vertical = 2
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Button" type="Button" parent="HBoxContainer/Control" unique_id=661631537]
+[node name="RetryButton" type="Button" parent="HBoxContainer/Control" unique_id=661631537]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -46,7 +47,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 6.26
 
-[node name="Container2" type="Container" parent="HBoxContainer/Center" unique_id=1267549424]
+[node name="Container2" type="Control" parent="HBoxContainer/Center" unique_id=1964372948]
 layout_mode = 2
 size_flags_vertical = 3
 
@@ -58,10 +59,10 @@ text = "Dead"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="GameOverStats" parent="HBoxContainer/Center" unique_id=1762829505 instance=ExtResource("1_s3iue")]
+[node name="NewStats" parent="HBoxContainer/Center" unique_id=1762829505 instance=ExtResource("1_s3iue")]
 layout_mode = 2
 
-[node name="RichTextLabel" type="RichTextLabel" parent="HBoxContainer/Center" unique_id=220454315]
+[node name="BestLabel" type="RichTextLabel" parent="HBoxContainer/Center" unique_id=220454315]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_font_sizes/normal_font_size = 24
@@ -69,10 +70,10 @@ text = "Best"
 fit_content = true
 vertical_alignment = 2
 
-[node name="GameOverStats2" parent="HBoxContainer/Center" unique_id=607857251 instance=ExtResource("1_s3iue")]
+[node name="BestStats" parent="HBoxContainer/Center" unique_id=607857251 instance=ExtResource("1_s3iue")]
 layout_mode = 2
 
-[node name="RichTextLabel2" type="RichTextLabel" parent="HBoxContainer/Center" unique_id=1272016311]
+[node name="TotalLabel" type="RichTextLabel" parent="HBoxContainer/Center" unique_id=1272016311]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_font_sizes/normal_font_size = 24
@@ -80,12 +81,8 @@ text = "Total"
 fit_content = true
 vertical_alignment = 2
 
-[node name="GameOverStats3" parent="HBoxContainer/Center" unique_id=116843554 instance=ExtResource("1_s3iue")]
+[node name="TotalStats" parent="HBoxContainer/Center" unique_id=116843554 instance=ExtResource("1_s3iue")]
 layout_mode = 2
-
-[node name="GameOver" type="HBoxContainer" parent="HBoxContainer/Center" unique_id=284645837]
-layout_mode = 2
-size_flags_horizontal = 3
 
 [node name="Control" type="Control" parent="HBoxContainer/Center" unique_id=1338423259]
 layout_mode = 2

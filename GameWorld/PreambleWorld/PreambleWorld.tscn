@@ -4,8 +4,10 @@
 [ext_resource type="PackedScene" uid="uid://clbho01tu8i5" path="res://Arena/Arena.tscn" id="2_je4gd"]
 [ext_resource type="PackedScene" uid="uid://o0rbejo44tmp" path="res://GameWorld/MainGameWorld/MainGameWorld.tscn" id="2_yuuwi"]
 [ext_resource type="Script" uid="uid://blxd2e2temnsn" path="res://PlayerSpawner/player_spawner.gd" id="3_yuuwi"]
+[ext_resource type="AudioStream" uid="uid://c2vvoylywu56g" path="res://Sounds/okiedokieloki.wav" id="4_r7p7v"]
 [ext_resource type="Script" uid="uid://bjwl61f2kuhoc" path="res://GameWorld/PreambleWorld/beckon.gd" id="5_l4n56"]
 [ext_resource type="PackedScene" uid="uid://drj54oruk64g0" path="res://Blend/PinkiePie/PinkiePie.glb" id="5_yuuwi"]
+[ext_resource type="AudioStream" uid="uid://s5m5s8mfvec7" path="res://Sounds/threw-this-party-just-for-you.wav" id="7_6gvur"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_q8hc1"]
 height = 3.9750977
@@ -14,6 +16,7 @@ radius = 0.4345703
 [node name="PreambleWorld" type="Node3D" unique_id=1563315569]
 script = ExtResource("1_ialdn")
 next_world = ExtResource("2_yuuwi")
+start_sounds = Array[AudioStream]([ExtResource("7_6gvur"), ExtResource("4_r7p7v")])
 metadata/_custom_type_script = "uid://4pbiob3hlex8"
 
 [node name="Arena" parent="." unique_id=1057556895 instance=ExtResource("2_je4gd")]

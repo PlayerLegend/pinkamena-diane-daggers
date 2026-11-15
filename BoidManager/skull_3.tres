@@ -19,6 +19,7 @@ separation_weight = 1.0
 separation_radius = 2.035
 floor_height = 0.52
 chase_target_weight = 1.0
+death_type = "ponka po"
 idle_sound = ExtResource("1_kls28")
 drops_xtal = true
 gibs_count = 2

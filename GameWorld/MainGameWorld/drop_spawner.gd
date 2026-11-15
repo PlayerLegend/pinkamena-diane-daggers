@@ -6,6 +6,8 @@ extends Node3D
 @export var boid_manager: BoidManager
 @export var xtal_pickup_scene: PackedScene
 
+@onready var death_sound: AudioStreamPlayer3D = $DeathSound
+
 func _ready():
     boid_manager.boid_removed.connect(_on_boid_removed)
 
@@ -47,3 +49,7 @@ func _on_boid_removed(
         
     if type.drops_xtal:
         spawn_xtal(pos)
+        
+    death_sound.position = pos
+    death_sound.play()
+    death_sound.pitch_scale = 1.0 + randf_range(-0.05, 0.05)

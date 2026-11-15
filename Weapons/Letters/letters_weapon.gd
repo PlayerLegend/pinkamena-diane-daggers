@@ -12,6 +12,8 @@ const GLYPH_DIR := "res://Blend/Text/glyphs/"
 const GLYPH_CHARS := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 const UPPER_SUFFIX := "_upper"
 
+@export var accuracy_fac: float = 2.0
+
 ## Maps single-character String -> Mesh.
 var _glyph_meshes: Dictionary = {}
 ## First mesh that loaded successfully; used when a letter has no match.
@@ -51,7 +53,7 @@ func _spawn() -> Node3D:
     projectile_parent.add_child(new_projectile)
     var offset_dir: Vector3 = randf_range(-1, 1) * global_basis.x + randf_range(-1,1) * global_basis.y
     var offset = offset_dir.normalized() * randf_range(0,0.1)
-    var dir = (-2.0 * global_basis.z + offset).normalized()
+    var dir = (-accuracy_fac * global_basis.z + offset).normalized()
     new_projectile.set_path(projectile_source.global_position + offset, dir, global_basis.y)
     new_projectile.fly_finish_node = self
     new_projectile.mesh = _glyph_meshes.get(get_letter(), _fallback_mesh)

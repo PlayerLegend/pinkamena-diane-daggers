@@ -5,6 +5,7 @@
 [ext_resource type="Material" uid="uid://bmgrj0ssscwt4" path="res://Blend/Xtal/mat_xtal.tres" id="3_lqxim"]
 [ext_resource type="Script" uid="uid://d350u8evihs1u" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="4_pm31x"]
 [ext_resource type="Script" uid="uid://dour8fehaaugp" path="res://addons/netfox/tick-interpolator.gd" id="5_vqjms"]
+[ext_resource type="AudioStream" uid="uid://4wewfm78vbsi" path="res://Xtal/magic-hum.wav" id="6_lqxim"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_qdswm"]
 
@@ -35,3 +36,6 @@ metadata/_custom_type_script = "uid://dour8fehaaugp"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1124975638]
 shape = SubResource("SphereShape3D_qdswm")
+
+[node name="HumSound" type="AudioStreamPlayer3D" parent="." unique_id=49661390]
+stream = ExtResource("6_lqxim")

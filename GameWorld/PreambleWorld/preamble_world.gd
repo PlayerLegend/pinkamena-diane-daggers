@@ -9,6 +9,7 @@ extends GameWorld
 
 @export var next_world: PackedScene
 @onready var beckon: Node3D = $Beckon
+@export var start_sounds: Array[AudioStream]
 
 func _ready() -> void:
     start_game_trigger.body_entered.connect(_on_start_game_trigger_body_entered)
@@ -38,6 +39,7 @@ func _on_start_game_trigger_body_entered(body: Node3D) -> void:
     if body is PlayerController:
         _light_energy_target = 0
         beckon.visible = false
+        play_sound(start_sounds.pick_random())
     
 func add_player(player: PlayerController):
     super(player)

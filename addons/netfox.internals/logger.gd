@@ -20,25 +20,25 @@ class_name NetfoxLogger
 
 
 enum {
-	LOG_ALL,	## Filter level to log every message
-	LOG_TRACE,	## Trace logs, the most verbose level
-	LOG_DEBUG,	## Debug logs
-	LOG_INFO,	## Info logs
-	LOG_WARN,	## Warnings
-	LOG_ERROR,	## Errors
-	LOG_NONE	## Filter level to log no messages
+    LOG_ALL,	## Filter level to log every message
+    LOG_TRACE,	## Trace logs, the most verbose level
+    LOG_DEBUG,	## Debug logs
+    LOG_INFO,	## Info logs
+    LOG_WARN,	## Warnings
+    LOG_ERROR,	## Errors
+    LOG_NONE	## Filter level to log no messages
 }
 
 ## Default log level to fall back on, if not configured
 const DEFAULT_LOG_LEVEL := LOG_DEBUG
 
 const _LEVEL_PREFIXES: Array[String] = [
-	"",
-	"TRC",
-	"DBG",
-	"INF",
-	"WRN",
-	"ERR",
+    "",
+    "TRC",
+    "DBG",
+    "INF",
+    "WRN",
+    "ERR",
 	""
 ]
 
@@ -69,83 +69,83 @@ var name: String
 ## Tags are callables that provide pieces of context, included in all log
 ## messges. The [param tag] callable must return a string.
 static func register_tag(tag: Callable, priority: int = 0) -> void:
-	# Save tag
-	if not _tags.has(priority):
-		_tags[priority] = [tag]
-	else:
-		_tags[priority].push_back(tag)
+    # Save tag
+    if not _tags.has(priority):
+        _tags[priority] = [tag]
+    else:
+        _tags[priority].push_back(tag)
 
-	# Recalculate tag order
-	_ordered_tags.clear()
-	
-	var prio_groups = _tags.keys()
-	prio_groups.sort()
+    # Recalculate tag order
+    _ordered_tags.clear()
+    
+    var prio_groups = _tags.keys()
+    prio_groups.sort()
 
-	for prio_group in prio_groups:
-		var tag_group = _tags[prio_group]
-		_ordered_tags.append_array(tag_group)
+    for prio_group in prio_groups:
+        var tag_group = _tags[prio_group]
+        _ordered_tags.append_array(tag_group)
 
 ## Free an already registered tag
 static func free_tag(tag: Callable) -> void:
-	for priority in _tags.keys():
-		var priority_group := _tags[priority] as Array
-		priority_group.erase(tag)
+    for priority in _tags.keys():
+        var priority_group := _tags[priority] as Array
+        priority_group.erase(tag)
 
-		# NOTE: Arrays are passed as reference, no need to re-assign after modifying
-		if priority_group.is_empty():
-			_tags.erase(priority)
+        # NOTE: Arrays are passed as reference, no need to re-assign after modifying
+        if priority_group.is_empty():
+            _tags.erase(priority)
 
-	_ordered_tags.erase(tag)
+    _ordered_tags.erase(tag)
 
 static func _static_init():
-	log_level = ProjectSettings.get_setting(&"netfox/logging/log_level", DEFAULT_LOG_LEVEL)
-	module_log_level = {
-		"netfox": ProjectSettings.get_setting(&"netfox/logging/netfox_log_level", DEFAULT_LOG_LEVEL),
-		"netfox.noray": ProjectSettings.get_setting(&"netfox/logging/netfox_noray_log_level", DEFAULT_LOG_LEVEL),
-		"netfox.extras": ProjectSettings.get_setting(&"netfox/logging/netfox_extras_log_level", DEFAULT_LOG_LEVEL)
-	}
+    log_level = ProjectSettings.get_setting(&"netfox/logging/log_level", DEFAULT_LOG_LEVEL)
+    module_log_level = {
+        "netfox": ProjectSettings.get_setting(&"netfox/logging/netfox_log_level", DEFAULT_LOG_LEVEL),
+        "netfox.noray": ProjectSettings.get_setting(&"netfox/logging/netfox_noray_log_level", DEFAULT_LOG_LEVEL),
+        "netfox.extras": ProjectSettings.get_setting(&"netfox/logging/netfox_extras_log_level", DEFAULT_LOG_LEVEL)
+    }
 
 static func _for_netfox(p_name: String) -> NetfoxLogger:
-	return NetfoxLogger.new("netfox", p_name)
+    return NetfoxLogger.new("netfox", p_name)
 
 static func _for_noray(p_name: String) -> NetfoxLogger:
-	return NetfoxLogger.new("netfox.noray", p_name)
+    return NetfoxLogger.new("netfox.noray", p_name)
 
 static func _for_extras(p_name: String) -> NetfoxLogger:
-	return NetfoxLogger.new("netfox.extras", p_name)
+    return NetfoxLogger.new("netfox.extras", p_name)
 
 static func _make_setting(name: String) -> Dictionary:
-	return {
-		"name": name,
-		"value": DEFAULT_LOG_LEVEL,
-		"type": TYPE_INT,
-		"hint": PROPERTY_HINT_ENUM,
-		"hint_string": "All,Trace,Debug,Info,Warning,Error,None"
-	}
+    return {
+        "name": name,
+        "value": DEFAULT_LOG_LEVEL,
+        "type": TYPE_INT,
+        "hint": PROPERTY_HINT_ENUM,
+        "hint_string": "All,Trace,Debug,Info,Warning,Error,None"
+    }
 
 
 func _init(p_module: String, p_name: String):
-	module = p_module
-	name = p_name
+    module = p_module
+    name = p_name
 
 ## Log a trace message
 ## [br][br]
 ## Traces are the most verbose, usually used for drilling down into very niche
 ## bugs.
 func trace(text: String, values: Array = []):
-	_log_text(text, values, LOG_TRACE)
+    _log_text(text, values, LOG_TRACE)
 
 ## Log a debug message
 ## [br][br]
 ## Debug messages are verbose, usually used to reconstruct and investigate bugs.
 func debug(text: String, values: Array = []):
-	_log_text(text, values, LOG_DEBUG)
+    _log_text(text, values, LOG_DEBUG)
 
 ## Log an info message
 ## [br][br]
 ## Info messages provide general notifications about application events.
 func info(text: String, values: Array = []):
-	_log_text(text, values, LOG_INFO)
+    _log_text(text, values, LOG_INFO)
 
 ## Log a warning message
 ## [br][br]
@@ -153,13 +153,13 @@ func info(text: String, values: Array = []):
 ## [member push_to_debugger]. Warning messages usually indicate that something
 ## has gone wrong, but is recoverable.
 func warning(text: String, values: Array = []):
-	if _check_log_level(LOG_WARN):
-		var formatted_text = _format_text(text, values, LOG_WARN)
-		if push_to_debugger:
-			push_warning(formatted_text)
+    if _check_log_level(LOG_WARN):
+        var formatted_text = _format_text(text, values, LOG_WARN)
+        if push_to_debugger:
+            push_warning(formatted_text)
 
-		# Print so it shows up in the Output panel too
-		print(formatted_text)
+        # Print so it shows up in the Output panel too
+        print(formatted_text)
 
 ## Log an error message
 ## [br][br]
@@ -167,42 +167,42 @@ func warning(text: String, values: Array = []):
 ## [member push_to_debugger]. Error messages usually indicate an issue that
 ## can't be recovered from.
 func error(text: String, values: Array = []):
-	if _check_log_level(LOG_ERROR):
-		var formatted_text = _format_text(text, values, LOG_ERROR)
-		if push_to_debugger:
-			push_error(formatted_text)
+    if _check_log_level(LOG_ERROR):
+        var formatted_text = _format_text(text, values, LOG_ERROR)
+        if push_to_debugger:
+            push_error(formatted_text)
 
-		# Print so it shows up in the Output panel too
-		print(formatted_text)
+        # Print so it shows up in the Output panel too
+        print(formatted_text)
 
 func _check_log_level(level: int) -> bool:
-	var cmp_level = log_level
-	if level < cmp_level:
-		return false
-	
-	if module_log_level.has(module):
-		var module_level = module_log_level.get(module)
-		return level >= module_level
-	
-	return true
+    var cmp_level = log_level
+    if level < cmp_level:
+        return false
+    
+    if module_log_level.has(module):
+        var module_level = module_log_level.get(module)
+        return level >= module_level
+    
+    return true
 
 func _format_text(text: String, values: Array, level: int) -> String:
-	level = clampi(level, LOG_TRACE, LOG_ERROR)
-	
-	var result := PackedStringArray()
-	
-	result.append("[%s]" % [_LEVEL_PREFIXES[level]])
-	for tag in _ordered_tags:
-		result.append("[%s]" % [tag.call()])
-	result.append("[%s::%s] " % [module, name])
-	
-	if values.is_empty():
-		result.append(text)
-	else:
-		result.append(text % values)
-	
-	return "".join(result)
+    level = clampi(level, LOG_TRACE, LOG_ERROR)
+    
+    var result := PackedStringArray()
+    
+    result.append("[%s]" % [_LEVEL_PREFIXES[level]])
+    for tag in _ordered_tags:
+        result.append("[%s]" % [tag.call()])
+    result.append("[%s::%s] " % [module, name])
+    
+    if values.is_empty():
+        result.append(text)
+    else:
+        result.append(text % values)
+    
+    return "".join(result)
 
 func _log_text(text: String, values: Array, level: int):
-	if _check_log_level(level):
-		print(_format_text(text, values, level))
+    if _check_log_level(level):
+        print(_format_text(text, values, level))
