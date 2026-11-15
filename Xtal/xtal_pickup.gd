@@ -63,9 +63,9 @@ func _helper_fly_to_player(delta: float, player: PlayerController):
         return
         
     var wishdir = (player.global_position - global_position).normalized()
-    var wishvel = 15 * wishdir
+    var wishvel = 30 * wishdir
     var fric = velocity.slide(wishdir)    
-    var delta_v = (wishvel - velocity) * delta / 2 - fric * delta
+    var delta_v = (wishvel - velocity) * delta - fric * delta
     var height = get_height()
     if is_nan(height):
         height = player.global_position.y

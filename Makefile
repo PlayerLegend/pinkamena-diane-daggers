@@ -14,6 +14,7 @@ OBJ_BLEND_FILES ?= \
 	Squids/Squid2/squid2.blend \
 
 GLB_BLEND_FILES ?= \
+	PlayerController/Hoof.blend \
 	Blend/PinkiePie/PinkiePie.blend
 
 OBJ_FILES := $(OBJ_BLEND_FILES:.blend=.obj)

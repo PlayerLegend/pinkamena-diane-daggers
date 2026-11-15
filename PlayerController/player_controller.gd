@@ -14,6 +14,9 @@ class_name PlayerController
 @export var camera_offset: float = 0.5
 @export var weapons_controller: PlayerControllerWeapons
 @onready var xtal_pickup_sound: AudioStreamPlayer3D = $XtalPickupSound
+@onready var hoof_translation: Node3D = $HoofTranslation
+@onready var hoof_rotation: Node3D = $HoofTranslation/HoofRotation
+
 
 var _teleport_to: Variant = null
 
@@ -167,6 +170,9 @@ func _helper_phys_apply_explosion_knock():
     explosion_knock = Vector3(0,0,0)    
 
 func _process(delta: float):
+    var shot_fac = -weapons_controller.attack_charge * 0.6
+    hoof_rotation.transform = camera_controller.transform
+    hoof_translation.position = hoof_rotation.basis.z * shot_fac
     var light_decay = delta
     if body_light.energy_scale > 1.0:
         light_decay *= 10

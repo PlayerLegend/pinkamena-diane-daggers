@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="BoidType" format=3 uid="uid://begmqtybc0sut"]
 
+[ext_resource type="AudioStream" uid="uid://daen3ruonim3b" path="res://Sounds/hahafast.wav" id="1_fnw7u"]
 [ext_resource type="Shader" uid="uid://cvu6m5rru4v7p" path="res://Skulls/skull.gdshader" id="1_s0quj"]
 [ext_resource type="ArrayMesh" uid="uid://cajnvf7obxamg" path="res://Skulls/Skull2/skull2.obj" id="1_tce42"]
 [ext_resource type="Script" uid="uid://ccb31lioy8b6j" path="res://BoidManager/boid_type.gd" id="2_64ecx"]
@@ -33,5 +34,8 @@ material_overrides = Array[Material]([SubResource("ShaderMaterial_esx3d"), SubRe
 max_health = 5
 collision_radius = 0.5
 death_type = "ponky"
+idle_sound = ExtResource("1_fnw7u")
+idle_volume_db = -6.8149999999999995
+idle_pitch_variation = 0.0
 drops_xtal = true
 gibs_count = 1

@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://v8avpmrsq7xq" path="res://PlayerController/player_controller.gd" id="1_u0xto"]
 [ext_resource type="Script" uid="uid://du2eq3npsv6wx" path="res://PlayerController/cam_look.gd" id="2_2ud5e"]
+[ext_resource type="PackedScene" uid="uid://nxuwwtkao1ng" path="res://PlayerController/Hoof.glb" id="2_mj3g2"]
 [ext_resource type="Script" uid="uid://d350u8evihs1u" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="3_ps8a3"]
 [ext_resource type="Resource" uid="uid://c5pd1ax2j12x2" path="res://PlayerController/actions/look.tres" id="3_s3jlx"]
 [ext_resource type="Script" uid="uid://j3rmchu80mau" path="res://PlayerController/attack_controller.gd" id="4_0458q"]
@@ -16,6 +17,8 @@
 [ext_resource type="AudioStream" uid="uid://wsqe8v4y62uh" path="res://Sounds/pew1.wav" id="9_c0akw"]
 [ext_resource type="PackedScene" uid="uid://huy88qkm8eir" path="res://Weapons/Letters/LettersWeaponStreaming.tscn" id="10_m11co"]
 [ext_resource type="Script" uid="uid://xd0y40m27r0g" path="res://PlayerController/body_light.gd" id="12_87n76"]
+[ext_resource type="Material" uid="uid://bm0wondx1tnh3" path="res://PlayerController/twilight_coat.tres" id="12_qu0x6"]
+[ext_resource type="Material" uid="uid://opyv13ypyufb" path="res://PlayerController/twilight_coat_outline.tres" id="13_pmdbm"]
 [ext_resource type="AudioStream" uid="uid://bindqck3motuw" path="res://Sounds/unicorn2.wav" id="17_4lh6h"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_ycagd"]
@@ -25,6 +28,8 @@ frequency = 0.4738
 
 [sub_resource type="NoiseTexture3D" id="NoiseTexture3D_87n76"]
 noise = SubResource("FastNoiseLite_87n76")
+
+[sub_resource type="GDScript" id="GDScript_mj3g2"]
 
 [node name="PlayerController" type="AnimatableBody3D" unique_id=401983748 node_paths=PackedStringArray("body_light", "weapons_controller")]
 collision_mask = 47
@@ -48,14 +53,16 @@ script = ExtResource("4_0458q")
 guide_action_shoot = ExtResource("8_m11co")
 input = NodePath("../../../Input")
 
-[node name="LettersWeaponStreaming" parent="CamLook/Camera3D/WeaponsController" unique_id=426797018 instance=ExtResource("10_m11co")]
+[node name="LettersWeaponStreaming" parent="CamLook/Camera3D/WeaponsController" unique_id=426797018 node_paths=PackedStringArray("projectile_source") instance=ExtResource("10_m11co")]
 projectile_scene = ExtResource("7_t4tlh")
+projectile_source = NodePath("../../../../HoofTranslation/HoofRotation/HoofVisual/ProjectileSource")
 attack_progression = ExtResource("8_c0akw")
 shot_sound = ExtResource("9_c0akw")
 shot_volume_db = -19.5
 
-[node name="LettersWeaponShot" parent="CamLook/Camera3D/WeaponsController" unique_id=1495723169 instance=ExtResource("8_tj7lp")]
+[node name="LettersWeaponShot" parent="CamLook/Camera3D/WeaponsController" unique_id=1495723169 node_paths=PackedStringArray("projectile_source") instance=ExtResource("8_tj7lp")]
 projectile_scene = ExtResource("7_t4tlh")
+projectile_source = NodePath("../../../../HoofTranslation/HoofRotation/HoofVisual/ProjectileSource")
 accuracy_fac = 0.71
 shot_sound = ExtResource("9_c0akw")
 shot_volume_db = -17.5
@@ -88,3 +95,53 @@ _noise = SubResource("NoiseTexture3D_87n76")
 
 [node name="XtalPickupSound" type="AudioStreamPlayer3D" parent="." unique_id=1248690430]
 stream = ExtResource("17_4lh6h")
+
+[node name="HoofTranslation" type="Node3D" parent="." unique_id=1606819447]
+
+[node name="HoofRotation" type="Node3D" parent="HoofTranslation" unique_id=920370711]
+
+[node name="HoofVisual" parent="HoofTranslation/HoofRotation" unique_id=1166108711 instance=ExtResource("2_mj3g2")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 0, -0.33322963, -0.20944302)
+
+[node name="Skeleton3D" parent="HoofTranslation/HoofRotation/HoofVisual/HoofArmature" parent_id_path=PackedInt32Array(1166108711, 1286567746) index="0" unique_id=483330908]
+script = SubResource("GDScript_mj3g2")
+
+[node name="SpringBoneSimulator3D" type="SpringBoneSimulator3D" parent="HoofTranslation/HoofRotation/HoofVisual/HoofArmature/Skeleton3D" index="0" unique_id=794747021]
+setting_count = 1
+settings/0/root_bone_name = "Hoof"
+settings/0/root_bone = 0
+settings/0/end_bone_name = "Hoof.003"
+settings/0/end_bone = 3
+settings/0/extend_end_bone = false
+settings/0/center_from = 1
+settings/0/center_node = NodePath("../../../../..")
+settings/0/individual_config = false
+settings/0/rotation_axis = 3
+settings/0/radius/value = 0.02
+settings/0/radius/damping_curve = null
+settings/0/stiffness/value = 6.0
+settings/0/stiffness/damping_curve = null
+settings/0/drag/value = 0.4
+settings/0/drag/damping_curve = null
+settings/0/gravity/value = 0.0
+settings/0/gravity/damping_curve = null
+settings/0/gravity/direction = Vector3(0, -1, 0)
+settings/0/joints/0/bone_name = "Hoof"
+settings/0/joints/0/bone = 0
+settings/0/joints/1/bone_name = "Hoof.001"
+settings/0/joints/1/bone = 1
+settings/0/joints/2/bone_name = "Hoof.002"
+settings/0/joints/2/bone = 2
+settings/0/joints/3/bone_name = "Hoof.003"
+settings/0/joints/3/bone = 3
+settings/0/enable_all_child_collisions = true
+settings/0/exclude_collision_count = 0
+
+[node name="HoofMesh" parent="HoofTranslation/HoofRotation/HoofVisual/HoofArmature/Skeleton3D" index="1" unique_id=1068642512]
+surface_material_override/0 = ExtResource("12_qu0x6")
+surface_material_override/1 = ExtResource("13_pmdbm")
+
+[node name="ProjectileSource" type="Marker3D" parent="HoofTranslation/HoofRotation/HoofVisual" unique_id=1969984047]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 4.407559e-08, 0.01597938, 0.504166)
+
+[editable path="HoofTranslation/HoofRotation/HoofVisual"]
