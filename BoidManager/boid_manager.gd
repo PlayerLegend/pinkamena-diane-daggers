@@ -926,10 +926,10 @@ func _integrate(delta: float) -> void:
                 q = (q * step).normalized()
                 _set_rot(i, q)
 
-            var basis := Basis(q)
-            var x := basis.x
-            var y := basis.y
-            var z := basis.z
+            var boid_basis := Basis(q)
+            var x := boid_basis.x
+            var y := boid_basis.y
+            var z := boid_basis.z
 
             # MultiMesh TRANSFORM_3D layout: 3 rows of (basis column x, y, z, origin),
             # followed by 4 floats of custom data (use_custom_data = true)
