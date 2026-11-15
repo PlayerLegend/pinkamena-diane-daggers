@@ -14,6 +14,7 @@ alignment_weight = 0.05
 cohesion_weight = 0.1
 floor_margin = 0.1
 floor_weight = 0.5
+turn_speed = 8.0
 avoid_target_weight = 7.0
 avoid_target_distance = 1.5
 death_type = "pnk"

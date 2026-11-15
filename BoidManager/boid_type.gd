@@ -61,6 +61,7 @@ extends Resource
 @export var avoid_target_distance := 3.0
 @export var chase_target_weight := 0.3
 @export var should_flee := false
+@export var flee_distance := 10.0
 @export var death_type: String = "Unset"
 
 @export_group("Audio")

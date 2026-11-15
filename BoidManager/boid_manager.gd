@@ -899,7 +899,12 @@ func _compute_steering() -> void:
                     # +1 = target looks straight at the boid, -1 = looks directly away
                     var facing := _chase_looks[best_idx].dot(-best_dir / sqrt(best_sq))
                     var flee_amount := clampf(facing * 0.5 + 0.5, 0.0, 1.0)
-                    chase_steer = chase_steer.lerp(flee_steer, flee_amount)
+                    # Beyond flee_distance the flee part is dropped, but the chase part
+                    # still fades out with flee_amount, so a boid that is out of range
+                    # and being looked at gets no chase or flee steering at all.
+                    var in_range := best_sq <= bt.flee_distance * bt.flee_distance
+                    var flee_scale := flee_amount if in_range else 0.0
+                    chase_steer = chase_steer * (1.0 - flee_amount) + flee_steer * flee_scale
                 steering += chase_steer * bt.chase_target_weight
 
             _steer[i] = steering
