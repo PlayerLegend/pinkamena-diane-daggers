@@ -28,9 +28,20 @@ func _ready() -> void:
 
     decal.size = Vector3.ONE * arena_radius * 2.0
     decal.emission_energy = emission_strength
-    _refresh_decal_textures()
+    
+    await _clear_canvas_to_transparent()
 
-    #BoidManager.boid_removed.connect(_on_boid_removed)
+
+## Forces the viewport to render one empty frame so its texture is initialized
+## to transparent. Without this, the texture is uninitialized GPU memory until
+## the first splatter is drawn, which shows up as black on some drivers.
+## The decal is hidden during the render to avoid a one-frame flash.
+func _clear_canvas_to_transparent() -> void:
+    decal.visible = false
+    sub_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+    await RenderingServer.frame_post_draw
+    _refresh_decal_textures()
+    decal.visible = true
 
 func _refresh_decal_textures() -> void:
     var viewport_tex := sub_viewport.get_texture()
