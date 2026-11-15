@@ -12,7 +12,7 @@ var dead_time: float
 func take_damage(amount: int):
     visual_mesh.flash()
     hit_sound.play()
-    health -= 1
+    health -= amount
     if health <= 0:
         var playback: AnimationNodeStateMachinePlayback = animation_tree.get("parameters/playback")
         playback.travel("die")
