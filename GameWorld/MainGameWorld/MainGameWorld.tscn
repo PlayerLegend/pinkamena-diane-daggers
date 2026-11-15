@@ -22,9 +22,10 @@
 background_mode = 1
 ambient_light_source = 1
 
-[node name="MainGameWorld" type="Node3D" unique_id=1209546168]
+[node name="MainGameWorld" type="Node3D" unique_id=1209546168 node_paths=PackedStringArray("game_over_screen")]
 script = ExtResource("1_lc3mr")
 menu_world = ExtResource("2_u6lad")
+game_over_screen = NodePath("")
 player_light = true
 metadata/_custom_type_script = "uid://4pbiob3hlex8"
 
@@ -64,10 +65,6 @@ script = ExtResource("12_se08m")
 boid_manager = NodePath("../BoidManager")
 
 [node name="BoidManager" parent="." unique_id=1957767101 instance=ExtResource("12_15qal")]
-bounds_center = null
-bounds_radius = null
-avoid_target_group = null
-chase_target_group = null
 
 [node name="PlayerSpawner" type="Node3D" parent="." unique_id=517530346]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.134716, 0)

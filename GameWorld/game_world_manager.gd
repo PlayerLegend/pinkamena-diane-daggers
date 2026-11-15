@@ -5,6 +5,9 @@ signal world_changed(new_world: GameWorld)
 
 @export var game_world: GameWorld:
     set(value):
+        
+        assert(value is GameWorld or not value)
+        
         if game_world == value:
             return
             

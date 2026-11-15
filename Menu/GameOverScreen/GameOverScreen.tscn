@@ -1,0 +1,96 @@
+[gd_scene format=3 uid="uid://1disatc1y3uy"]
+
+[ext_resource type="Script" uid="uid://bmxga50kv8bf1" path="res://Menu/GameOverScreen/game_over_screen.gd" id="1_2yisb"]
+[ext_resource type="PackedScene" uid="uid://vvvdwpqek57b" path="res://Menu/GameOverScreen/GameOverStats.tscn" id="1_s3iue"]
+
+[node name="GameOverScreen" type="Control" unique_id=96042216]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_2yisb")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1056181385]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Control" type="Control" parent="HBoxContainer" unique_id=608164663]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Button" type="Button" parent="HBoxContainer/Control" unique_id=661631537]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -21.0
+offset_top = -11.5
+offset_right = 21.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+text = "Retry"
+
+[node name="Center" type="VBoxContainer" parent="HBoxContainer" unique_id=606334494]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 6.26
+
+[node name="Container2" type="Container" parent="HBoxContainer/Center" unique_id=1267549424]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Title" type="RichTextLabel" parent="HBoxContainer/Center" unique_id=1571071570]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/normal_font_size = 40
+text = "Dead"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GameOverStats" parent="HBoxContainer/Center" unique_id=1762829505 instance=ExtResource("1_s3iue")]
+layout_mode = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="HBoxContainer/Center" unique_id=220454315]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/normal_font_size = 24
+text = "Best"
+fit_content = true
+vertical_alignment = 2
+
+[node name="GameOverStats2" parent="HBoxContainer/Center" unique_id=607857251 instance=ExtResource("1_s3iue")]
+layout_mode = 2
+
+[node name="RichTextLabel2" type="RichTextLabel" parent="HBoxContainer/Center" unique_id=1272016311]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/normal_font_size = 24
+text = "Total"
+fit_content = true
+vertical_alignment = 2
+
+[node name="GameOverStats3" parent="HBoxContainer/Center" unique_id=116843554 instance=ExtResource("1_s3iue")]
+layout_mode = 2
+
+[node name="GameOver" type="HBoxContainer" parent="HBoxContainer/Center" unique_id=284645837]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Control" type="Control" parent="HBoxContainer/Center" unique_id=1338423259]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Control2" type="Control" parent="HBoxContainer" unique_id=680174519]
+layout_mode = 2
+size_flags_horizontal = 3

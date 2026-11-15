@@ -3,6 +3,7 @@ class_name XtalTarget
 extends StaticBody3D
 
 signal xtal_died(xtal: XtalTarget)
+signal xtal_damaged(xtal: XtalTarget)
 
 @onready var mesh_instance_3d: MeshInstance3D = $MeshInstance3D
 @onready var hit_sound: AudioStreamPlayer3D = $HitSound
@@ -17,11 +18,12 @@ func flash():
 
 func take_damage(amount: int):
     if health <= 0:
-        print("Xtal took damage but is dead")
         return
-
     health -= amount
     flash()
     hit_sound.play()
+    xtal_damaged.emit()
     if health <= 0:
+        collision_layer = 0
+        visible = false
         xtal_died.emit(self)

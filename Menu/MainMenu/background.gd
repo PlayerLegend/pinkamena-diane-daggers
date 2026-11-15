@@ -29,9 +29,7 @@ func _physics_process(delta: float) -> void:
     
 func _on_visibility_changed() -> void:
     boid_manager.clear()
-    print("SET VISIBLE ", visible)
     if visible:
         boid_target_point.add_to_group("chase_targets")
     else:
         boid_target_point.remove_from_group("chase_targets")
-        print("REMOVED FROM GROUP")

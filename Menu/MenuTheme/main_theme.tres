@@ -1,5 +1,10 @@
 [gd_resource type="Theme" format=3 uid="uid://yoxiy2q5374h"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2ge4l"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0brij"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_2ge4l"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_2qb05"]
@@ -7,6 +12,8 @@
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ksapx"]
 
 [resource]
+Button/styles/hover = SubResource("StyleBoxFlat_2ge4l")
+Button/styles/normal = SubResource("StyleBoxFlat_0brij")
 LineEdit/styles/focus = SubResource("StyleBoxEmpty_2ge4l")
 LineEdit/styles/normal = SubResource("StyleBoxEmpty_2qb05")
 LineEdit/styles/read_only = SubResource("StyleBoxEmpty_ksapx")

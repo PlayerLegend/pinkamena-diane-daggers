@@ -15,6 +15,9 @@ var fly_direction: Vector3
 @export var spawn_output: Node3D
 @export var boid_manager: BoidManager
 
+@export var pain_sound: AudioStreamPlayer3D
+@export var death_sound: AudioStreamPlayer3D
+
 var spawn_cooldown: float
 var attack_cooldown: float = 2
 var did_spawn_index: int = 999
@@ -39,7 +42,7 @@ func _ready():
     for child in get_children():
         if child is XtalTarget:
             xtal_count += 1
-            child.xtal_died.connect(_xtal_lost)
+            child.xtal_died.connect(_xtal_died)
 
 func spawn_boid(boid_type: BoidType):
     assert(spawn_output)
@@ -120,11 +123,17 @@ func drop_xtal(where: Transform3D):
     get_parent().add_child(new_xtal)
     new_xtal.global_transform = where
 
-func _xtal_lost(xtal: XtalTarget):
+func _xtal_died(xtal: XtalTarget):
     xtal_count -= 1
+    if xtal_count == 0:
+        if death_sound:
+            death_sound.play()
     drop_xtal(xtal.global_transform)
-    xtal.queue_free()
-    rollback_synchronizer.process_settings()
     
+func _xtal_damaged(_xtal: XtalTarget):
+    if pain_sound:
+        pain_sound.play()
+    
+            
             
     

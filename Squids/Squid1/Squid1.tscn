@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://emivj6qf322m"]
 
 [ext_resource type="Script" uid="uid://dbw41yoekaikh" path="res://Squids/Squid1/squid_1.gd" id="1_dq5yt"]
-[ext_resource type="ArrayMesh" uid="uid://bl4rt2fuaryhb" path="res://Squids/Squid1/squid1.obj" id="1_ugp72"]
+[ext_resource type="ArrayMesh" uid="uid://bq2m3sdocqw4" path="res://Squids/Squid1/squid1.obj" id="1_ugp72"]
 [ext_resource type="Script" uid="uid://ccb31lioy8b6j" path="res://BoidManager/boid_type.gd" id="2_ll0ug"]
 [ext_resource type="PackedScene" uid="uid://tgmwp568r7p6" path="res://Xtal/XtalPickup.tscn" id="2_qcr0k"]
 [ext_resource type="Resource" uid="uid://ck5s2ghgryskv" path="res://BoidManager/skull_1.tres" id="3_alveb"]
@@ -20,6 +20,7 @@ shader_parameter/scale_amplitude = 0.07
 shader_parameter/time_period = 3.0
 shader_parameter/height_period = 1.0
 shader_parameter/phase_offset = 0.0
+shader_parameter/tint_color = Color(1, 1, 1, 1)
 shader_parameter/albedo_texture = ExtResource("10_yhlmd")
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_qcav0"]
@@ -30,6 +31,7 @@ shader_parameter/scale_amplitude = 0.07
 shader_parameter/time_period = 3.0
 shader_parameter/height_period = 1.0
 shader_parameter/phase_offset = 0.0
+shader_parameter/tint_color = Color(1, 1, 1, 1)
 shader_parameter/albedo_texture = ExtResource("10_yhlmd")
 
 [node name="Squid1" type="AnimatableBody3D" unique_id=1326225278 node_paths=PackedStringArray("rollback_synchronizer", "spawn_output")]
@@ -64,3 +66,7 @@ surface_material_override/2 = SubResource("ShaderMaterial_qcav0")
 
 [node name="XtalTarget" parent="." unique_id=1797207347 instance=ExtResource("11_yhlmd")]
 transform = Transform3D(1, 0, 0, 0, 0.9420926, -0.3353529, 0, 0.3353529, 0.9420926, 0, 1.348805, -0.5487685)
+
+[node name="PainSound" type="AudioStreamPlayer3D" parent="." unique_id=720694255]
+
+[node name="DeathSound" type="AudioStreamPlayer3D" parent="." unique_id=835463050]

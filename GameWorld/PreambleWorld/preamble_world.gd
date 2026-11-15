@@ -29,7 +29,7 @@ func _process(delta: float) -> void:
     )
     
     if omni_light_3d.light_energy < 0.001:
-        world_finished.emit(next_world)
+        finish_world(next_world)
     
         
 func _on_start_game_trigger_body_entered(body: Node3D) -> void:

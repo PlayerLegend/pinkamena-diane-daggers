@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://byn1esshil3s5"]
+
+[ext_resource type="ArrayMesh" uid="uid://bjq4o2tiirati" path="res://Blood3D/Blood1.obj" id="1_0m16c"]
+[ext_resource type="Script" uid="uid://blggbyvewkw1h" path="res://Blood3D/blood_test.gd" id="1_ljf2j"]
+[ext_resource type="Shader" uid="uid://blb08cqpqm7nd" path="res://Blood3D/Blood.gdshader" id="2_iksaa"]
+[ext_resource type="Texture2D" uid="uid://cvirqflj6p005" path="res://Blood3D/blood1.png" id="4_5jljc"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_5jljc"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_ljf2j"]
+noise = SubResource("FastNoiseLite_5jljc")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qdswm"]
+render_priority = 0
+shader = ExtResource("2_iksaa")
+shader_parameter/albedo_tex = ExtResource("4_5jljc")
+shader_parameter/noise_tex = SubResource("NoiseTexture2D_ljf2j")
+
+[node name="BloodTest" type="Node3D" unique_id=663658429]
+script = ExtResource("1_ljf2j")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=2029125295]
+mesh = ExtResource("1_0m16c")
+surface_material_override/0 = SubResource("ShaderMaterial_qdswm")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1982504549]
+transform = Transform3D(-0.1394408, -0.8149655, 0.5624833, 0, 0.5680328, 0.8230059, -0.9902304, 0.11476061, -0.07920695, 1.321932, 1.5856287, 0.36570084)

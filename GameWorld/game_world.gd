@@ -6,16 +6,19 @@ signal world_finished(next_world: PackedScene)
 
 var time: float
 
+func finish_world(next_world: PackedScene):
+    world_finished.emit(next_world)
+
 func _process(delta: float):
     time += delta
 
-func _helper_find_spawn() -> Node3D:
-    return get_tree().get_nodes_in_group("player_spawns").pick_random()
+func _helper_find_spawn() -> Transform3D:
+    var spawn = get_tree().get_nodes_in_group("player_spawns").pick_random()
+    if spawn:
+        return spawn.global_transform
+    else:
+        return Transform3D.IDENTITY
 
 func add_player(player: PlayerController):
-    var target_spawn = _helper_find_spawn()
-    assert(target_spawn)
-    print("Base add player")
-    player.teleport_to = target_spawn.transform
-    player.transform = player.teleport_to
+    player.teleport(_helper_find_spawn())
     player.enable_light = player_light

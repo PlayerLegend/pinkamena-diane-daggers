@@ -14,7 +14,7 @@ class_name PlayerController
 @export var camera_offset: float = 0.5
 @export var weapons_controller: PlayerControllerWeapons
 
-var teleport_to: Variant = null
+var _teleport_to: Variant = null
 
 @export var projectile_parent: Node:
     set(value):
@@ -218,14 +218,18 @@ func _rollback_tick(delta: float, _tick, _is_fresh):
     if not is_multiplayer_authority() and _is_fresh:
         return
         
-    if teleport_to != null:
-        assert(teleport_to is Transform3D)
-        global_transform = teleport_to
-        teleport_to = null
+    if _teleport_to != null:
+        assert(_teleport_to is Transform3D)
+        global_transform = _teleport_to
+        _teleport_to = null
         velocity = Vector3.ZERO
-        print("TELEPORT TRIGGERED")
     
     _helper_phys_rollback_else(delta)
+    
+func teleport(target: Transform3D):
+    _teleport_to = target
+    global_transform = target
+    velocity = Vector3.ZERO
     
 func _helper_find_spawn() -> Node3D:
     return get_tree().get_nodes_in_group("player_spawns").pick_random()

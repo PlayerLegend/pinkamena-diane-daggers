@@ -1,0 +1,49 @@
+[gd_scene format=3 uid="uid://vvvdwpqek57b"]
+
+[ext_resource type="Script" uid="uid://dbh7dsumm5tfc" path="res://Menu/GameOver/game_over_stats.gd" id="1_bbyw8"]
+
+[node name="GameOverStats" type="VBoxContainer" unique_id=1762829505]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_bbyw8")
+
+[node name="HSeparator" type="HSeparator" parent="." unique_id=1098975735]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1670960333]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Time" type="RichTextLabel" parent="HBoxContainer" unique_id=1633528698]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Time"
+
+[node name="DeathType" type="RichTextLabel" parent="HBoxContainer" unique_id=1701413296]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "DeathType"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="." unique_id=711951255]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Power" type="RichTextLabel" parent="HBoxContainer2" unique_id=633790557]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Power"
+
+[node name="Kills" type="RichTextLabel" parent="HBoxContainer2" unique_id=1478346967]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Kills"
+
+[node name="Accuracy" type="RichTextLabel" parent="HBoxContainer2" unique_id=570377081]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Accuracy"

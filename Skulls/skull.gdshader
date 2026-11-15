@@ -7,7 +7,7 @@ uniform float period : hint_range(0.05, 1.0) = 0.25;
 uniform vec2 pivot_yz = vec2(0.2, -0.15);
 uniform sampler2D albedo_texture : source_color;
 
-global uniform float flash_effect_time_now;
+global uniform float shader_time;
 varying flat float flash_end;
 
 uniform vec3 flash_color : source_color = vec3(0.0, 0.573, 0.859);
@@ -40,7 +40,7 @@ void vertex() {
 }
 
 void fragment() {
-    float active = step(flash_effect_time_now, flash_end) * step(0.001, flash_end);
+    float active = step(shader_time, flash_end) * step(0.001, flash_end);
 
     if (active > 0.5) {
         //ALBEDO = vec3(0.494, 0.831, 1.0);

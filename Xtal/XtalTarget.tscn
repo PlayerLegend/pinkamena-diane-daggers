@@ -9,6 +9,8 @@
 radius = 0.38633
 
 [node name="XtalTarget" type="StaticBody3D" unique_id=1797207347]
+collision_layer = 4
+collision_mask = 0
 script = ExtResource("1_ft7po")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=39300079]

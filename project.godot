@@ -26,6 +26,7 @@ NetworkRollback="*uid://gas743comroj"
 NetworkEvents="*uid://bdmobxxptryj0"
 NetworkPerformance="*uid://cqgf7aqmjfoa3"
 Config="*uid://ywtjblr0co4t"
+ShaderTime="*uid://5v862bmuikm4"
 
 [editor_plugins]
 
@@ -66,6 +67,10 @@ textures/decals/filter=0
 [shader_globals]
 
 flash_effect_time_now={
+"type": "float",
+"value": 0.0
+}
+shader_time={
 "type": "float",
 "value": 0.0
 }

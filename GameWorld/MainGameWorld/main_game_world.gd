@@ -1,3 +1,4 @@
+class_name MainGameWorld
 extends GameWorld
 
 @onready var omni_light_3d: OmniLight3D = $OmniLight3D
@@ -6,16 +7,19 @@ extends GameWorld
 @onready var projectile_parent: Node3D = $ProjectileParent
 @onready var boid_manager: BoidManager = $BoidManager
 @export var menu_world: PackedScene
+@export var game_over_screen: Control
+signal player_died(player: PlayerController)
 
 func _ready():
     _light_energy_target = omni_light_3d.light_energy
     omni_light_3d.light_energy = 0
 
-func _physics_process(delta: float) -> void:
+func _physics_process(_delta: float) -> void:
     for node in get_tree().get_nodes_in_group("chase_targets"):
         if node is PlayerController:
             if boid_manager.get_boids_in_area(node.global_position, 0.5):
-                world_finished.emit(menu_world)
+                player_died.emit(node)
+                
 
 func _process(delta: float) -> void:
     super(delta)

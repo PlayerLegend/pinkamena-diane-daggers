@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://bjq4o2tiirati"
+path="res://.godot/imported/Blood1.obj-5c12b2b3fe2c8484ec3842c8bb84f7f2.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Blood1.obj-5c12b2b3fe2c8484ec3842c8bb84f7f2.mesh"]
+
+source_file="res://Blood3D/Blood1.obj"
+dest_files=["res://.godot/imported/Blood1.obj-5c12b2b3fe2c8484ec3842c8bb84f7f2.mesh", "res://.godot/imported/Blood1.obj-5c12b2b3fe2c8484ec3842c8bb84f7f2.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false
