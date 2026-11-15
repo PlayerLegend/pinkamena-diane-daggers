@@ -50,8 +50,13 @@ func _helper_find_player() -> PlayerController:
     return result
 
 func _helper_fly_to_spider(_delta: float, spider: Spider):
+    
+    if (spider.global_position - global_position).length_squared() < 0.5:
+        spider.gem_count += 1
+        queue_free()
+        return
     var wishdir = (spider.global_position - global_position).normalized()
-    velocity = wishdir
+    velocity = wishdir * 3
     
 func _helper_fly_to_player(delta: float, player: PlayerController):
     if not player:

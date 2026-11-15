@@ -105,7 +105,7 @@ func _rollback_tick(delta: float, _tick, _is_fresh):
     if position.dot(fly_direction) > arena_radius * 0.9:
         fly_direction = Vector3(0,0,0)
     
-    velocity = fly_direction * 0.1
+    velocity = fly_direction * 0.3
     
     move_and_slide(delta)
 

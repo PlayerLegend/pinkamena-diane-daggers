@@ -9,6 +9,8 @@ extends SlideBody3D
 var dead_time: float
 @export var hit_sound: AudioStreamPlayer3D
 
+var gem_count: int
+
 func take_damage(amount: int):
     visual_mesh.flash()
     hit_sound.play()
