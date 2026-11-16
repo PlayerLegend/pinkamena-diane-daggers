@@ -8,7 +8,7 @@ extends Node3D
 @export var follow_speed := 4.0
 
 var _path: Array[Transform3D] = []
-var _head_dist := 0.0
+var _head_distance := 0.0
 var _segments: Array[Node3D] = []
 
 var target_transform := Transform3D.IDENTITY:
@@ -20,79 +20,79 @@ var target_transform := Transform3D.IDENTITY:
 func _ready() -> void:
     assert(head)
     for i in segment_count:
-        var s := segment_scene.instantiate() as Node3D
-        s.top_level = true
-        add_child(s)
-        _segments.append(s)
+        var segment := segment_scene.instantiate() as Node3D
+        segment.top_level = true
+        add_child(segment)
+        _segments.append(segment)
     if _path.is_empty():
         target_transform = head.global_transform
 
 
 func _process(delta: float) -> void:
-    _head_dist = maxf(_head_dist - follow_speed * delta, 0.0)
-    var half := segment_spacing * 0.5
+    _head_distance = maxf(_head_distance - follow_speed * delta, 0.0)
+    var half_spacing := segment_spacing * 0.5
 
-    var h := _sample(_head_dist)
-    var h_dir := _sample(_head_dist - half).origin - _sample(_head_dist + half).origin
-    var h_basis := h.basis
-    if h_dir.length_squared() > 0.000001:
-        h_dir = h_dir.normalized()
-        var up := h.basis.y
-        if absf(h_dir.dot(up)) > 0.999:
-            up = h.basis.x
-        h_basis = Basis.looking_at(h_dir, up)
-    head.global_transform = Transform3D(h_basis, h.origin)
+    var head_sample := _sample(_head_distance)
+    var head_direction := _sample(_head_distance - half_spacing).origin - _sample(_head_distance + half_spacing).origin
+    var head_basis := head_sample.basis
+    if head_direction.length_squared() > 0.000001:
+        head_direction = head_direction.normalized()
+        var up := head_sample.basis.y
+        if absf(head_direction.dot(up)) > 0.999:
+            up = head_sample.basis.x
+        head_basis = Basis.looking_at(head_direction, up)
+    head.global_transform = Transform3D(head_basis, head_sample.origin)
 
     for i in _segments.size():
-        var d := _head_dist + (i + 1) * segment_spacing
-        var here := _sample(d)
-        var dir := _sample(d - half).origin - _sample(d + half).origin
-        var s := _segments[i]
-        var new_basis := s.global_basis.orthonormalized()
-        if dir.length_squared() > 0.000001:
-            dir = dir.normalized()
+        var distance := _head_distance + (i + 1) * segment_spacing
+        var here := _sample(distance)
+        var direction := _sample(distance - half_spacing).origin - _sample(distance + half_spacing).origin
+        var segment := _segments[i]
+        var new_basis := segment.global_basis.orthonormalized()
+        if direction.length_squared() > 0.000001:
+            direction = direction.normalized()
             var up := here.basis.y
-            if absf(dir.dot(up)) > 0.999:
+            if absf(direction.dot(up)) > 0.999:
                 up = here.basis.x
-            new_basis = Basis.looking_at(dir, up)
-        s.global_transform = Transform3D(new_basis, here.origin)
+            new_basis = Basis.looking_at(direction, up)
+        segment.global_transform = Transform3D(new_basis, here.origin)
 
 
-func _extend_path(t: Transform3D) -> void:
+func _extend_path(new_transform: Transform3D) -> void:
     var step := segment_spacing * 0.25
     if _path.is_empty():
         for i in segment_count * 4 + 4:
-            _path.append(Transform3D(t.basis, t.origin + t.basis.z * step * i))
-        _head_dist = 0.0
+            _path.append(Transform3D(new_transform.basis, new_transform.origin + new_transform.basis.z * step * i))
+        _head_distance = 0.0
         return
-    if t.origin.distance_to(_path[1].origin) >= step:
-        _head_dist += t.origin.distance_to(_path[0].origin)
-        _path.push_front(t)
+    if new_transform.origin.distance_to(_path[1].origin) >= step:
+        _head_distance += new_transform.origin.distance_to(_path[0].origin)
+        _path.push_front(new_transform)
     else:
-        _head_dist += t.origin.distance_to(_path[1].origin) - _path[0].origin.distance_to(_path[1].origin)
-        _path[0] = t
-    _head_dist = maxf(_head_dist, 0.0)
+        _head_distance += new_transform.origin.distance_to(_path[1].origin) - _path[0].origin.distance_to(_path[1].origin)
+        _path[0] = new_transform
+    _head_distance = maxf(_head_distance, 0.0)
     _trim(step)
 
 
 func _trim(step: float) -> void:
-    var needed := _head_dist + (segment_count + 1) * segment_spacing + step
+    var needed_length := _head_distance + (segment_count + 1) * segment_spacing + step
     var travelled := 0.0
     for i in _path.size() - 1:
         travelled += _path[i].origin.distance_to(_path[i + 1].origin)
-        if travelled > needed:
+        if travelled > needed_length:
             _path.resize(i + 2)
             return
 
 
-func _sample(dist: float) -> Transform3D:
-    dist = maxf(dist, 0.0)
-    var prev := _path[0]
+func _sample(distance: float) -> Transform3D:
+    distance = maxf(distance, 0.0)
+    var previous := _path[0]
     for i in range(1, _path.size()):
-        var p := _path[i]
-        var l := prev.origin.distance_to(p.origin)
-        if dist <= l:
-            return prev.interpolate_with(p, dist / l) if l > 0.0 else p
-        dist -= l
-        prev = p
-    return prev
+        var current := _path[i]
+        var segment_length := previous.origin.distance_to(current.origin)
+        if distance <= segment_length:
+            return previous.interpolate_with(current, distance / segment_length) if segment_length > 0.0 else current
+        distance -= segment_length
+        previous = current
+    return previous
