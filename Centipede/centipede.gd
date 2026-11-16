@@ -4,7 +4,7 @@ extends Node3D
 @export var head: Node3D
 @export var segment_scene: PackedScene
 @export var segment_count := 25
-@export var segment_spacing := 0.5
+@export var segment_spacing := 0.25
 @export var follow_speed := 4.0
 
 var _path: Array[Transform3D] = []
@@ -20,9 +20,11 @@ var target_transform := Transform3D.IDENTITY:
 func _ready() -> void:
     assert(head)
     for i in segment_count:
-        var segment := segment_scene.instantiate() as Node3D
+        var segment: CentipedeSegment = segment_scene.instantiate()
+        segment.setup_wave(4, segment_count, segment_spacing, follow_speed)
         segment.top_level = true
         add_child(segment)
+        
         _segments.append(segment)
     if _path.is_empty():
         target_transform = head.global_transform
