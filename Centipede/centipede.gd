@@ -1,10 +1,11 @@
 class_name Centipede
 extends Node3D
 
+@export var head: Node3D
 @export var segment_scene: PackedScene
-@export var segment_count := 12
+@export var segment_count := 25
 @export var segment_spacing := 0.5
-@export var follow_speed := 8.0  # how fast the head catches up to the target
+@export var follow_speed := 4.0
 
 # Each point is the target transform at that moment (position + orientation,
 # so roll is carried along the path). Newest first; _path[0] is the target.
@@ -21,34 +22,48 @@ var target_transform := Transform3D.IDENTITY:
 
 
 func _ready() -> void:
+    assert(head)
     for i in segment_count:
         var s := segment_scene.instantiate() as Node3D
         s.top_level = true
         add_child(s)
         _segments.append(s)
     if _path.is_empty():
-        target_transform = global_transform
+        target_transform = head.global_transform
 
 
 func _process(delta: float) -> void:
     _head_dist *= exp(-follow_speed * delta)
     var half := segment_spacing * 0.5
+
+    # Drive the head node from the path (so it lags/eases like the body).
+    var h := _sample(_head_dist)
+    var h_dir := _sample(_head_dist - half).origin - _sample(_head_dist + half).origin
+    var h_basis := h.basis
+    if h_dir.length_squared() > 0.000001:
+        h_dir = h_dir.normalized()
+        var up := h.basis.y
+        if absf(h_dir.dot(up)) > 0.999:
+            up = h.basis.x
+        h_basis = Basis.looking_at(h_dir, up)
+    head.global_transform = Transform3D(h_basis, h.origin)
+
     for i in _segments.size():
-        var d := _head_dist + i * segment_spacing
+        var d := _head_dist + (i + 1) * segment_spacing
         var here := _sample(d)
         # Facing = direction of the path through this segment, measured over
         # a window one spacing wide, so corners are blended automatically.
         # Roll = the interpolated orientation stored in the path.
         var dir := _sample(d - half).origin - _sample(d + half).origin
         var s := _segments[i]
-        var basis := s.global_basis.orthonormalized()
+        var new_basis := s.global_basis.orthonormalized()
         if dir.length_squared() > 0.000001:
             dir = dir.normalized()
             var up := here.basis.y
             if absf(dir.dot(up)) > 0.999:
                 up = here.basis.x
-            basis = Basis.looking_at(dir, up)
-        s.global_transform = Transform3D(basis, here.origin)
+            new_basis = Basis.looking_at(dir, up)
+        s.global_transform = Transform3D(new_basis, here.origin)
 
 
 func _extend_path(t: Transform3D) -> void:
@@ -72,7 +87,7 @@ func _extend_path(t: Transform3D) -> void:
 
 
 func _trim(step: float) -> void:
-    var needed := _head_dist + segment_count * segment_spacing + step
+    var needed := _head_dist + (segment_count + 1) * segment_spacing + step
     var travelled := 0.0
     for i in _path.size() - 1:
         travelled += _path[i].origin.distance_to(_path[i + 1].origin)

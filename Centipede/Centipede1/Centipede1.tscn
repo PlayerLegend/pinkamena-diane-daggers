@@ -4,11 +4,10 @@
 [ext_resource type="PackedScene" uid="uid://gdu272b5ojbt" path="res://Centipede/Centipede1/CentipedeSegment.glb" id="2_3xjod"]
 [ext_resource type="PackedScene" uid="uid://uxq2q1xp0n8t" path="res://Centipede/Centipede1/CentipedeHead.glb" id="4_l7lnl"]
 
-[node name="Centipede1" type="Node3D" unique_id=2121063774]
+[node name="Centipede1" type="Node3D" unique_id=2121063774 node_paths=PackedStringArray("head")]
 script = ExtResource("1_d47sy")
+head = NodePath("CentipedeHead")
 segment_scene = ExtResource("2_3xjod")
-segment_count = 20
-segment_spacing = 1.35
 metadata/_custom_type_script = "uid://bqjob566f118q"
 
 [node name="CentipedeHead" parent="." unique_id=1285869696 instance=ExtResource("4_l7lnl")]
