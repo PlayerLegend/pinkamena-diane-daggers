@@ -16,6 +16,8 @@ class_name PlayerController
 @onready var xtal_pickup_sound: AudioStreamPlayer3D = $XtalPickupSound
 @onready var hoof_translation: Node3D = $HoofTranslation
 @onready var hoof_rotation: Node3D = $HoofTranslation/HoofRotation
+@onready var hoof_skel: Skeleton3D = $HoofTranslation/HoofRotation/HoofVisual/HoofArmature/Skeleton3D
+@onready var projectile_source: Marker3D = $HoofTranslation/HoofRotation/HoofVisual/ProjectileSource
 
 
 var _teleport_to: Variant = null
@@ -173,6 +175,11 @@ func _process(delta: float):
     var shot_fac = -weapons_controller.attack_charge * 0.6
     hoof_rotation.transform = camera_controller.transform
     hoof_translation.position = hoof_rotation.basis.z * shot_fac
+    var bone_idx = hoof_skel.find_bone("Hoof.003")
+    var bone_global = hoof_skel.global_transform * hoof_skel.get_bone_global_pose(bone_idx)
+    #projectile_source.global_transform = bone_global
+    #weapons_controller.global_transform = bone_global
+    
     var light_decay = delta
     if body_light.energy_scale > 1.0:
         light_decay *= 10

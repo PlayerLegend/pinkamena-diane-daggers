@@ -14,6 +14,8 @@ OBJ_BLEND_FILES ?= \
 	Squids/Squid2/squid2.blend \
 
 GLB_BLEND_FILES ?= \
+	Centipede/Centipede1/CentipedeHead.blend \
+	Centipede/Centipede1/CentipedeSegment.blend \
 	PlayerController/Hoof.blend \
 	Blend/PinkiePie/PinkiePie.blend
 

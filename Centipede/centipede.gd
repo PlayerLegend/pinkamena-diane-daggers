@@ -1,0 +1,95 @@
+class_name Centipede
+extends Node3D
+
+@export var segment_scene: PackedScene
+@export var segment_count := 12
+@export var segment_spacing := 0.5
+@export var follow_speed := 8.0  # how fast the head catches up to the target
+
+# Each point is the target transform at that moment (position + orientation,
+# so roll is carried along the path). Newest first; _path[0] is the target.
+var _path: Array[Transform3D] = []
+# How far back along the path the head currently is. Setting a new target
+# lengthens the path, which pushes this up; it then eases back to 0.
+var _head_dist := 0.0
+var _segments: Array[Node3D] = []
+
+var target_transform := Transform3D.IDENTITY:
+    set(value):
+        target_transform = value
+        _extend_path(Transform3D(value.basis.orthonormalized(), value.origin))
+
+
+func _ready() -> void:
+    for i in segment_count:
+        var s := segment_scene.instantiate() as Node3D
+        s.top_level = true
+        add_child(s)
+        _segments.append(s)
+    if _path.is_empty():
+        target_transform = global_transform
+
+
+func _process(delta: float) -> void:
+    _head_dist *= exp(-follow_speed * delta)
+    var half := segment_spacing * 0.5
+    for i in _segments.size():
+        var d := _head_dist + i * segment_spacing
+        var here := _sample(d)
+        # Facing = direction of the path through this segment, measured over
+        # a window one spacing wide, so corners are blended automatically.
+        # Roll = the interpolated orientation stored in the path.
+        var dir := _sample(d - half).origin - _sample(d + half).origin
+        var s := _segments[i]
+        var basis := s.global_basis.orthonormalized()
+        if dir.length_squared() > 0.000001:
+            dir = dir.normalized()
+            var up := here.basis.y
+            if absf(dir.dot(up)) > 0.999:
+                up = here.basis.x
+            basis = Basis.looking_at(dir, up)
+        s.global_transform = Transform3D(basis, here.origin)
+
+
+func _extend_path(t: Transform3D) -> void:
+    var step := segment_spacing * 0.25
+    if _path.is_empty():
+        # Start with the body trailing straight out behind the target.
+        for i in segment_count * 4 + 4:
+            _path.append(Transform3D(t.basis, t.origin + t.basis.z * step * i))
+        _head_dist = 0.0
+        return
+    if t.origin.distance_to(_path[1].origin) >= step:
+        # Moved far enough: keep the old end as a real point, add the new one.
+        _head_dist += t.origin.distance_to(_path[0].origin)
+        _path.push_front(t)
+    else:
+        # Small move: just drag the end point.
+        _head_dist += t.origin.distance_to(_path[1].origin) - _path[0].origin.distance_to(_path[1].origin)
+        _path[0] = t
+    _head_dist = maxf(_head_dist, 0.0)
+    _trim(step)
+
+
+func _trim(step: float) -> void:
+    var needed := _head_dist + segment_count * segment_spacing + step
+    var travelled := 0.0
+    for i in _path.size() - 1:
+        travelled += _path[i].origin.distance_to(_path[i + 1].origin)
+        if travelled > needed:
+            _path.resize(i + 2)
+            return
+
+
+# Interpolated path transform `dist` units back from the target.
+func _sample(dist: float) -> Transform3D:
+    dist = maxf(dist, 0.0)
+    var prev := _path[0]
+    for i in range(1, _path.size()):
+        var p := _path[i]
+        var l := prev.origin.distance_to(p.origin)
+        if dist <= l:
+            return prev.interpolate_with(p, dist / l) if l > 0.0 else p
+        dist -= l
+        prev = p
+    return prev

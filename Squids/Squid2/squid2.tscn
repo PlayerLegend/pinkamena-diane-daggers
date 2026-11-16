@@ -14,6 +14,8 @@
 [ext_resource type="PackedScene" uid="uid://c0kp5ysyaagut" path="res://Xtal/XtalTarget.tscn" id="8_fceyh"]
 
 [node name="Squid2" type="AnimatableBody3D" unique_id=1405901256 node_paths=PackedStringArray("rollback_synchronizer", "spawn_output")]
+collision_layer = 0
+collision_mask = 0
 script = ExtResource("1_2lgke")
 rollback_synchronizer = NodePath("RollbackSynchronizer")
 xtal_scene = ExtResource("2_lxrwu")

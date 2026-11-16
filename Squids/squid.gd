@@ -105,7 +105,7 @@ func _rollback_tick(delta: float, _tick, _is_fresh):
     if position.dot(fly_direction) > arena_radius * 0.9:
         fly_direction = Vector3(0,0,0)
     
-    velocity = fly_direction * 0.3
+    velocity = fly_direction * 0.4
     
     move_and_slide(delta)
 
@@ -117,7 +117,7 @@ func _process(delta: float):
             queue_free()
     else:
         rotation.y += delta / 3.14
-   
+
 func drop_xtal(where: Transform3D):
     var new_xtal = xtal_scene.instantiate()
     get_parent().add_child(new_xtal)
@@ -129,7 +129,7 @@ func _xtal_died(xtal: XtalTarget):
         if death_sound:
             death_sound.play()
     drop_xtal(xtal.global_transform)
-    
+
 func _xtal_damaged(_xtal: XtalTarget):
     if pain_sound:
         pain_sound.play()

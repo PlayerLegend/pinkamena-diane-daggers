@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://bp6b5mb741712"]
+
+[ext_resource type="Script" uid="uid://bqjob566f118q" path="res://Centipede/centipede.gd" id="1_d47sy"]
+[ext_resource type="PackedScene" uid="uid://gdu272b5ojbt" path="res://Centipede/Centipede1/CentipedeSegment.glb" id="2_3xjod"]
+[ext_resource type="PackedScene" uid="uid://uxq2q1xp0n8t" path="res://Centipede/Centipede1/CentipedeHead.glb" id="4_l7lnl"]
+
+[node name="Centipede1" type="Node3D" unique_id=2121063774]
+script = ExtResource("1_d47sy")
+segment_scene = ExtResource("2_3xjod")
+segment_count = 20
+segment_spacing = 1.35
+metadata/_custom_type_script = "uid://bqjob566f118q"
+
+[node name="CentipedeHead" parent="." unique_id=1285869696 instance=ExtResource("4_l7lnl")]
