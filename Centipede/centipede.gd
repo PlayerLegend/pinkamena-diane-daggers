@@ -7,11 +7,7 @@ extends Node3D
 @export var segment_spacing := 0.5
 @export var follow_speed := 4.0
 
-# Each point is the target transform at that moment (position + orientation,
-# so roll is carried along the path). Newest first; _path[0] is the target.
 var _path: Array[Transform3D] = []
-# How far back along the path the head currently is. Setting a new target
-# lengthens the path, which pushes this up; it then eases back to 0.
 var _head_dist := 0.0
 var _segments: Array[Node3D] = []
 
@@ -33,10 +29,9 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-    _head_dist *= exp(-follow_speed * delta)
+    _head_dist = maxf(_head_dist - follow_speed * delta, 0.0)
     var half := segment_spacing * 0.5
 
-    # Drive the head node from the path (so it lags/eases like the body).
     var h := _sample(_head_dist)
     var h_dir := _sample(_head_dist - half).origin - _sample(_head_dist + half).origin
     var h_basis := h.basis
@@ -51,9 +46,6 @@ func _process(delta: float) -> void:
     for i in _segments.size():
         var d := _head_dist + (i + 1) * segment_spacing
         var here := _sample(d)
-        # Facing = direction of the path through this segment, measured over
-        # a window one spacing wide, so corners are blended automatically.
-        # Roll = the interpolated orientation stored in the path.
         var dir := _sample(d - half).origin - _sample(d + half).origin
         var s := _segments[i]
         var new_basis := s.global_basis.orthonormalized()
@@ -69,17 +61,14 @@ func _process(delta: float) -> void:
 func _extend_path(t: Transform3D) -> void:
     var step := segment_spacing * 0.25
     if _path.is_empty():
-        # Start with the body trailing straight out behind the target.
         for i in segment_count * 4 + 4:
             _path.append(Transform3D(t.basis, t.origin + t.basis.z * step * i))
         _head_dist = 0.0
         return
     if t.origin.distance_to(_path[1].origin) >= step:
-        # Moved far enough: keep the old end as a real point, add the new one.
         _head_dist += t.origin.distance_to(_path[0].origin)
         _path.push_front(t)
     else:
-        # Small move: just drag the end point.
         _head_dist += t.origin.distance_to(_path[1].origin) - _path[0].origin.distance_to(_path[1].origin)
         _path[0] = t
     _head_dist = maxf(_head_dist, 0.0)
@@ -96,7 +85,6 @@ func _trim(step: float) -> void:
             return
 
 
-# Interpolated path transform `dist` units back from the target.
 func _sample(dist: float) -> Transform3D:
     dist = maxf(dist, 0.0)
     var prev := _path[0]
