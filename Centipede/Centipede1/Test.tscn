@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://bp6b5mb741712" path="res://Centipede/Centipede1/Centipede1.tscn" id="1_afl15"]
 [ext_resource type="Script" uid="uid://cxbwvaaunjx0" path="res://Centipede/Centipede1/test.gd" id="1_occ7t"]
+[ext_resource type="Script" uid="uid://lukn8clsej2k" path="res://Centipede/Centipede1/test_centipede.gd" id="3_hfnkj"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_qdswm"]
 size = Vector3(1, 1, 2.375)
@@ -10,6 +11,9 @@ size = Vector3(1, 1, 2.375)
 script = ExtResource("1_occ7t")
 
 [node name="Centipede1" parent="." unique_id=2121063774 instance=ExtResource("1_afl15")]
+script = ExtResource("3_hfnkj")
+segment_count = null
+segment_spacing = null
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=701497320]
 visible = false

@@ -22,6 +22,36 @@ func _ready() -> void:
     _target_positions.resize(len(_followers) + 1)
     _target_rotations.resize(len(_followers) + 1)
     
+    _setup_multiplayer()
+
+func _setup_multiplayer() -> void:
+    var interp_props: Array[String] = [
+        ":global_transform",
+        ":_lerp_fac",
+        #":_last_head_pos",
+    ]
+    var sync_props: Array[String] = [
+        ":global_transform",
+        ":_lerp_fac",
+        ":_head_index",
+        ":_last_head_pos",
+        ":_target_positions",
+        ":_target_rotations",
+    ]
+    
+    var rollback_synchronizer := RollbackSynchronizer.new()
+    rollback_synchronizer.state_properties = sync_props
+    rollback_synchronizer.root = self
+    
+    var tick_interpolator := TickInterpolator.new()
+    tick_interpolator.properties = interp_props
+    tick_interpolator.root = self
+    
+    add_child(rollback_synchronizer)
+    add_child(tick_interpolator)
+    
+    rollback_synchronizer.process_settings()
+    
 func _instance_segments() -> void:
     for i in range(segment_count):
         var _segment: PathFollow3D = segment_scene.instantiate()
@@ -42,7 +72,16 @@ func _lerp_index(i: int):
     _followers[i].quaternion = _v2q(_target_rotations[next]).slerp(_v2q(_target_rotations[prev]), _lerp_fac)
     
 
-func _physics_process(_delta: float):
+func _process(_delta: float):
+    
+    for i in range(len(_followers)):
+        _lerp_index(i)
+
+func _rollback_tick(_delta: float, _tick, _is_fresh):
+    
+    if not is_multiplayer_authority() and _is_fresh:
+        return 
+        
     _lerp_fac += (position - _last_head_pos).length() / (segment_spacing)
     _last_head_pos = position
     _lerp_fac = min(1.0, _lerp_fac)    
