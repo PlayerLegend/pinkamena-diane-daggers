@@ -26,11 +26,9 @@ func _check_for_deaths():
                 stats.power = node.attack_power
                 stats.death_type = "Fallen"
                 player_died.emit(node, stats)
-            var boids = boid_manager.get_boids_in_area(node.global_position, 0.5)
-            if boids:
-                var boid = boids[0]
+            var boid = boid_manager.get_boid_at_point(node.position)
+            if boid >= 0:
                 var boid_type: BoidType = boid_manager.get_boid_type(boid)
-                print("Set player died")
                 var stats := GameOverStats.new()
                 stats.time = time
                 stats.power = node.attack_power
