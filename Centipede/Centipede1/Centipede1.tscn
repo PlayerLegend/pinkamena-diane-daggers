@@ -2,27 +2,17 @@
 
 [ext_resource type="Script" uid="uid://bqjob566f118q" path="res://Centipede/centipede.gd" id="1_d47sy"]
 [ext_resource type="PackedScene" uid="uid://cqbeyffithmai" path="res://Centipede/Centipede1/CentipedeSegment.tscn" id="2_eqail"]
-[ext_resource type="Script" uid="uid://dsnk6phlbv12s" path="res://Centipede/Centipede1/head.gd" id="3_l7lnl"]
 [ext_resource type="PackedScene" uid="uid://uxq2q1xp0n8t" path="res://Centipede/Centipede1/CentipedeHead.glb" id="4_l7lnl"]
-
-[sub_resource type="Curve3D" id="Curve3D_d47sy"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_d47sy"]
 
-[node name="Centipede1" type="Path3D" unique_id=583185436 node_paths=PackedStringArray("head", "tail")]
-curve = SubResource("Curve3D_d47sy")
+[node name="Centipede1" type="Node3D" unique_id=1581042715 node_paths=PackedStringArray("tail")]
 script = ExtResource("1_d47sy")
-head = NodePath("Head")
-tail = NodePath("Tail")
-segment = ExtResource("2_eqail")
+tail = NodePath("MeshInstance3D")
+segment_scene = ExtResource("2_eqail")
 metadata/_custom_type_script = "uid://bqjob566f118q"
 
-[node name="Head" type="PathFollow3D" parent="." unique_id=2080432326]
-script = ExtResource("3_l7lnl")
+[node name="CentipedeHead" parent="." unique_id=1285869696 instance=ExtResource("4_l7lnl")]
 
-[node name="CentipedeHead" parent="Head" unique_id=1285869696 instance=ExtResource("4_l7lnl")]
-
-[node name="Tail" type="PathFollow3D" parent="." unique_id=581221460]
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Tail" unique_id=129119607]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=129119607]
 mesh = SubResource("BoxMesh_d47sy")
