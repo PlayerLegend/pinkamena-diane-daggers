@@ -5,8 +5,8 @@ extends Path3D
 @export var tail: PathFollow3D
 @export var segment: PackedScene
 @export var count := 25
-@export var spacing := 0.25
-@export var speed := 4.0
+@export var spacing := 0.5
+@export var speed := 1.0
 
 func _ready() -> void:
     curve.clear_points()
@@ -15,12 +15,14 @@ func _ready() -> void:
     _instance_segments()
     
 func _instance_segments() -> void:
-    var _segment_offset: float = 0.0
+    var _segment_offset: float = spacing
+    tail.progress = 0
     for i in range(count):
-        _segment_offset += spacing
         var _segment: PathFollow3D = segment.instantiate()
         _segment.progress = _segment_offset
         add_child(_segment)
+        _segment_offset += spacing
+    head.progress = _segment_offset + spacing
 
 func _get_point_progress(idx: int) -> float:
     return curve.get_closest_offset(curve.get_point_position(idx))
@@ -41,40 +43,27 @@ func _trim_target_end() -> void:
     
     while curve.point_count > 0:
         var i = curve.point_count - 1
-        if _get_point_progress(i) >= head.progress:
-            curve.remove_point(i)
-            continue
-        
-        _add_point(head_xform)
-        
-        return
+        if _get_point_progress(i) < head.progress:
+            break
+            
+        curve.remove_point(i)
+    
+    _add_point(head_xform) 
 
 func _trim_target_begin() -> void:
-    var remove_indices: int = 0
-    var remove_progress: float
     if curve.point_count < 2:
         return
         
-    for idx in range(curve.point_count):
-        var point_progress := _get_point_progress(idx)
-        if point_progress < tail.progress:
-            remove_indices = idx
-            remove_progress = point_progress
-        else:
-            break
+    var point_progress := _get_point_progress(1)
     
-    remove_indices = mini(remove_indices, curve.point_count - 2)
-
-    if remove_indices > 0:
-        for child in get_children():
-            if child is PathFollow3D:
-                child.progress -= remove_progress
-                
-        for i in range(remove_indices):
-            curve.remove_point(0)
-            
-            
+    if point_progress >= tail.progress:
+        return
         
+    for child in get_children():
+        if child is PathFollow3D:
+            child.progress -= point_progress
+    
+    curve.remove_point(0)
 
 var target: Transform3D:
     set(value):
@@ -83,6 +72,7 @@ var target: Transform3D:
         target = value
 
 func _physics_process(delta: float):
+    #_trim_target_begin()
     for child in get_children():
         if child is PathFollow3D:
             child.progress += delta * speed
