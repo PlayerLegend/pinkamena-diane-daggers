@@ -10,9 +10,10 @@ extends Node3D
 
 var _target_positions: PackedVector3Array
 var _target_rotations: PackedVector4Array
-var _followers: Array[Node3D]
 var _last_head_pos: Vector3
 var _lerp_fac: float
+var _followers: Array[Node3D]
+var _head_index: int
 
 func _ready() -> void:
     _instance_segments()
@@ -33,19 +34,22 @@ func _q2v(q: Quaternion):
 func _v2q(v: Vector4):
     return Quaternion(v.x,v.y,v.z,v.w)
 
-func _physics_process(delta: float):
+func _lerp_index(i: int):
+    var prev = (i + _head_index) % len(_target_positions)
+    var next = (prev + 1) % len(_target_positions)
+    _followers[i].position = _target_positions[next].lerp(_target_positions[prev], _lerp_fac)
+    _followers[i].quaternion = _v2q(_target_rotations[next]).slerp(_v2q(_target_rotations[prev]), _lerp_fac)
+    
+
+func _physics_process(_delta: float):
     _lerp_fac += (head.position - _last_head_pos).length() / (spacing)
     _last_head_pos = head.position
     _lerp_fac = min(1.0, _lerp_fac)    
-    if (_target_positions[0] - head.position).length() > spacing:
-        _target_positions.insert(0, head.position)
-        _target_rotations.insert(0, _q2v(head.quaternion))
-        _target_positions.resize(len(_followers) + 2)
-        _target_rotations.resize(len(_followers) + 2)
+    if (_target_positions[_head_index] - head.position).length() > spacing:
+        _head_index = (_head_index + len(_target_positions) - 1) % len(_target_positions)
+        _target_positions[_head_index] = head.position
+        _target_rotations[_head_index] = _q2v(head.quaternion)
         _lerp_fac = 0
         
     for i in range(len(_followers)):
-        #print("Len positions ", len(_target_positions), " vs ", len(_followers) + 2)
-        print("Fac ", _lerp_fac)
-        _followers[i].position = _target_positions[i+1].lerp(_target_positions[i], _lerp_fac)
-        _followers[i].quaternion = _v2q(_target_rotations[i+1]).slerp(_v2q(_target_rotations[i]), _lerp_fac)
+        _lerp_index(i)
