@@ -23,9 +23,7 @@ func _process(delta: float):
     cooldown -= delta
     
     if cooldown < 0:
-        #cooldown = 0.1
-        var target := get_figure8_transform(time, 10, 5)
-        centipede_1.target = target
+        centipede_1.head.transform = get_figure8_transform(time, 10, 5)
         
-        mesh_instance_3d.transform = target
+        mesh_instance_3d.transform
     

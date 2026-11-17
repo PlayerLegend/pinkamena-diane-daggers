@@ -1,19 +1,17 @@
-extends Node
+class_name CentipedeSegment
+extends PathFollow3D
 
-@export var time_seek_node_name: String = "TimeSeek"
-@export var animation_node_name: String = "staggered"
-@export var animation_offset: float = 0.05
-@export var animation_speed: float = 4.0
-@onready var animation_player: AnimationPlayer = $CentipedeSegment/AnimationPlayer
+@export var animation_player: AnimationPlayer
 
-func _set_offset():
+func _setup_animation(offset: float, length: float):
     var anim := animation_player.get_animation("staggered")
 
     animation_player.play("staggered")
-    animation_player.seek(-animation_offset * get_index())
-    animation_player.speed_scale = animation_speed / anim.length
-    #animation_player.play()
-
-func _ready():
-    #pass
-    _set_offset.call_deferred()
+    animation_player.seek(-offset * get_index())
+    animation_player.speed_scale = length / anim.length
+    animation_player.play()
+    
+func setup_wave(wave_count: float, segment_count: float, segment_spacing: float, follow_speed: float) -> void:
+    var offset_per_segment: float = segment_spacing / follow_speed
+    var animation_length: float = (segment_count * segment_spacing) / (follow_speed * wave_count)
+    _setup_animation(offset_per_segment, animation_length)
