@@ -6,12 +6,12 @@ extends Path3D
 @export var segment: PackedScene
 @export var count := 25
 @export var spacing := 0.5
-@export var speed := 1.0
+@export var speed := 4.0
 
 func _ready() -> void:
     curve.clear_points()
     curve.add_point(Vector3.ZERO)
-    curve.add_point(Vector3(0,0,1))
+    curve.add_point(Vector3.RIGHT * count * spacing)
     _instance_segments()
     
 func _instance_segments() -> void:
@@ -41,9 +41,9 @@ func _trim_target_end() -> void:
     
     var head_xform := head.transform
     
-    while curve.point_count > 0:
+    while curve.point_count > 1:
         var i = curve.point_count - 1
-        if _get_point_progress(i) < head.progress:
+        if _get_point_progress(i - 1) < head.progress:
             break
             
         curve.remove_point(i)
@@ -51,19 +51,18 @@ func _trim_target_end() -> void:
     _add_point(head_xform) 
 
 func _trim_target_begin() -> void:
-    if curve.point_count < 2:
+    if curve.point_count < 3:
         return
         
-    var point_progress := _get_point_progress(1)
-    
-    if point_progress >= tail.progress:
+    if _get_point_progress(2) >= tail.progress:
         return
-        
-    for child in get_children():
-        if child is PathFollow3D:
-            child.progress -= point_progress
     
     curve.remove_point(0)
+    #var remove_progress = _get_point_progress(1)
+    #for child in get_children():
+        #if child is PathFollow3D:
+            #child.progress -= remove_progress
+    
 
 var target: Transform3D:
     set(value):
