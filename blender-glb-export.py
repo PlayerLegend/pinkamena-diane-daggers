@@ -30,5 +30,3 @@ bpy.ops.export_scene.gltf(
     export_apply=True,             # Apply modifiers
     export_yup=True,               # Convert to glTF's Y-up convention
 )
-
-Collapse (33 lines)

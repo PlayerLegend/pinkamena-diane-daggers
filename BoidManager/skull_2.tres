@@ -35,7 +35,6 @@ max_health = 5
 collision_radius = 0.5
 max_speed = 18.0
 min_speed = 6.0
-turn_speed = 10.0
 chase_target_weight = 2.0
 should_flee = true
 flee_distance = 15.0

@@ -1,13 +1,15 @@
 [gd_scene format=3 uid="uid://bp6b5mb741712"]
 
-[ext_resource type="Script" uid="uid://bqjob566f118q" path="res://Centipede/centipede.gd" id="1_d47sy"]
+[ext_resource type="Script" uid="uid://2gtxpcanwnb3" path="res://Centipede/Centipede1/centipede_1.gd" id="1_eqail"]
 [ext_resource type="PackedScene" uid="uid://cqbeyffithmai" path="res://Centipede/Centipede1/CentipedeSegment.tscn" id="2_eqail"]
+[ext_resource type="PackedScene" uid="uid://tgmwp568r7p6" path="res://Xtal/XtalPickup.tscn" id="2_l7lnl"]
 [ext_resource type="PackedScene" uid="uid://uxq2q1xp0n8t" path="res://Centipede/Centipede1/CentipedeHead.glb" id="4_l7lnl"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_d47sy"]
 
 [node name="Centipede1" type="Node3D" unique_id=1581042715 node_paths=PackedStringArray("tail")]
-script = ExtResource("1_d47sy")
+script = ExtResource("1_eqail")
+xtal_pickup = ExtResource("2_l7lnl")
 tail = NodePath("MeshInstance3D")
 segment_scene = ExtResource("2_eqail")
 metadata/_custom_type_script = "uid://bqjob566f118q"
@@ -15,4 +17,5 @@ metadata/_custom_type_script = "uid://bqjob566f118q"
 [node name="CentipedeHead" parent="." unique_id=1285869696 instance=ExtResource("4_l7lnl")]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=129119607]
+visible = false
 mesh = SubResource("BoxMesh_d47sy")

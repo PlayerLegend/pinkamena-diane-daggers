@@ -8,6 +8,19 @@ var time: float
 @export var static_mesh_manager: StaticMeshManager
 @export var decal_canvas: DecalCanvas
 
+
+func _set_unshaded() -> void:
+    
+    for i in mesh.get_surface_count():
+        var mat := self.get_active_material(i)
+        if mat is BaseMaterial3D:
+            var new_mat: BaseMaterial3D = mat.duplicate()
+            new_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+            self.set_surface_override_material(i, new_mat)
+
+func _ready():
+    _set_unshaded()
+
 func _process(delta: float) -> void:
     time += delta
     

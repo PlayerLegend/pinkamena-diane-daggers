@@ -4,7 +4,7 @@ extends Node3D
 @export var tail: Node3D
 @export var segment_scene: PackedScene
 @export var segment_count := 25
-@export var segment_spacing := 0.5
+@export var segment_spacing := 1.0
 
 var _target_positions: PackedVector3Array
 var _target_rotations: PackedVector4Array

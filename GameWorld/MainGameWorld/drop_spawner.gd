@@ -17,7 +17,7 @@ func throw_gib(pos: Vector3, vel: Vector3):
     add_child(gib)
     gib.static_mesh_manager = static_mesh_manager
     gib.decal_canvas = decal_canvas
-    gib.velocity = vel
+    gib.velocity = vel + Vector3(randf_range(-1,1), randf_range(0,1), randf_range(-1,1))
     gib.position = pos
     var avel := Quaternion(Vector3(randfn(-1.0, 1.0), randfn(-1.0, 1.0), randfn(-1.0, 1.0)).normalized(), PI)
     gib.rotation.x = randf_range(0,1) * PI
