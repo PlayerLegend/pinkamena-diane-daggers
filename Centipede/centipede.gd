@@ -21,6 +21,8 @@ func _ready() -> void:
     
     _target_positions.resize(len(_followers) + 1)
     _target_rotations.resize(len(_followers) + 1)
+    for i in len(_target_rotations):
+        _target_rotations[i] = Vector4(0,0,0,1)
     
     _setup_multiplayer()
 
