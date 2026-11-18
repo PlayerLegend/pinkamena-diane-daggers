@@ -9,7 +9,6 @@ extends Node3D
 var _target_positions: PackedVector3Array
 var _target_rotations: PackedVector4Array
 var _last_head_pos: Vector3
-var _lerp_fac: float
 var _followers: Array[Node3D]
 var _head_index: int
 
@@ -24,7 +23,7 @@ func _ready() -> void:
     for i in len(_target_rotations):
         _target_rotations[i] = Vector4(0,0,0,1)
     
-    _setup_multiplayer()
+    #_setup_multiplayer()
 
 func _setup_multiplayer() -> void:
     var interp_props: Array[String] = [
@@ -67,31 +66,36 @@ func _q2v(q: Quaternion):
 func _v2q(v: Vector4):
     return Quaternion(v.x,v.y,v.z,v.w)
 
-func _lerp_index(i: int):
+func _lerp_index(i: int, fac: float):
     var prev = (i + _head_index) % len(_target_positions)
     var next = (prev + 1) % len(_target_positions)
-    _followers[i].position = _target_positions[next].lerp(_target_positions[prev], _lerp_fac)
-    _followers[i].quaternion = _v2q(_target_rotations[next]).slerp(_v2q(_target_rotations[prev]), _lerp_fac)
+    _followers[i].position = _target_positions[next].lerp(_target_positions[prev], fac)
+    _followers[i].quaternion = _v2q(_target_rotations[next]).slerp(_v2q(_target_rotations[prev]), fac)
     
 
 func _process(_delta: float):
-    
-    for i in range(len(_followers)):
-        _lerp_index(i)
+    #pass
+    #var head_distance: float = (_target_positions[_head_index] - position).length()
+    #_lerp_fac = head_distance / segment_spacing
+    #for i in range(len(_followers)):
+        #_lerp_index(i)
 
-func _rollback_tick(_delta: float, _tick, _is_fresh):
+#func _rollback_tick(_delta: float, _tick, _is_fresh):
     
-    if not is_multiplayer_authority() and _is_fresh:
-        return 
+    #if not is_multiplayer_authority() and _is_fresh:
+        #return 
         
-    _lerp_fac += (position - _last_head_pos).length() / (segment_spacing)
-    _last_head_pos = position
-    _lerp_fac = min(1.0, _lerp_fac)    
-    if (_target_positions[_head_index] - position).length() > segment_spacing:
+    #_lerp_fac += (position - _last_head_pos).length() / (segment_spacing)
+    #_last_head_pos = position
+    #_lerp_fac = min(1.0, _lerp_fac)  
+    var head_distance: float = (_target_positions[_head_index] - position).length()
+    var lerp_fac: float = 0
+    if head_distance > segment_spacing:
         _head_index = (_head_index + len(_target_positions) - 1) % len(_target_positions)
         _target_positions[_head_index] = position
         _target_rotations[_head_index] = _q2v(quaternion)
-        _lerp_fac = 0
-        
+    else:
+        lerp_fac = head_distance / segment_spacing
+          
     for i in range(len(_followers)):
-        _lerp_index(i)
+        _lerp_index(i, lerp_fac)

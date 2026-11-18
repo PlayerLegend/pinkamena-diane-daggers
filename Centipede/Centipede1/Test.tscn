@@ -12,8 +12,6 @@ script = ExtResource("1_occ7t")
 
 [node name="Centipede1" parent="." unique_id=2121063774 instance=ExtResource("1_afl15")]
 script = ExtResource("3_hfnkj")
-segment_count = null
-segment_spacing = null
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=701497320]
 visible = false

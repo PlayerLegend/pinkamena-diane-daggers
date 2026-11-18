@@ -2,9 +2,14 @@ extends Centipede
 
 var target: Transform3D
 
-func _rollback_tick(delta: float, tick, is_fresh):
-    print("Test centipede rollback")
+func _process(_delta: float):
+    super(_delta)
     transform = target
-    super(delta, tick, is_fresh)
+    
+
+#func _rollback_tick(delta: float, tick, is_fresh):
+    #print("Test centipede rollback")
+    #transform = target
+    #super(delta, tick, is_fresh)
     
     
