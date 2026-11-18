@@ -3,20 +3,20 @@
 [ext_resource type="Script" uid="uid://c1jk68nrlklb3" path="res://Centipede/Centipede1/centipede_segment.gd" id="1_0y84i"]
 [ext_resource type="PackedScene" uid="uid://gdu272b5ojbt" path="res://Centipede/Centipede1/CentipedeSegment.glb" id="1_cxmlo"]
 
-[node name="CentipedeSegment" type="PathFollow3D" unique_id=2001638632 node_paths=PackedStringArray("animation_player")]
+[node name="CentipedeSegment" type="Node3D" unique_id=48875206 node_paths=PackedStringArray("animation_player")]
 script = ExtResource("1_0y84i")
 animation_player = NodePath("CentipedeSegment/AnimationPlayer")
 
 [node name="CentipedeSegment" parent="." unique_id=1124305234 instance=ExtResource("1_cxmlo")]
 
 [node name="Skeleton3D" parent="CentipedeSegment/Armature" parent_id_path=PackedInt32Array(1124305234, 881690174) index="0" unique_id=1702178253]
-bones/1/rotation = Quaternion(0.54472363, 0.4508615, -0.45086116, 0.544724)
-bones/2/rotation = Quaternion(-5.9171352e-09, -3.4989863e-08, 0.09386244, 0.9955852)
-bones/3/rotation = Quaternion(6.8358695e-08, -3.2817084e-08, 0.09386243, 0.9955852)
-bones/4/rotation = Quaternion(0.5447238, -0.45086133, 0.45086133, 0.54472387)
-bones/5/rotation = Quaternion(5.0517556e-08, 4.031046e-08, -0.09386242, 0.9955852)
-bones/6/rotation = Quaternion(6.835874e-08, 3.2817084e-08, -0.093862414, 0.9955852)
-bones/7/rotation = Quaternion(-0.00062331243, -3.5946357e-09, 1.6292283e-07, 0.9999998)
-bones/8/rotation = Quaternion(-0.09549649, -5.3507684e-08, 5.800436e-09, 0.9954299)
+bones/1/rotation = Quaternion(0.6004571, 0.3734318, -0.37343147, 0.6004573)
+bones/2/rotation = Quaternion(-3.2193967e-08, 1.1506905e-08, -0.030867966, 0.9995235)
+bones/3/rotation = Quaternion(9.063161e-09, 6.491533e-08, -0.18566886, 0.9826124)
+bones/4/rotation = Quaternion(0.6004572, -0.37343165, 0.37343168, 0.6004572)
+bones/5/rotation = Quaternion(2.4463933e-08, -1.3256656e-08, 0.030868, 0.99952346)
+bones/6/rotation = Quaternion(9.063182e-09, -6.4915355e-08, 0.18566889, 0.9826124)
+bones/7/rotation = Quaternion(-0.0006221645, -3.781629e-05, 0.060664218, 0.99815804)
+bones/8/rotation = Quaternion(-0.094744645, 0.012114687, -0.12464595, 0.9875931)
 
 [editable path="CentipedeSegment"]

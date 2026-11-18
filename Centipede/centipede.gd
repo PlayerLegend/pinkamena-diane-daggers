@@ -56,10 +56,11 @@ func _setup_multiplayer() -> void:
     
 func _instance_segments() -> void:
     for i in range(segment_count):
-        var _segment: PathFollow3D = segment_scene.instantiate()
+        var _segment: Node3D = segment_scene.instantiate()
         add_child(_segment)
         _followers.append(_segment)
         _segment.top_level = true
+        _segment.offset = float(i) / float(segment_count)
 
 func _q2v(q: Quaternion):
     return Vector4(q.x,q.y,q.z,q.w)

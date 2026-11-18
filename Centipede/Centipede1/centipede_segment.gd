@@ -1,17 +1,22 @@
 class_name CentipedeSegment
-extends PathFollow3D
+extends Node3D
 
 @export var animation_player: AnimationPlayer
 
-func _setup_animation(offset: float, length: float):
+var offset: float = 0.2
+var anim_time: float
+
+var last_position: Vector3
+
+func _ready():
     var anim := animation_player.get_animation("staggered")
 
     animation_player.play("staggered")
-    animation_player.seek(-offset * get_index())
-    animation_player.speed_scale = length / anim.length
-    animation_player.play()
+    animation_player.speed_scale = 1.0 / anim.length
+    animation_player.pause()
     
-func setup_wave(wave_count: float, segment_count: float, segment_spacing: float, follow_speed: float) -> void:
-    var offset_per_segment: float = segment_spacing / follow_speed
-    var animation_length: float = (segment_count * segment_spacing) / (follow_speed * wave_count)
-    _setup_animation(offset_per_segment, animation_length)
+func _process(_delta: float):
+    var distance = (position - last_position).length()
+    last_position = position
+    anim_time += distance
+    animation_player.seek(offset + anim_time / 3.0, true)
