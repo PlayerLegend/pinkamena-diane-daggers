@@ -11,6 +11,7 @@ void fragment() {
 	if (duv.x >= 0.0 && duv.x <= 1.0 && duv.y >= 0.0 && duv.y <= 1.0) {
 		vec4 d = texture(decal_texture, duv);
 		ALBEDO = mix(ALBEDO, d.rgb, d.a);
+		EMISSION = d.rgb * d.a;
 	}
     
 }
