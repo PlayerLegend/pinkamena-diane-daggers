@@ -1,7 +1,7 @@
 shader_type spatial;
 
 uniform sampler2D albedo_texture : source_color, filter_nearest;
-uniform sampler2D decal_texture : source_color, filter_nearest;
+uniform sampler2D decal_texture : source_color, filter_nearest, hint_default_transparent;
 uniform float decal_size;
 
 void fragment() {
