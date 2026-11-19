@@ -3,20 +3,13 @@
 [ext_resource type="Script" uid="uid://cg8ys6varqusj" path="res://Arena/arena.gd" id="1_u642k"]
 [ext_resource type="ArrayMesh" uid="uid://dayvctvq68uxx" path="res://Arena/Tile.obj" id="2_661re"]
 [ext_resource type="Script" uid="uid://d350u8evihs1u" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="3_661re"]
-[ext_resource type="Texture2D" uid="uid://cbxo0g0kgbu4i" path="res://Arena/tile.png" id="3_ifb4t"]
+[ext_resource type="Material" uid="uid://yx1dmncotmxd" path="res://Arena/TileMaterial.tres" id="3_ifb4t"]
 [ext_resource type="Script" uid="uid://dour8fehaaugp" path="res://addons/netfox/tick-interpolator.gd" id="4_ifb4t"]
-[ext_resource type="Texture2D" uid="uid://bgomtm8tnqj1s" path="res://Arena/tile_emission.png" id="4_tqys7"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_eaxmq"]
-albedo_texture = ExtResource("3_ifb4t")
-emission_enabled = true
-emission_texture = ExtResource("4_tqys7")
-texture_filter = 0
 
 [node name="Arena" type="Node3D" unique_id=1057556895]
 script = ExtResource("1_u642k")
 tile_mesh = ExtResource("2_661re")
-tile_material = SubResource("StandardMaterial3D_eaxmq")
+tile_material = ExtResource("3_ifb4t")
 tile_collision_layer = 8
 tile_collision_mask = 8
 tile_render_layer = 3

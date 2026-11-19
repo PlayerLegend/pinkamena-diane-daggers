@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://yx1dmncotmxd"]
+
+[ext_resource type="Shader" uid="uid://duhu38gwqdmir" path="res://Arena/Tile.gdshader" id="1_h5d6f"]
+[ext_resource type="Texture2D" uid="uid://cbxo0g0kgbu4i" path="res://Arena/tile.png" id="2_wgbah"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_h5d6f")
+shader_parameter/albedo_texture = ExtResource("2_wgbah")
+shader_parameter/decal_size = 4.41

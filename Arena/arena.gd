@@ -1,5 +1,6 @@
 extends Node3D
 
+@export var decal_subviewport: SubViewport
 @export var tile_mesh: Mesh
 @export var tile_material: Material
 @export var spawn_radius = 11
@@ -14,6 +15,12 @@ var multimesh_instance: MultiMeshInstance3D
 var multimesh: MultiMesh
 
 func _ready():
+    if tile_material is ShaderMaterial:
+        tile_material.set_shader_parameter("decal_size", 2 * tile_width * spawn_radius)
+    else:
+        push_warning("Tile does not have a shadermaterial")
+            
+    
     multimesh_instance = MultiMeshInstance3D.new()
     multimesh_instance.material_override = tile_material
     multimesh = MultiMesh.new()

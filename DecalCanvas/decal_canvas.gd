@@ -1,8 +1,8 @@
 class_name DecalCanvas
 extends Node3D
 
-@export var arena_radius: float = 11.0 * 3.0
-@export var texture_resolution: int = 2048
+@export var decal_material: ShaderMaterial
+#@export var arena_radius: float = 11.0 * 3.0
 ## Approximate size of a splatter in world units.
 @export var splatter_world_size: float = 3.0
 @export var splatter_choices: Array[CompressedTexture2D]
@@ -11,11 +11,10 @@ extends Node3D
 
 @export var splat_material: ShaderMaterial
 
-@onready var sub_viewport: SubViewport = $SubViewport
-@onready var decal: Decal = $Decal
+@export var sub_viewport: SubViewport
+#@onready var decal: Decal = $Decal
 
 func _ready() -> void:
-    sub_viewport.size = Vector2i(texture_resolution, texture_resolution)
     sub_viewport.transparent_bg = true
     sub_viewport.render_target_clear_mode = SubViewport.CLEAR_MODE_ONCE
     sub_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
@@ -26,8 +25,8 @@ func _ready() -> void:
     # 2. Decal sampling of the viewport texture (global, see note below).
     RenderingServer.decals_set_filter(RenderingServer.DECAL_FILTER_NEAREST)
 
-    decal.size = Vector3.ONE * arena_radius * 2.0
-    decal.emission_energy = emission_strength
+    #decal.size = Vector3.ONE * arena_radius * 2.0
+    #decal.emission_energy = emission_strength
     
     await _clear_canvas_to_transparent()
 
@@ -37,28 +36,32 @@ func _ready() -> void:
 ## the first splatter is drawn, which shows up as black on some drivers.
 ## The decal is hidden during the render to avoid a one-frame flash.
 func _clear_canvas_to_transparent() -> void:
-    decal.visible = false
+    #decal.visible = false
     sub_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
     await RenderingServer.frame_post_draw
     _refresh_decal_textures()
-    decal.visible = true
+    #decal.visible = true
 
 func _refresh_decal_textures() -> void:
-    var viewport_tex := sub_viewport.get_texture()
-    decal.texture_albedo = viewport_tex
-    decal.texture_emission = viewport_tex
+    decal_material.set_shader_parameter("decal_texture", sub_viewport.get_texture())
+    #decal.texture_albedo = viewport_tex
+    #decal.texture_emission = viewport_tex
 
 func add_splatter(world_position: Vector3, splatter_scale: float = 1.0) -> void:
     assert(!splatter_choices.is_empty())
 
+    var decal_size: float = decal_material.get_shader_parameter("decal_size")
+    if not decal_size:
+        push_warning("Decal material size not set")
     var local_pos := to_local(world_position)
-    var uv := Vector2(local_pos.x, local_pos.z) / (arena_radius * 2.0) + Vector2(0.5, 0.5)
+    var uv := Vector2(local_pos.x, local_pos.z) / decal_size + Vector2(0.5, 0.5)
+    
     if uv.x < 0.0 or uv.x > 1.0 or uv.y < 0.0 or uv.y > 1.0:
         print("Splatter outside of uv")
         return
-
+    print("Splatter uv ", uv, " in ", decal_size)
     var tex: Texture2D = splatter_choices.pick_random()
-    var pixels_per_unit := texture_resolution / (arena_radius * 2.0)
+    var pixels_per_unit := sub_viewport.size.x / decal_size
 
     # Per-splatter random variation on top of the caller's scale.
     var random_coefficient := randf_range(0.5, 1.5)
@@ -69,7 +72,7 @@ func add_splatter(world_position: Vector3, splatter_scale: float = 1.0) -> void:
     sprite.texture = tex
     # 3. Explicit per-sprite filter, so it doesn't depend on the parent default.
     sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-    sprite.position = uv * texture_resolution
+    sprite.position = uv * sub_viewport.size.x
     sprite.rotation = randf() * TAU
     sprite.scale = Vector2.ONE * (world_size * pixels_per_unit / tex.get_width())
     sub_viewport.add_child(sprite)
@@ -78,8 +81,8 @@ func add_splatter(world_position: Vector3, splatter_scale: float = 1.0) -> void:
     await RenderingServer.frame_post_draw
 
     # Re-assign to force the decal to pick up the updated viewport contents.
-    decal.texture_albedo = null
-    decal.texture_emission = null
+    #decal.texture_albedo = null
+    #decal.texture_emission = null
     _refresh_decal_textures()
 
     sprite.queue_free()

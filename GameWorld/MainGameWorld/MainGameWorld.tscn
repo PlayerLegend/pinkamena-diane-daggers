@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://cqkmoffcsra57" path="res://GameWorld/MenuWorld/MenuWorld.tscn" id="2_u6lad"]
 [ext_resource type="PackedScene" uid="uid://dxsgsfp420pha" path="res://DecalCanvas/DecalCanvas.tscn" id="3_qbr1c"]
 [ext_resource type="PackedScene" uid="uid://b50t5xujkven0" path="res://SpawnManager/SpawnManager.tscn" id="4_ebbfy"]
+[ext_resource type="Material" uid="uid://yx1dmncotmxd" path="res://Arena/TileMaterial.tres" id="5_l5122"]
 [ext_resource type="Resource" uid="uid://d1d8nej4fn0wp" path="res://SpawnManager/MainSpawnList.tres" id="5_u6lad"]
 [ext_resource type="Script" uid="uid://cxxd4g8kyoy7q" path="res://GameWorld/MainGameWorld/afterimage_spawner.gd" id="6_tg2wk"]
 [ext_resource type="PackedScene" uid="uid://byuu4u3gn4vmi" path="res://StaticMeshManager/StaticMeshManager.tscn" id="7_4hsto"]
@@ -30,14 +31,17 @@ menu_world = ExtResource("2_u6lad")
 player_light = true
 metadata/_custom_type_script = "uid://4pbiob3hlex8"
 
-[node name="Arena" parent="." unique_id=1057556895 instance=ExtResource("2_se08m")]
+[node name="Arena" parent="." unique_id=1057556895 node_paths=PackedStringArray("decal_subviewport") instance=ExtResource("2_se08m")]
+decal_subviewport = NodePath("../DecalSubViewport")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=1097827450]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.139495, 0)
 omni_range = 81.01641
 
-[node name="DecalCanvas" parent="." unique_id=1855920060 instance=ExtResource("3_qbr1c")]
+[node name="DecalCanvas" parent="." unique_id=1855920060 node_paths=PackedStringArray("sub_viewport") instance=ExtResource("3_qbr1c")]
+decal_material = ExtResource("5_l5122")
 emission_strength = 0.71
+sub_viewport = NodePath("../DecalSubViewport")
 
 [node name="SpawnManager" parent="." unique_id=1985212331 node_paths=PackedStringArray("spawn_parent") instance=ExtResource("4_ebbfy")]
 repeat = ExtResource("5_u6lad")
@@ -81,3 +85,6 @@ script = ExtResource("15_qbr1c")
 boid_manager = NodePath("../BoidManager")
 
 [node name="Centipede1" parent="." unique_id=1581042715 instance=ExtResource("19_4hsto")]
+
+[node name="DecalSubViewport" type="SubViewport" parent="." unique_id=892893044]
+size = Vector2i(2048, 2048)

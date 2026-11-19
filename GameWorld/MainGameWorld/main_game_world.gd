@@ -9,6 +9,7 @@ extends GameWorld
 @export var menu_world: PackedScene
 @export var game_over_screen: Control
 signal player_died(player: PlayerController, stats: GameOverStats)
+@onready var decal_canvas: DecalCanvas = $DecalCanvas
 
 func _ready():
     _light_energy_target = omni_light_3d.light_energy
@@ -18,6 +19,7 @@ func _check_for_deaths():
         return
     for node in get_tree().get_nodes_in_group("chase_targets"):
         if node is PlayerController:
+            decal_canvas.add_splatter(node.position)
             if not node.visible:
                 continue
             if node.global_position.y < -10:

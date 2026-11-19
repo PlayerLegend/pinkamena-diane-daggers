@@ -45,7 +45,6 @@ func _rollback_tick(delta: float, _tick, _is_fresh):
     basis = basis.slerp(target_basis, delta * 2.0)
     
     position += -basis.z * speed * delta
-    print("Centipos ", position)
 
 func _drop_xtal(where: Transform3D):
     var new_xtal = xtal_pickup.instantiate()
