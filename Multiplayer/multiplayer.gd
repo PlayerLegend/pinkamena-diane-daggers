@@ -9,8 +9,6 @@ class_name MultiplayerHandler
 var local_player: PlayerController
 
 signal player_joined(player: PlayerController, id: int)
-#signal create_player(id: int)
-#signal net_is_connected(host: String, port: int)
 
 @export var game_world_manager: GameWorldManager
 
@@ -37,30 +35,54 @@ func _deferred_create_player(id: int) -> void:
 func _create_player(id: int) -> void:
     _deferred_create_player.call_deferred(id)
 
-func server_start(port: int) -> void:
-    var peer = ENetMultiplayerPeer.new()
-    peer.create_server(port)
-    multiplayer.multiplayer_peer = peer
+func _new_peer_server(port: int, use_websocket: bool) -> MultiplayerPeer:
+    var peer: MultiplayerPeer
+    if use_websocket:
+        peer = WebSocketMultiplayerPeer.new()
+    else:
+        peer = ENetMultiplayerPeer.new()
+        
+    var err = peer.create_server(port)
+    
+    if err != OK:
+        push_error("create_server(%d) failed: %s" % [port, error_string(err)])
+        return null
+        
+    return peer
+
+func _new_peer_client(host: String, port: int, use_websocket: bool) -> MultiplayerPeer:
+    var peer: MultiplayerPeer
+    if use_websocket:
+        peer = WebSocketMultiplayerPeer.new()
+        var err = peer.create_client("ws://%s:%d" % [host, port]) 
+        if err != OK:
+            push_error("create_client(%s:%d) failed: %s" % [host, port, error_string(err)])
+            return null
+    else:
+        peer = ENetMultiplayerPeer.new()
+        var err = peer.create_client(host, port)
+        if err != OK:
+            push_error("create_client(%s:%d) failed: %s" % [host, port, error_string(err)])
+            return null
+            
+    return peer
+
+func singleplayer_start() -> void:
+    multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
+    NetworkTime.start()
     _deferred_create_player.call_deferred(1)
-    #game_started.emit()
-    #net_is_connected.emit("127.0.0.1", port)
+
+func server_start(port: int) -> void:
+    multiplayer.multiplayer_peer = _new_peer_server(port, true)
+    _deferred_create_player.call_deferred(1)
 
 func client_connect(host: String, port: int) -> void:
     print("Connecting to ", host, " port ", port)
-    var peer = ENetMultiplayerPeer.new()
-    peer.create_client(host,port)
-    multiplayer.multiplayer_peer = peer
-    #game_started.emit()
-    #net_is_connected.emit(host, port)
+    multiplayer.multiplayer_peer = _new_peer_client(host, port, true)
 
 func client_disconnect():
     multiplayer.multiplayer_peer.close()
     #game_stopped.emit()
-
-func set_mouse_scale(mouse_scale: float):
-    for child in actors_parent.get_children():
-        if child.has_method("set_mouse_scale"):
-            child.set_mouse_scale(mouse_scale)
 
 func _on_peer_connected(id: int) -> void:
     _create_player(id)

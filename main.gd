@@ -29,6 +29,13 @@ func _set_world(next: PackedScene):
     else:
         game_world_manager.game_world = null
 
+func _start_game():
+    _set_world(start_world_scene)
+    if not server_is_started:
+        multiplayer_handler.singleplayer_start()
+    server_is_started = true
+    _show_game()
+
 func _start_server(port: int):
     _set_world(start_world_scene)
     if not server_is_started:
@@ -125,4 +132,6 @@ func _on_game_world_manager_world_changed(new_world: GameWorld) -> void:
     if new_world is MainGameWorld:
         new_world.player_died.connect(_on_player_died)
         print("Connected player died signal")
-        
+
+func _on_main_menu_singleplayer_start() -> void:
+    _start_game()

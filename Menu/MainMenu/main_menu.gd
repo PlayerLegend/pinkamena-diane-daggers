@@ -1,6 +1,7 @@
 class_name MainMenu
 extends Control
 
+signal singleplayer_start()
 signal net_host(port: int)
 signal net_connect(host: String, port: int)
 signal net_disconnect()
@@ -29,7 +30,8 @@ func _on_save_config_save_config() -> void:
 
 
 func _on_play_button_pressed() -> void:
-    net_host.emit(32357)
+    #net_host.emit(32357)
+    singleplayer_start.emit()
 
 
 func _on_exit_button_pressed() -> void:

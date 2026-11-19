@@ -19,7 +19,6 @@ func _check_for_deaths():
         return
     for node in get_tree().get_nodes_in_group("chase_targets"):
         if node is PlayerController:
-            decal_canvas.add_splatter(node.position)
             if not node.visible:
                 continue
             if node.global_position.y < -10:
