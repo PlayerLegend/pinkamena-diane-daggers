@@ -88,7 +88,7 @@ var _max_collision_radius := 0.0  # largest collision_radius of any registered t
 # --- Boid data (structure of arrays). Type t owns slots [_type_base[t], _type_base[t] + max_boids) ---
 var _pos := PackedVector3Array()
 var _vel := PackedVector3Array()
-var _rot := PackedFloat32Array()  # orientation quaternion, 4 floats (xyzw) per boid
+var _rot := PackedVector4Array()  # orientation quaternion per boid, stored as (x, y, z, w)
 var _steer := PackedVector3Array()
 var _avoid_push := PackedVector3Array()
 var _boid_type := PackedInt32Array()
@@ -458,7 +458,7 @@ func remove_boid(index: int) -> bool:
     if index != last:
         _pos[index] = _pos[last]
         _vel[index] = _vel[last]
-        _set_rot(index, _get_rot(last))
+        _rot[index] = _rot[last]
         _steer[index] = _steer[last]
         _avoid_push[index] = _avoid_push[last]
         _health[index] = _health[last]
@@ -528,19 +528,15 @@ func _ensure_grid_current() -> void:
         _build_grid()
 
 
-## Reads the orientation quaternion of boid `i` (stored as 4 floats: x, y, z, w).
+## Reads the orientation quaternion of boid `i`.
 func _get_rot(i: int) -> Quaternion:
-    var o := i * 4
-    return Quaternion(_rot[o], _rot[o + 1], _rot[o + 2], _rot[o + 3])
+    var v := _rot[i]
+    return Quaternion(v.x, v.y, v.z, v.w)
 
 
 ## Writes the orientation quaternion of boid `i`.
 func _set_rot(i: int, q: Quaternion) -> void:
-    var o := i * 4
-    _rot[o] = q.x
-    _rot[o + 1] = q.y
-    _rot[o + 2] = q.z
-    _rot[o + 3] = q.w
+    _rot[i] = Vector4(q.x, q.y, q.z, q.w)
 
 
 ## Quaternion whose local -Z axis points along `forward`, using the same up-vector
@@ -643,7 +639,7 @@ func register_type(bt: BoidType) -> int:
 func _resize_boid_arrays() -> void:
     _pos.resize(_capacity)
     _vel.resize(_capacity)
-    _rot.resize(_capacity * 4)
+    _rot.resize(_capacity)
     _steer.resize(_capacity)
     _avoid_push.resize(_capacity)
     _boid_type.resize(_capacity)
