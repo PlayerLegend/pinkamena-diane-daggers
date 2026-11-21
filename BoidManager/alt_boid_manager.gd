@@ -1,0 +1,1219 @@
+class_name BoidManager2
+extends Node3D
+## Many flocks in one node. Boids are plain data (packed arrays), and each BoidType is
+## drawn through its own MultiMeshInstance3D child (created at runtime).
+##
+## Flocking is cell-based: once per physics tick, one pass over all boids writes
+## per-(type, cell) aggregates (boid count, position sum, velocity sum) into the spatial
+## hash. Steering then reads only the single cell a boid is in. Neighbor cells are ignored.
+## The grid's per-cell boid lists are still built for queries (get_boid_at_point,
+## get_boids_in_area, raycast) and for target avoidance.
+##
+## Setup: none. A BoidType (.tres) is registered automatically the first time it is passed
+## to add_boid(). Up to 63 types; type_name must be unique.
+##
+## Usage from other nodes:
+##     flock.add_boid(preload("res://boids/default_boid.tres"), transform, velocity)
+##     flock.add_boid_by_name(&"default", transform, velocity)  # type must already be registered
+## and, to interact with the flock, just add nodes to the groups named below
+## (no per-tick calls needed):
+##     add_to_group("avoid_targets")   # nearby boids are pushed away
+##     add_to_group("chase_targets")   # boids seek the nearest one
+##
+## Group members must be Node3D; their global_position is sampled once per physics tick.
+##
+## Chase targets may also expose a `look_direction` property (Vector3, world space).
+## Types with should_flee enabled flee from targets looking at them and chase targets
+## looking away, blending by the dot product. Without the property, the node's -Z is used.
+##
+## The node is forced to top_level with an identity transform, so all simulation
+## happens in world space. Up to 63 types are supported.
+##
+## Materials: BoidType.material_overrides is an Array[Material]; index i is applied to
+## mesh surface i (null or missing entries keep the mesh's own material).
+##
+## Flash: set_boid_flash(index, duration) stores an absolute end time (seconds on the
+## _now() clock) per boid. It reaches shaders as INSTANCE_CUSTOM.x, and the current
+## time is available as the global shader uniform `flash_effect_time_now`. A shader compares the
+## two, e.g. `step(flash_effect_time_now, INSTANCE_CUSTOM.x)` is 1.0 while the flash is active.
+##
+## Idle audio: boids are plain data, so sound comes from a fixed pool of
+## AudioStreamPlayer3D voices handed to the boids nearest the active camera. Each type
+## with an idle_sound has idle_reserved_voices voices that only it can use; on top of
+## those, `idle_shared_voices` voices go to the nearest remaining boids of any type.
+
+## Emitted when a boid is removed via remove_boid(). All values describe the boid
+## as it was just before removal. `mesh` is the type's rendered mesh.
+signal boid_removed(
+    type: BoidType,
+    mesh: Mesh,
+    position: Vector3,
+    velocity: Vector3,
+    rot: Quaternion,
+    health: int,
+)
+
+## Floats per MultiMesh instance: 12 for the 3D transform + 4 for custom data.
+const FLOATS_PER_INSTANCE := 12 + 4
+## Name of the global shader uniform holding the current time (see _now()).
+const TIME_PARAM := &"flash_effect_time_now"
+## How often (seconds) voices are reassigned to the nearest boids.
+const AUDIO_UPDATE_INTERVAL := 0.15
+
+@export_group("Precache Types")
+@export var precache_boid_types: Array[BoidType]
+
+@export_group("Bounds")
+@export var bounds_center := Vector3.ZERO
+@export var bounds_radius := 40.0
+
+@export_group("Avoidance")
+## Nodes in this group push boids away.
+@export var avoid_target_group := &"avoid_targets"
+
+@export_group("Targets")
+## Nodes in this group are chased by every boid type.
+@export var chase_target_group := &"chase_targets"
+
+@export_group("Audio")
+## Extra voices shared by all types. The nearest boids that aren't covered by a
+## type's reserved voices compete for these. Total voices = sum of reserved + this.
+@export var idle_shared_voices := 8
+
+# --- Per-type data (indexed by type index) ---
+var _types: Array[BoidType] = []
+var _type_base := PackedInt32Array()    # first boid slot of each type
+var _type_counts := PackedInt32Array()  # live boids of each type
+var _multimeshes: Array[MultiMesh] = []
+var _buffers: Array = []                # PackedFloat32Array per type
+var _name_to_index := {}
+var _capacity := 0
+var _max_collision_radius := 0.0  # largest collision_radius of any registered type
+
+# --- Boid data (structure of arrays). Type t owns slots [_type_base[t], _type_base[t] + max_boids) ---
+var _pos := PackedVector3Array()
+var _vel := PackedVector3Array()
+var _rot := PackedVector4Array()  # orientation quaternion per boid, stored as (x, y, z, w)
+var _steer := PackedVector3Array()
+var _avoid_push := PackedVector3Array()
+var _boid_type := PackedInt32Array()
+var _health := PackedInt32Array()
+var _flash_end := PackedFloat32Array()  # absolute time (seconds, see _now()) when the flash ends; 0 = none
+
+# --- Spatial hash grid (counting sort, no per-frame allocation) ---
+var _dim := 1
+var _cell_total := 1
+var _cell_size := 0.0
+var _inv_cell := 1.0
+var _grid_origin := Vector3.ZERO
+var _cell_start := PackedInt32Array()  # size cell_total + 1
+var _cell_items := PackedInt32Array()  # boid indices grouped by cell
+var _boid_cell := PackedInt32Array()
+var _grid_dirty_gen := 0
+var _grid_built_gen := 0
+
+# --- Per-cell flocking aggregates, one entry per (type, cell) ---
+# Index = type * _cell_total + cell. Only same-type boids contribute to a type's entry.
+# _cell_age holds the tick number of the last write. An entry whose age differs from
+# _tick is stale: its sums are garbage and are reset the first time a boid lands in it.
+var _tick := 0
+var _cell_age := PackedInt32Array()
+var _cell_count := PackedInt32Array()
+var _cell_pos_sum := PackedVector3Array()
+var _cell_vel_sum := PackedVector3Array()
+
+# --- Positions sampled from the groups at the start of each tick ---
+var _group_positions := {}  # StringName -> PackedVector3Array (reused between ticks)
+var _gathered := {}         # groups already sampled this tick
+var _avoid_list := PackedVector3Array()
+var _chase_list := PackedVector3Array()
+var _chase_looks := PackedVector3Array()  # world-space look direction per chase target (parallel to _chase_list)
+
+# --- Idle audio: one global voice pool, shared by all types ---
+var _voices: Array[AudioStreamPlayer3D] = []
+var _voice_boid := PackedInt32Array()      # boid slot each voice follows, or -1
+var _idle_streams: Array = []              # per type: looping AudioStream or null
+var _idle_reserved := PackedInt32Array()   # per type: reserved voice count
+var _audio_timer := 0.0
+
+func _ready() -> void:
+    top_level = true
+    global_transform = Transform3D.IDENTITY
+    _ensure_time_param()
+    for v in idle_shared_voices:
+        _add_voice()
+    for type in precache_boid_types:
+        register_type(type)
+
+
+func _ensure_time_param() -> void:
+    # Declared in Project Settings > Shader Globals? Then it already exists.
+    if ProjectSettings.has_setting("shader_globals/" + String(TIME_PARAM)):
+        return
+    # Otherwise create it. Only runs once per session; safe because nothing
+    # else has registered it. add_parameter errors if it already exists,
+    # so keep this guarded by the check above.
+    RenderingServer.global_shader_parameter_add(
+        TIME_PARAM, RenderingServer.GLOBAL_VAR_TYPE_FLOAT, _now())
+
+func _process(_delta: float) -> void:
+    RenderingServer.global_shader_parameter_set(TIME_PARAM, _now())
+
+
+## Seconds since engine start. Flash times are absolute values on this clock.
+func _now() -> float:
+    return Time.get_ticks_msec() * 0.001
+
+
+## Adds a boid of the given type at the transform's position, moving at the given velocity.
+## Facing starts along the velocity (or the transform's -Z if velocity is zero).
+## The type is registered automatically on first use.
+## Returns the boid's slot index, or -1 if the type can't be registered or is at capacity.
+func add_boid(type: BoidType, xform: Transform3D, velocity: Vector3) -> int:
+    var t := _types.find(type)
+    if t == -1:
+        t = register_type(type)
+        if t == -1:
+            return -1
+    return _spawn(t, xform, velocity)
+
+
+## Same as add_boid() but looks the type up by its type_name. The type must already
+## have been registered by an earlier add_boid() call.
+func add_boid_by_name(type_name: StringName, xform: Transform3D, velocity: Vector3) -> int:
+    if not _name_to_index.has(type_name):
+        push_warning("BoidManager: no BoidType named '%s'." % type_name)
+        return -1
+    return _spawn(_name_to_index[type_name], xform, velocity)
+
+
+## Number of live boids across all registered types.
+func get_boid_count() -> int:
+    var total := 0
+    for c in _type_counts:
+        total += c
+    return total
+
+## Boid mesh, null if invalid index
+func get_boid_mesh(index: int) -> Mesh:
+    var t := _type_of_slot(index)
+    if t == -1:
+        return null
+    return _multimeshes[t].mesh
+
+## Returns the index of the first live boid whose collision sphere contains `point`
+## (distance to the boid's center <= its collision_radius), or -1 if none does.
+## No ordering is guaranteed when several boids overlap the point.
+func get_boid_at_point(point: Vector3) -> int:
+    if _types.is_empty():
+        return -1
+
+    _ensure_grid_current()
+
+    var max_cell := _dim - 1
+    var cell_reach := int(ceil(_max_collision_radius * _inv_cell))
+    var center_cell := _cell_coords(point)
+
+    for cz in range(maxi(center_cell.z - cell_reach, 0), mini(center_cell.z + cell_reach, max_cell) + 1):
+        for cy in range(maxi(center_cell.y - cell_reach, 0), mini(center_cell.y + cell_reach, max_cell) + 1):
+            for cx in range(maxi(center_cell.x - cell_reach, 0), mini(center_cell.x + cell_reach, max_cell) + 1):
+                var cell := cx + _dim * (cy + _dim * cz)
+                for slot in range(_cell_start[cell], _cell_start[cell + 1]):
+                    var other := _cell_items[slot]
+                    var t := _boid_type[other]
+                    if other >= _type_base[t] + _type_counts[t]:
+                        continue
+                    var r: float = _types[t].collision_radius
+                    if _pos[other].distance_squared_to(point) <= r * r:
+                        return other
+    return -1
+
+## Returns the indices of all live boids whose collision sphere touches the query sphere
+## (distance between centers <= radius + the boid's collision_radius). Returns an empty
+## array if none match.
+##
+## Indices are returned in descending slot order, so you can iterate forward and call
+## remove_boid() on each without the swap invalidating later indices.
+func get_boids_in_area(center: Vector3, radius: float) -> PackedInt32Array:
+    var results := PackedInt32Array()
+    if _types.is_empty():
+        return results
+
+    _ensure_grid_current()
+
+    var reach_dist := radius + _max_collision_radius
+    var max_cell := _dim - 1
+    var cell_reach := int(ceil(reach_dist * _inv_cell))
+    var center_cell := _cell_coords(center)
+
+    for cz in range(maxi(center_cell.z - cell_reach, 0), mini(center_cell.z + cell_reach, max_cell) + 1):
+        for cy in range(maxi(center_cell.y - cell_reach, 0), mini(center_cell.y + cell_reach, max_cell) + 1):
+            for cx in range(maxi(center_cell.x - cell_reach, 0), mini(center_cell.x + cell_reach, max_cell) + 1):
+                var cell := cx + _dim * (cy + _dim * cz)
+                for slot in range(_cell_start[cell], _cell_start[cell + 1]):
+                    var other := _cell_items[slot]
+                    var t := _boid_type[other]
+                    if other >= _type_base[t] + _type_counts[t]:
+                        continue
+                    var reach: float = radius + _types[t].collision_radius
+                    if _pos[other].distance_squared_to(center) <= reach * reach:
+                        results.append(other)
+    return _sorted_desc(results)
+
+
+## Returns the indices of all live boids whose center lies outside the query sphere
+## (distance from `center` to the boid's center > radius). Iterates all live boids
+## directly and does not touch the spatial hash.
+##
+## Indices are returned in descending slot order, so you can iterate forward and call
+## remove_boid() on each without the swap invalidating later indices.
+func get_boids_outside(center: Vector3, radius: float) -> PackedInt32Array:
+    var results := PackedInt32Array()
+    if _types.is_empty():
+        return results
+
+    var radius_sq := radius * radius
+
+    for t in _types.size():
+        var base := _type_base[t]
+        var count := _type_counts[t]
+        if count == 0:
+            continue
+        for i in range(base, base + count):
+            if _pos[i].distance_squared_to(center) > radius_sq:
+                results.append(i)
+    return _sorted_desc(results)
+
+
+## Sorts slot indices descending so callers can iterate forward while removing:
+## remove_boid() swaps the highest live slot of the type into the freed one, and that
+## higher index has already been visited when iterating a descending array.
+func _sorted_desc(indices: PackedInt32Array) -> PackedInt32Array:
+    indices.sort()
+    indices.reverse()
+    return indices
+
+
+## Casts a ray against the boids' collision spheres and returns the index of the closest
+## boid hit, or -1 if nothing was hit. `direction` does not need to be normalized.
+## A ray starting inside a boid's sphere counts as a hit on that boid.
+func raycast(start: Vector3, direction: Vector3, distance: float) -> int:
+    if _types.is_empty() or distance <= 0.0 or direction.is_zero_approx():
+        return -1
+
+    _ensure_grid_current()
+
+    var dir := direction.normalized()
+    var pad := _max_collision_radius
+
+    # Clip the ray to the grid box (padded, since a sphere can poke out of the grid)
+    var box_min := _grid_origin - Vector3.ONE * pad
+    var box_max := _grid_origin + Vector3.ONE * (_dim * _cell_size + pad)
+    var t_enter := 0.0
+    var t_exit := distance
+    for a in 3:
+        if absf(dir[a]) < 0.000001:
+            if start[a] < box_min[a] or start[a] > box_max[a]:
+                return -1
+        else:
+            var t1 := (box_min[a] - start[a]) / dir[a]
+            var t2 := (box_max[a] - start[a]) / dir[a]
+            t_enter = maxf(t_enter, minf(t1, t2))
+            t_exit = minf(t_exit, maxf(t1, t2))
+    if t_enter > t_exit:
+        return -1
+
+    # DDA setup
+    var entry := start + dir * t_enter
+    var cell_pos := _cell_coords(entry)
+    var max_cell := _dim - 1
+    var cell_reach := int(ceil(pad * _inv_cell))
+    var step := Vector3i.ZERO
+    var t_max := Vector3(INF, INF, INF)
+    var t_delta := Vector3(INF, INF, INF)
+    for a in 3:
+        if dir[a] > 0.000001:
+            step[a] = 1
+            var boundary := _grid_origin[a] + (cell_pos[a] + 1) * _cell_size
+            t_max[a] = t_enter + (boundary - entry[a]) / dir[a]
+            t_delta[a] = _cell_size / dir[a]
+        elif dir[a] < -0.000001:
+            step[a] = -1
+            var boundary := _grid_origin[a] + cell_pos[a] * _cell_size
+            t_max[a] = t_enter + (boundary - entry[a]) / dir[a]
+            t_delta[a] = -_cell_size / dir[a]
+
+    var best_t := INF
+    var best_index := -1
+
+    while true:
+        # Test boids in this cell, plus neighbors within the largest sphere's reach: the
+        # hit point lies in a cell on the ray, but the sphere's center may be in the next one.
+        for cz in range(maxi(cell_pos.z - cell_reach, 0), mini(cell_pos.z + cell_reach, max_cell) + 1):
+            for cy in range(maxi(cell_pos.y - cell_reach, 0), mini(cell_pos.y + cell_reach, max_cell) + 1):
+                for cx in range(maxi(cell_pos.x - cell_reach, 0), mini(cell_pos.x + cell_reach, max_cell) + 1):
+                    var cell := cx + _dim * (cy + _dim * cz)
+                    for slot in range(_cell_start[cell], _cell_start[cell + 1]):
+                        var other := _cell_items[slot]
+                        var t := _boid_type[other]
+                        if other >= _type_base[t] + _type_counts[t]:
+                            continue
+                        var hit_t := _ray_sphere_distance(start, dir, _pos[other], _types[t].collision_radius, distance)
+                        if hit_t >= 0.0 and hit_t < best_t:
+                            best_t = hit_t
+                            best_index = other
+
+        # Anything found so far is closer than every hit in later cells
+        var cell_exit := minf(t_max.x, minf(t_max.y, t_max.z))
+        if best_t <= cell_exit or cell_exit > t_exit:
+            break
+
+        # Advance to the next cell along the ray
+        var axis := 0
+        if t_max.y < t_max[axis]:
+            axis = 1
+        if t_max.z < t_max[axis]:
+            axis = 2
+        cell_pos[axis] += step[axis]
+        if cell_pos[axis] < 0 or cell_pos[axis] > max_cell:
+            break
+        t_max[axis] += t_delta[axis]
+
+    return best_index
+
+
+## Ray vs. sphere test. `dir` must be normalized. Returns the distance along the ray to
+## the first intersection, or -1.0 if the ray misses. A ray starting inside the sphere
+## returns 0.0. Hits beyond `max_distance` count as misses.
+func _ray_sphere_distance(start: Vector3, dir: Vector3, center: Vector3, radius: float, max_distance: float) -> float:
+    var m := start - center
+    var b := m.dot(dir)
+    var c := m.dot(m) - radius * radius
+    if c > 0.0 and b > 0.0:
+        return -1.0  # outside the sphere and pointing away
+    var disc := b * b - c
+    if disc < 0.0:
+        return -1.0
+    var hit_t := maxf(-b - sqrt(disc), 0.0)
+    return hit_t if hit_t <= max_distance else -1.0
+
+
+## Current world position of a boid, or Vector3.INF if the index is not a live boid.
+func get_boid_position(index: int) -> Vector3:
+    if _type_of_slot(index) == -1:
+        return Vector3.INF
+    return _pos[index]
+
+func get_boid_transform(index: int) -> Transform3D:
+    if _type_of_slot(index) == -1:
+        return Transform3D(Basis.IDENTITY, Vector3.INF)
+    return Transform3D(Basis(_get_rot(index)), _pos[index])
+
+
+## Health of a boid, or 0 if the index is not a live boid.
+func get_boid_health(index: int) -> int:
+    if _type_of_slot(index) == -1:
+        return 0
+    return _health[index]
+
+
+## BoidType resource of the boid in this slot, or null if the index is not a live boid.
+func get_boid_type(index: int) -> BoidType:
+    var t := _type_of_slot(index)
+    if t == -1:
+        return null
+    return _types[t]
+
+
+## Sets a boid's health. Does NOT remove the boid at 0 or below; call remove_boid()
+## yourself (e.g. when the new value is <= 0). Returns false if the index is not live.
+func set_boid_health(index: int, value: int) -> bool:
+    if _type_of_slot(index) == -1:
+        return false
+    _health[index] = value
+    return true
+
+
+## Makes a boid flash for `duration` seconds from now. The absolute end time is stored
+## per boid and passed to shaders as INSTANCE_CUSTOM.x (compare against the global
+## uniform `flash_effect_time_now`). Calling it again restarts the flash. The value reaches the GPU
+## on the next physics tick. Returns false if the index is not a live boid.
+func set_boid_flash(index: int, duration: float) -> bool:
+    if _type_of_slot(index) == -1:
+        return false
+    _flash_end[index] = _now() + maxf(duration, 0.0)
+    return true
+
+## Removes a live boid. Returns false if the index is not a live boid.
+##
+## NOTE: indices are slots, and removal swaps the LAST live boid of the same type into
+## the freed slot. Functions that return multiple indices (get_boids_in_area,
+## get_boids_outside) return them in descending order so you can iterate forward and
+## remove each safely.
+func remove_boid(index: int) -> bool:
+    var t := _type_of_slot(index)
+    if t == -1:
+        return false
+
+    var base := _type_base[t]
+    var last := base + _type_counts[t] - 1
+    var buf: PackedFloat32Array = _buffers[t]
+
+    # Capture the removed boid's data before the swap overwrites it.
+    var removed_type := _types[t]
+    var removed_mesh := _multimeshes[t].mesh
+    var removed_pos := _pos[index]
+    var removed_vel := _vel[index]
+    var removed_rot := _get_rot(index)
+    var removed_health := _health[index]
+
+    # Free this boid's voice and re-point the voice of the boid that gets swapped in.
+    _audio_on_remove(index, last)
+
+    if index != last:
+        _pos[index] = _pos[last]
+        _vel[index] = _vel[last]
+        _rot[index] = _rot[last]
+        _steer[index] = _steer[last]
+        _avoid_push[index] = _avoid_push[last]
+        _health[index] = _health[last]
+        _flash_end[index] = _flash_end[last]
+        _boid_type[index] = _boid_type[last]
+        # Move the render data too (transform + custom data) so there's no one-frame glitch
+        var dst := (index - base) * FLOATS_PER_INSTANCE
+        var src := (last - base) * FLOATS_PER_INSTANCE
+        for k in FLOATS_PER_INSTANCE:
+            buf[dst + k] = buf[src + k]
+
+    _type_counts[t] -= 1
+    _buffers[t] = buf
+    var mm := _multimeshes[t]
+    mm.visible_instance_count = _type_counts[t]
+    mm.buffer = buf
+    _grid_dirty_gen += 1
+
+    boid_removed.emit(
+        removed_type,
+        removed_mesh,
+        removed_pos,
+        removed_vel,
+        removed_rot,
+        removed_health
+    )
+    return true
+
+## Removes every live boid of every type. Registered types are kept, so add_boid()
+## and add_boid_by_name() keep working without re-registering. Also resets the
+## spatial hash so the next query sees an empty grid.
+func clear() -> void:
+    if _types.is_empty():
+        return
+
+    _release_all_voices()
+
+    for t in _types.size():
+        if _type_counts[t] == 0:
+            continue
+        _type_counts[t] = 0
+        var mm := _multimeshes[t]
+        mm.visible_instance_count = 0
+        # Optional: zero the buffer so no stale transforms linger in GPU memory.
+        # Not required for correctness (visible_instance_count = 0 hides them),
+        # but cheap insurance against any code reading mm.buffer directly.
+        var buf: PackedFloat32Array = _buffers[t]
+        buf.fill(0.0)
+        _buffers[t] = buf
+        mm.buffer = buf
+
+    _grid_dirty_gen += 1
+
+## Returns the type index owning this slot if it holds a live boid, otherwise -1.
+func _type_of_slot(index: int) -> int:
+    if index < 0 or index >= _capacity:
+        return -1
+    for t in _types.size():
+        var base := _type_base[t]
+        if index < base + _type_counts[t]:
+            return t if index >= base else -1
+    return -1
+
+
+func _ensure_grid_current() -> void:
+    if _grid_built_gen != _grid_dirty_gen:
+        _build_grid()
+
+
+## Reads the orientation quaternion of boid `i`.
+func _get_rot(i: int) -> Quaternion:
+    var v := _rot[i]
+    return Quaternion(v.x, v.y, v.z, v.w)
+
+
+## Writes the orientation quaternion of boid `i`.
+func _set_rot(i: int, q: Quaternion) -> void:
+    _rot[i] = Vector4(q.x, q.y, q.z, q.w)
+
+
+## Quaternion whose local -Z axis points along `forward`, using the same up-vector
+## convention as the render basis (flip to RIGHT when moving near-vertical).
+func _quat_from_forward(forward: Vector3) -> Quaternion:
+    var z := -forward
+    var up := Vector3.UP if absf(forward.y) < 0.99 else Vector3.RIGHT
+    var x := up.cross(z).normalized()
+    var y := z.cross(x)
+    return Basis(x, y, z).get_rotation_quaternion()
+
+
+func _spawn(t: int, xform: Transform3D, velocity: Vector3) -> int:
+    var bt := _types[t]
+    if _type_counts[t] >= bt.max_boids:
+        return -1
+    var i := _type_base[t] + _type_counts[t]
+    _type_counts[t] += 1
+    _boid_type[i] = t
+    _pos[i] = xform.origin
+    if bt.use_floor:
+        _pos[i].y = maxf(_pos[i].y, bt.floor_height)
+    _vel[i] = velocity
+    _steer[i] = Vector3.ZERO
+    _avoid_push[i] = Vector3.ZERO
+    _health[i] = bt.max_health
+    _flash_end[i] = 0.0
+    if velocity.length_squared() > 0.0001:
+        _set_rot(i, _quat_from_forward(velocity.normalized()))
+    else:
+        _set_rot(i, _quat_from_forward(-xform.basis.z.normalized()))
+    _grid_dirty_gen += 1
+    return i
+
+
+## Registers a BoidType and returns its type index, or -1 if it can't be registered.
+## New types are appended, so existing types keep their slot ranges and indices.
+func register_type(bt: BoidType) -> int:
+    if bt == null:
+        push_warning("BoidManager: cannot register a null BoidType.")
+        return -1
+    if _name_to_index.has(bt.type_name):
+        push_warning("BoidManager: a different BoidType already uses type_name '%s'." % bt.type_name)
+        return -1
+    if _types.size() >= 63:
+        push_warning("BoidManager: more than 63 types, cannot register '%s'." % bt.type_name)
+        return -1
+
+    var t := _types.size()
+    _name_to_index[bt.type_name] = t
+    _types.append(bt)
+    _type_base.append(_capacity)
+    _type_counts.append(0)
+    _capacity += bt.max_boids
+    _resize_boid_arrays()
+    _update_grid(bt.neighbor_radius)
+    _resize_cell_data()
+    _max_collision_radius = maxf(_max_collision_radius, bt.collision_radius)
+
+    # Instance bounds: boids move everywhere inside the bounds; don't let culling hide them.
+    var extent := Vector3.ONE * bounds_radius * 1.5
+    var aabb := AABB(bounds_center - extent, extent * 2.0)
+
+    var mm := MultiMesh.new()
+    mm.transform_format = MultiMesh.TRANSFORM_3D
+    mm.use_colors = false
+    mm.use_custom_data = true  # INSTANCE_CUSTOM.x = flash end time
+
+    var mesh: Mesh = bt.mesh
+    if mesh == null:
+        var box := BoxMesh.new()
+        box.size = Vector3(0.2, 0.2, 0.6)
+        mesh = box
+    if not bt.material_overrides.is_empty():
+        mesh = mesh.duplicate()  # don't modify the shared resource
+        var surfaces := mini(mesh.get_surface_count(), bt.material_overrides.size())
+        for s in surfaces:
+            var mat := bt.material_overrides[s]
+            if mat != null:
+                mesh.surface_set_material(s, mat)
+    mm.mesh = mesh
+    mm.instance_count = bt.max_boids
+    mm.visible_instance_count = 0
+
+    var mmi := MultiMeshInstance3D.new()
+    mmi.name = bt.type_name
+    mmi.multimesh = mm
+    mmi.custom_aabb = aabb
+    add_child(mmi)
+    _multimeshes.append(mm)
+
+    var buf := PackedFloat32Array()
+    buf.resize(bt.max_boids * FLOATS_PER_INSTANCE)
+    _buffers.append(buf)
+
+    _setup_idle(t, bt)
+    return t
+
+
+## Grows every per-boid array to the current capacity (existing data is kept).
+func _resize_boid_arrays() -> void:
+    _pos.resize(_capacity)
+    _vel.resize(_capacity)
+    _rot.resize(_capacity)
+    _steer.resize(_capacity)
+    _avoid_push.resize(_capacity)
+    _boid_type.resize(_capacity)
+    _health.resize(_capacity)
+    _flash_end.resize(_capacity)
+    _cell_items.resize(_capacity)
+    _boid_cell.resize(_capacity)
+
+
+## Sizes the per-(type, cell) aggregate arrays to types * cells. New entries are
+## zero-filled, which means age 0. _tick starts counting at 1, so they read as stale.
+## If the grid layout changed, old entries are meaningless but their ages are from an
+## earlier tick, so they are stale too and get reset on first write.
+func _resize_cell_data() -> void:
+    var size := _types.size() * _cell_total
+    _cell_age.resize(size)
+    _cell_count.resize(size)
+    _cell_pos_sum.resize(size)
+    _cell_vel_sum.resize(size)
+
+
+## Makes sure the grid cell size covers `neighbor_radius`. Boids only see the single cell
+## they are in, so this is also the effective flocking neighborhood size. Only rebuilds the
+## grid layout if the cell size has to grow; the grid is emptied and refilled on the next
+## physics tick.
+func _update_grid(neighbor_radius: float) -> void:
+    var cell_size := maxf(maxf(_cell_size, neighbor_radius), 0.01)
+    if cell_size == _cell_size:
+        return
+    _cell_size = cell_size
+    _inv_cell = 1.0 / cell_size
+    _dim = int(ceil(bounds_radius * 2.0 / cell_size)) + 1
+    _cell_total = _dim * _dim * _dim
+    _grid_origin = bounds_center - Vector3.ONE * bounds_radius
+    _cell_start.resize(_cell_total + 1)
+    _cell_start.fill(0)  # old contents no longer match the layout; queries see an empty grid
+    _grid_dirty_gen += 1
+    # Grid layout changed: invalidate every aggregate (ages from before this tick are stale).
+    _tick += 1
+
+
+## Samples current positions of every Node3D in the group (once per tick per group).
+func _sample_group(group: StringName) -> PackedVector3Array:
+    if group.is_empty():
+        return PackedVector3Array()
+    if _gathered.has(group):
+        return _group_positions[group]
+    var arr: PackedVector3Array = _group_positions.get(group, PackedVector3Array())
+    arr.clear()
+    for node in get_tree().get_nodes_in_group(group):
+        if node is Node3D and node.is_inside_tree():
+            arr.append(node.global_position)
+    _group_positions[group] = arr
+    _gathered[group] = true
+    return arr
+
+
+func _gather_group_positions() -> void:
+    _gathered.clear()
+    _avoid_list = _sample_group(avoid_target_group)
+    _sample_chase_targets()
+
+
+## Like _sample_group(), but also records where each target is looking.
+## A target can expose a `look_direction` (Vector3, world space) property; otherwise
+## its facing (-Z) is used.
+func _sample_chase_targets() -> void:
+    _chase_list.clear()
+    _chase_looks.clear()
+    if chase_target_group.is_empty():
+        return
+    for node in get_tree().get_nodes_in_group(chase_target_group):
+        if not (node is Node3D and node.is_inside_tree()):
+            continue
+        var look: Vector3 = -node.global_transform.basis.z
+        if "look_direction" in node:
+            var v = node.get("look_direction")
+            if v is Vector3 and not v.is_zero_approx():
+                look = v
+        _chase_list.append(node.global_position)
+        _chase_looks.append(look.normalized())
+
+
+func _cell_coords(point: Vector3) -> Vector3i:
+    var scaled := (point - _grid_origin) * _inv_cell
+    var max_cell := _dim - 1
+    return Vector3i(
+        clampi(int(scaled.x), 0, max_cell),
+        clampi(int(scaled.y), 0, max_cell),
+        clampi(int(scaled.z), 0, max_cell))
+
+
+func _cell_index(coords: Vector3i) -> int:
+    return coords.x + _dim * (coords.y + _dim * coords.z)
+
+
+func _build_grid() -> void:
+    _cell_start.fill(0)
+    var total := 0
+    for t in _types.size():
+        var base := _type_base[t]
+        for i in range(base, base + _type_counts[t]):
+            var cell := _cell_index(_cell_coords(_pos[i]))
+            _boid_cell[i] = cell
+            _cell_start[cell] += 1
+        total += _type_counts[t]
+
+    # Inclusive prefix sum -> each entry becomes the END of its cell
+    var running := 0
+    for cell in _cell_total:
+        running += _cell_start[cell]
+        _cell_start[cell] = running
+    _cell_start[_cell_total] = total
+
+    # Place boids backwards; afterwards _cell_start[cell] is the START of that cell
+    for t in _types.size():
+        var base := _type_base[t]
+        for i in range(base, base + _type_counts[t]):
+            var cell := _boid_cell[i]
+            _cell_start[cell] -= 1
+            _cell_items[_cell_start[cell]] = i
+
+    _grid_built_gen = _grid_dirty_gen
+
+
+## The single per-tick pass that writes the flocking aggregates. Must run right after
+## _build_grid() so _boid_cell[] matches _pos[]. A (type, cell) entry whose age is not the
+## current tick is stale: it is reset (count and sums zeroed, age stamped) the first time
+## a boid lands in it this tick, then accumulates. Entries no boid touches stay stale and
+## are never read.
+func _accumulate_cells() -> void:
+    for t in _types.size():
+        var base := _type_base[t]
+        var stride := t * _cell_total
+        for i in range(base, base + _type_counts[t]):
+            var ci := stride + _boid_cell[i]
+            if _cell_age[ci] != _tick:
+                _cell_age[ci] = _tick
+                _cell_count[ci] = 0
+                _cell_pos_sum[ci] = Vector3.ZERO
+                _cell_vel_sum[ci] = Vector3.ZERO
+            _cell_count[ci] += 1
+            _cell_pos_sum[ci] += _pos[i]
+            _cell_vel_sum[ci] += _vel[i]
+
+
+## Pushes boids near each avoid target away from it. Each type uses its own avoidance
+## distance.
+func _apply_avoidance() -> void:
+    _avoid_push.fill(Vector3.ZERO)
+    if _avoid_list.is_empty():
+        return
+    var max_cell := _dim - 1
+
+    for t in _types.size():
+        if _type_counts[t] == 0:
+            continue
+        var radius := _types[t].avoid_target_distance
+        var radius_sq := radius * radius
+        var cell_reach := int(ceil(radius * _inv_cell))
+
+        for avoid_pos in _avoid_list:
+            var center_cell := _cell_coords(avoid_pos)
+            for cz in range(maxi(center_cell.z - cell_reach, 0), mini(center_cell.z + cell_reach, max_cell) + 1):
+                for cy in range(maxi(center_cell.y - cell_reach, 0), mini(center_cell.y + cell_reach, max_cell) + 1):
+                    for cx in range(maxi(center_cell.x - cell_reach, 0), mini(center_cell.x + cell_reach, max_cell) + 1):
+                        var cell := cx + _dim * (cy + _dim * cz)
+                        for slot in range(_cell_start[cell], _cell_start[cell + 1]):
+                            var other := _cell_items[slot]
+                            if _boid_type[other] != t:
+                                continue
+                            var offset := _pos[other] - avoid_pos
+                            var dist_sq := offset.length_squared()
+                            if dist_sq < radius_sq and dist_sq > 0.01:
+                                _avoid_push[other] += offset / dist_sq  # stronger when closer
+
+
+func _physics_process(delta: float) -> void:
+    if _types.is_empty():
+        return
+    var any := false
+    for c in _type_counts:
+        if c > 0:
+            any = true
+            break
+    if not any:
+        return
+
+    _tick += 1
+    _gather_group_positions()
+    _build_grid()
+    _accumulate_cells()
+    _apply_avoidance()
+    _compute_steering()
+    _integrate(delta)
+    _update_audio(delta)
+
+
+## Reynolds steering: desired velocity minus current velocity.
+func _steer_towards(direction: Vector3, current_vel: Vector3, speed: float) -> Vector3:
+    if direction.is_zero_approx():
+        return Vector3.ZERO
+    return direction.normalized() * speed - current_vel
+
+
+func _compute_steering() -> void:
+    var has_targets := not _chase_list.is_empty()
+
+    for t in _types.size():
+        var bt := _types[t]
+        var base := _type_base[t]
+        var stride := t * _cell_total
+        var sep_sq := bt.separation_radius * bt.separation_radius
+        var max_speed := bt.max_speed
+
+        for i in range(base, base + _type_counts[t]):
+            var boid_pos := _pos[i]
+            var boid_vel := _vel[i]
+
+            var separation_push := Vector3.ZERO
+            var avg_vel := Vector3.ZERO
+            var avg_pos := Vector3.ZERO
+
+            # --- Flocking data from the one cell this boid is in (same type only) ---
+            # The cell was written this tick and contains this boid, so it is never stale.
+            # Subtract the boid itself so the averages describe only its flockmates.
+            var ci := stride + _boid_cell[i]
+            var count := _cell_count[ci] - 1
+            if count > 0:
+                var inv := 1.0 / count
+                avg_vel = (_cell_vel_sum[ci] - boid_vel) * inv
+                avg_pos = (_cell_pos_sum[ci] - boid_pos) * inv
+
+                # Separation: push away from the flockmates' center of mass when it is close
+                var offset := boid_pos - avg_pos
+                var dist_sq := offset.length_squared()
+                if dist_sq > 0.0001 and dist_sq < sep_sq:
+                    separation_push = offset / dist_sq  # stronger when closer
+
+            # --- Combine rules ---
+            var steering := _steer_towards(_avoid_push[i], boid_vel, max_speed) * bt.avoid_target_weight
+
+            steering += _steer_towards(separation_push, boid_vel, max_speed) * bt.separation_weight
+
+            if count > 0:
+                var alignment := _steer_towards(avg_vel, boid_vel, max_speed)
+                var cohesion := _steer_towards(avg_pos - boid_pos, boid_vel, max_speed)
+                steering += alignment * bt.alignment_weight \
+                    + cohesion * bt.cohesion_weight
+
+            steering += _stay_in_bounds(bt, boid_pos, boid_vel) * bt.bounds_weight
+            steering += _avoid_floor(bt, boid_pos, boid_vel) * bt.floor_weight
+
+            # --- Chase the nearest node in the chase target group ---
+            # With should_flee, the boid blends between chasing and fleeing based on
+            # whether the target is looking at it.
+            if has_targets:
+                var best_sq := INF
+                var best_dir := Vector3.ZERO
+                var best_idx := -1
+                for k in _chase_list.size():
+                    var to_target := _chase_list[k] - boid_pos
+                    var target_sq := to_target.length_squared()
+                    if target_sq < best_sq:
+                        best_sq = target_sq
+                        best_dir = to_target
+                        best_idx = k
+
+                var chase_steer := _steer_towards(best_dir, boid_vel, max_speed)
+                if bt.should_flee and best_idx != -1 and best_sq > 0.0001:
+                    var flee_steer := _steer_towards(-best_dir, boid_vel, max_speed)
+                    # +1 = target looks straight at the boid, -1 = looks directly away
+                    var facing := _chase_looks[best_idx].dot(-best_dir / sqrt(best_sq))
+                    var flee_amount := clampf(facing * 0.5 + 0.5, 0.0, 1.0)
+                    # Beyond flee_distance the flee part is dropped, but the chase part
+                    # still fades out with flee_amount, so a boid that is out of range
+                    # and being looked at gets no chase or flee steering at all.
+                    var in_range := best_sq <= bt.flee_distance * bt.flee_distance
+                    var flee_scale := flee_amount if in_range else 0.0
+                    chase_steer = chase_steer * (1.0 - flee_amount) + flee_steer * flee_scale
+                steering += chase_steer * bt.chase_target_weight
+
+            _steer[i] = steering
+
+
+func _stay_in_bounds(bt: BoidType, boid_pos: Vector3, boid_vel: Vector3) -> Vector3:
+    var to_center := bounds_center - boid_pos
+    var dist := to_center.length()
+    if dist <= bounds_radius:
+        return Vector3.ZERO
+    # Pull grows the farther outside the bounds the boid is
+    var strength := (dist - bounds_radius) / bounds_radius
+    return _steer_towards(to_center, boid_vel, bt.max_speed) * (1.0 + strength)
+
+
+## Soft floor: steers upward once a boid is within floor_margin of the floor.
+## The push ramps from 0 at the margin edge to full strength at the floor.
+## (A hard clamp in _integrate() guarantees boids never actually pass through.)
+func _avoid_floor(bt: BoidType, boid_pos: Vector3, boid_vel: Vector3) -> Vector3:
+    if not bt.use_floor:
+        return Vector3.ZERO
+    var depth := (bt.floor_height + bt.floor_margin) - boid_pos.y
+    if depth <= 0.0:
+        return Vector3.ZERO
+    var strength := minf(depth / maxf(bt.floor_margin, 0.01), 2.0)
+    return _steer_towards(Vector3.UP, boid_vel, bt.max_speed) * strength
+
+
+func _integrate(delta: float) -> void:
+    for t in _types.size():
+        var bt := _types[t]
+        var count := _type_counts[t]
+        var base := _type_base[t]
+        var buf: PackedFloat32Array = _buffers[t]
+        var turn_t := clampf(bt.turn_speed * delta, 0.0, 1.0)
+
+        for i in range(base, base + count):
+            var boid_vel := _vel[i] + _steer[i].limit_length(bt.max_force) * delta
+
+            # Keep speed within [min_speed, max_speed]
+            var speed := boid_vel.length()
+            if speed > 0.001:
+                boid_vel = boid_vel / speed * clampf(speed, bt.min_speed, bt.max_speed)
+
+            var boid_pos := _pos[i] + boid_vel * delta
+
+            # Hard floor: never go below, and cancel downward velocity on contact
+            if bt.use_floor and boid_pos.y < bt.floor_height:
+                boid_pos.y = bt.floor_height
+                if boid_vel.y < 0.0:
+                    boid_vel.y = 0.0
+                    # Re-apply min speed in case cancelling the Y component slowed it too much
+                    var flat_speed := boid_vel.length()
+                    if flat_speed > 0.001:
+                        boid_vel = boid_vel / flat_speed * maxf(flat_speed, bt.min_speed)
+
+            _vel[i] = boid_vel
+            _pos[i] = boid_pos
+
+            # Rotate the orientation quaternion toward the velocity direction (shortest arc),
+            # turning `turn_t` of the way each tick.
+            var q := _get_rot(i)
+            if boid_vel.length_squared() > 0.01:
+                var target := _quat_from_forward(boid_vel.normalized())
+                var delta_q := q.inverse() * target
+                if delta_q.w < 0.0:
+                    delta_q = -delta_q  # shortest arc
+                var step := Quaternion.IDENTITY.slerp(delta_q, turn_t)
+                q = (q * step).normalized()
+                _set_rot(i, q)
+
+            var boid_basis := Basis(q)
+            var x := boid_basis.x
+            var y := boid_basis.y
+            var z := boid_basis.z
+
+            # MultiMesh TRANSFORM_3D layout: 3 rows of (basis column x, y, z, origin),
+            # followed by 4 floats of custom data (use_custom_data = true)
+            var o := (i - base) * FLOATS_PER_INSTANCE
+            buf[o] = x.x
+            buf[o + 1] = y.x
+            buf[o + 2] = z.x
+            buf[o + 3] = boid_pos.x
+            buf[o + 4] = x.y
+            buf[o + 5] = y.y
+            buf[o + 6] = z.y
+            buf[o + 7] = boid_pos.y
+            buf[o + 8] = x.z
+            buf[o + 9] = y.z
+            buf[o + 10] = z.z
+            buf[o + 11] = boid_pos.z
+
+            # Custom data (INSTANCE_CUSTOM): x = flash end time (absolute, see _now())
+            buf[o + 12] = _flash_end[i]
+            buf[o + 13] = 0.0
+            buf[o + 14] = 0.0
+            buf[o + 15] = 0.0
+
+        _buffers[t] = buf
+        var mm := _multimeshes[t]
+        mm.visible_instance_count = count
+        mm.buffer = buf
+
+    # Positions changed, so the grid no longer matches _pos[] for queries.
+    _grid_dirty_gen += 1
+
+
+# ---------------------------------------------------------------------------
+# Idle audio
+# ---------------------------------------------------------------------------
+
+func _setup_idle(_t: int, bt: BoidType) -> void:
+    if bt.idle_sound == null or bt.idle_max_voices <= 0:
+        _idle_streams.append(null)
+        _idle_reserved.append(0)
+        return
+    _idle_streams.append(_make_looping(bt.idle_sound))
+    var reserved := clampi(bt.idle_reserved_voices, 0, bt.idle_max_voices)
+    _idle_reserved.append(reserved)
+    for i in reserved:
+        _add_voice()  # grows the pool so reserved voices always exist
+
+
+func _add_voice() -> void:
+    var p := AudioStreamPlayer3D.new()
+    p.name = "IdleVoice_%d" % _voices.size()
+    # Fallback loop for streams without built-in looping (e.g. WAV).
+    # stop() doesn't emit `finished`, so released voices stay silent.
+    p.finished.connect(_on_voice_finished.bind(p))
+    add_child(p)
+    _voices.append(p)
+    _voice_boid.append(-1)
+
+
+## Returns a looping version of the stream where the stream type supports it.
+func _make_looping(stream: AudioStream) -> AudioStream:
+    if stream is AudioStreamOggVorbis and not stream.loop:
+        var s: AudioStreamOggVorbis = stream.duplicate()
+        s.loop = true
+        return s
+    if stream is AudioStreamMP3 and not stream.loop:
+        var s: AudioStreamMP3 = stream.duplicate()
+        s.loop = true
+        return s
+    return stream
+
+
+func _on_voice_finished(player: AudioStreamPlayer3D) -> void:
+    player.play()
+
+
+func _release_voice(v: int) -> void:
+    _voices[v].stop()
+    _voice_boid[v] = -1
+
+
+func _release_all_voices() -> void:
+    for v in _voices.size():
+        if _voice_boid[v] != -1:
+            _release_voice(v)
+
+
+## Keeps voice bookkeeping valid across remove_boid()'s swap-with-last.
+## Slots are globally unique across types, so no type check is needed.
+func _audio_on_remove(index: int, last: int) -> void:
+    for v in _voices.size():
+        if _voice_boid[v] == index:
+            _release_voice(v)
+    if index != last:
+        for v in _voices.size():
+            if _voice_boid[v] == last:
+                _voice_boid[v] = index  # that boid is about to live in `index`
+
+
+func _update_audio(delta: float) -> void:
+    if _voices.is_empty():
+        return
+    _audio_timer -= delta
+    if _audio_timer <= 0.0:
+        _audio_timer = AUDIO_UPDATE_INTERVAL
+        var cam := get_viewport().get_camera_3d()
+        if cam != null:
+            _assign_voices(cam.global_position)
+    # Voices follow their boid every tick
+    for v in _voices.size():
+        var b := _voice_boid[v]
+        if b != -1:
+            _voices[v].global_position = _pos[b]
+
+
+## 1) Each type nominates its nearest boids (up to idle_max_voices). The first
+##    `reserved` of them are guaranteed a voice.
+## 2) The rest of the nominees from all types compete by distance for the shared voices.
+## 3) Boids that already have a voice keep it (no restart); the rest take free voices.
+func _assign_voices(listener: Vector3) -> void:
+    var desired := {}           # boid slot -> true (still needs a voice)
+    var contenders: Array = []  # Vector2(distance_sq, slot) beyond the reserved quota
+
+    for t in _types.size():
+        if _idle_streams[t] == null:
+            continue
+        var bt := _types[t]
+        var k := bt.idle_max_voices
+        var max_sq := bt.idle_max_distance * bt.idle_max_distance
+
+        # Nearest k boids of this type within range, sorted ascending by distance.
+        var sel_idx := PackedInt32Array()
+        var sel_d := PackedFloat32Array()
+        var base := _type_base[t]
+        for i in range(base, base + _type_counts[t]):
+            var d := _pos[i].distance_squared_to(listener)
+            if d > max_sq:
+                continue
+            if sel_idx.size() == k:
+                if d >= sel_d[k - 1]:
+                    continue
+                sel_idx[k - 1] = i
+                sel_d[k - 1] = d
+            else:
+                sel_idx.append(i)
+                sel_d.append(d)
+            var j := sel_idx.size() - 1
+            while j > 0 and sel_d[j - 1] > sel_d[j]:
+                var tmp_d := sel_d[j - 1]
+                sel_d[j - 1] = sel_d[j]
+                sel_d[j] = tmp_d
+                var tmp_i := sel_idx[j - 1]
+                sel_idx[j - 1] = sel_idx[j]
+                sel_idx[j] = tmp_i
+                j -= 1
+
+        var reserved := _idle_reserved[t]
+        for s in sel_idx.size():
+            if s < reserved:
+                desired[sel_idx[s]] = true
+            else:
+                contenders.append(Vector2(sel_d[s], sel_idx[s]))
+
+    # Shared voices go to the nearest contenders across all types.
+    contenders.sort_custom(func(a: Vector2, b: Vector2) -> bool: return a.x < b.x)
+    for c in mini(contenders.size(), idle_shared_voices):
+        desired[int(contenders[c].y)] = true
+
+    # Keep voices whose boid is still wanted; free the rest.
+    for v in _voices.size():
+        var b := _voice_boid[v]
+        if b == -1:
+            continue
+        if desired.has(b):
+            desired[b] = false  # already has a voice
+        else:
+            _release_voice(v)
+
+    # Hand free voices to newly wanted boids.
+    var next_free := 0
+    for b in desired:
+        if not desired[b]:
+            continue
+        while next_free < _voices.size() and _voice_boid[next_free] != -1:
+            next_free += 1
+        if next_free >= _voices.size():
+            break
+        _start_voice(next_free, b)
+
+
+func _start_voice(v: int, boid: int) -> void:
+    var t := _boid_type[boid]
+    var bt := _types[t]
+    var p := _voices[v]
+    p.stop()
+    p.stream = _idle_streams[t]
+    p.volume_db = bt.idle_volume_db
+    p.max_distance = bt.idle_max_distance
+    p.unit_size = bt.idle_unit_size
+    p.bus = bt.idle_bus
+    p.pitch_scale = 1.0 + randf_range(-bt.idle_pitch_variation, bt.idle_pitch_variation)
+    p.global_position = _pos[boid]
+    _voice_boid[v] = boid
+    # Random start offset so voices on the same stream don't phase together
+    var length := p.stream.get_length()
+    p.play(randf() * length if length > 0.0 else 0.0)
