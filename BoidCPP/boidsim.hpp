@@ -31,7 +31,6 @@ public:
   float weight_chase = 0.3;
 
   float radius_collision = 0.5;
-  float radius_separation = 1.0;
 
   float floor_height = 0;
 
@@ -41,14 +40,21 @@ public:
 class BoidSim : public Node {
   GDCLASS(BoidSim, Node)
 
-private:
+  float BOID_SEPARATION = 1.0;
+  float BOID_SEPARATION_SQUARED = BOID_SEPARATION * BOID_SEPARATION;
+
+public:
   using BoidID = uint16_t;
+
+private:
   static constexpr BoidID MAX_BOIDS = 2000;
   static constexpr BoidID BOID_NULL = -1;
 
   static constexpr float BOID_NEIGHBOR_RADIUS = 3.0;
 
   class FlockingSum {
+    // spatial hash sums, does wrap
+
     static constexpr size_t array_width = (1 << 6);
     static constexpr size_t array_height = (1 << 4);
     static constexpr float CELL_WIDTH = BOID_NEIGHBOR_RADIUS * 2.0;
@@ -62,15 +68,24 @@ private:
       Vector3 position;
       Vector3 velocity;
 
-      Vector3 get_position(Vector3 self) {
-        return (position - self) / float(count);
+      Vector3 get_position(Vector3 self) const {
+        if (count < 2)
+          return self;
+        return (position - self) / float(count - 1);
       }
-      Vector3 get_velocity(Vector3 self) {
-        return (velocity - self) / float(count);
+      Vector3 get_velocity(Vector3 self) const {
+        if (count < 2)
+          return Vector3{};
+        return (velocity - self) / float(count - 1);
       }
     };
 
   private:
+    void set_sums(BoidID boid_count, const PackedVector3Array &array_position,
+                  const PackedVector3Array &array_velocity);
+
+    Sum get_sum(Vector3 pos);
+
     std::array<Sum, array_width * array_width * array_height> sums;
 
     static int32_t f2i(float f) { return (int32_t)std::floor(f / CELL_WIDTH); }
@@ -85,48 +100,6 @@ private:
     }
 
   public:
-    void set_sums(BoidID boid_count, const PackedVector3Array &array_position,
-                  const PackedVector3Array &array_velocity) {
-      tick++;
-
-      for (size_t i = 0; i < boid_count; i++) {
-        const Vector3 &pos = array_position[i];
-        const Vector3 &vel = array_velocity[i];
-        Sum &sum = sums[get_cell_index(f2i(pos.x), f2i(pos.y), f2i(pos.z))];
-
-        if (sum.tick != tick) {
-          sum = Sum{tick};
-        }
-
-        sum.position += pos;
-        sum.velocity += vel;
-
-        sum.count++;
-      }
-    }
-
-    Sum get_sum(Vector3 pos) {
-      const int32_t x0 = f2i(pos.x - BOID_NEIGHBOR_RADIUS);
-      const int32_t y0 = f2i(pos.y - BOID_NEIGHBOR_RADIUS);
-      const int32_t z0 = f2i(pos.z - BOID_NEIGHBOR_RADIUS);
-
-      Sum total;
-
-      for (int32_t dy = 0; dy <= 1; dy++)
-        for (int32_t dx = 0; dx <= 1; dx++)
-          for (int32_t dz = 0; dz <= 1; dz++) {
-            const Sum &s = sums[get_cell_index(x0 + dx, y0 + dy, z0 + dz)];
-
-            if (s.tick != tick)
-              continue;
-
-            total.count += s.count;
-            total.position += s.position;
-            total.velocity += s.velocity;
-          }
-
-      return total;
-    }
   };
 
   class NearbyLookup {
@@ -161,46 +134,11 @@ private:
         i = BOID_NULL;
     }
 
-    void unlink(BoidID id) {
-      assert(id < MAX_BOIDS);
-      BoidLink &link = links[id];
+    void unlink(BoidID id);
+    void insert(uint16_t boid, Vector3 pos);
 
-      if (link.prev < MAX_BOIDS)
-        links[link.prev].next = link.next;
-
-      if (link.next < MAX_BOIDS)
-        links[link.next].prev = link.prev;
-
-      if (link.cell_index != BoidLink::CELL_NULL) {
-        BoidID &cell = table[link.cell_index];
-        if (cell == id)
-          cell = link.next;
-      }
-
-      link.next = BOID_NULL;
-      link.prev = BOID_NULL;
-      link.cell_index = BoidLink::CELL_NULL;
-    }
-
-    void insert(uint16_t boid, Vector3 pos) {
-      assert(boid < MAX_BOIDS);
-
-      CellIndex cell_index = get_cell_index(f2i(pos.x), f2i(pos.y), f2i(pos.z));
-
-      BoidLink &link = links[boid];
-
-      if (link.cell_index == cell_index)
-        return;
-
-      unlink(boid);
-      BoidID &cell = table[cell_index];
-
-      if (cell < MAX_BOIDS)
-        links[cell].prev = boid;
-
-      link.next = cell;
-      link.cell_index = cell_index;
-      cell = boid;
+    BoidID lookup_cell(Vector3 pos) {
+      return table[get_cell_index(f2i(pos.x), f2i(pos.y), f2i(pos.z))];
     }
 
     std::array<BoidID, 8> lookup_area(Vector3 pos) {
@@ -228,73 +166,42 @@ private:
 
 public:
   BoidID boid_count = 0;
-  PackedVector3Array array_boid_position;
-  PackedVector4Array array_boid_rotation;
-  PackedVector3Array array_boid_velocity;
-  PackedInt32Array array_boid_health;
-  PackedInt32Array array_boid_type;
+  PackedVector3Array array_position;
+  PackedVector4Array array_rotation;
+  PackedVector3Array array_velocity;
+  PackedInt32Array array_health;
+  PackedInt32Array array_type;
+
+private:
+  Vector3 *p_pos;
+  Vector4 *p_rot;
+  Vector3 *p_vel;
+  int *p_health;
+  int *p_type;
 
 public:
   TypedArray<BoidType> boid_types;
 
-  void set_position(int boid, Vector3 pos) {
-    if (boid >= boid_count || boid < 0)
-      return;
-    nearby_lookup.insert(boid, pos);
-    array_boid_position[boid] = pos;
-  }
+  void set_position(int boid, Vector3 pos);
 
   int add_boid(int type_index, Vector3 pos, Quaternion r, Vector3 velocity,
-               int health) {
+               int health);
 
-    if (boid_count >= MAX_BOIDS)
-      return -1;
-
-    if (type_index >= boid_types.size() || type_index < 0)
-      return -1;
-
-    BoidID boid = boid_count;
-    boid_count++;
-
-    set_position(boid, pos);
-    array_boid_rotation[boid] = Vector4(r.x, r.y, r.z, r.w);
-    array_boid_velocity[boid] = velocity;
-    array_boid_health[boid] = health;
-    array_boid_type[boid] = type_index;
-
-    return boid;
-  }
-
-  void remove(int boid) {
-    if (boid >= boid_count || boid < 0)
-      return;
-
-    BoidID last_boid = boid_count - 1;
-
-    set_position(boid, array_boid_position[last_boid]);
-    array_boid_rotation[boid] = array_boid_rotation[last_boid];
-    array_boid_velocity[boid] = array_boid_velocity[last_boid];
-    array_boid_health[boid] = array_boid_health[last_boid];
-    array_boid_type[boid] = array_boid_type[last_boid];
-
-    nearby_lookup.unlink(last_boid);
-
-    boid_count = last_boid;
-  }
+  void remove(int boid);
 
   PackedInt32Array list(Vector3 pos);
 
 protected:
   static void _bind_methods();
 
+  Vector3 _get_avoidance(BoidID boid, Ref<BoidType> &type);
+  Vector3 _get_alignment(int boid, Ref<BoidType> &type,
+                         const FlockingSum::Sum &sum);
+  Vector3 _get_cohesion(int boid, Ref<BoidType> &type,
+                        const FlockingSum::Sum &sum);
+
 public:
-  BoidSim() {
-    array_boid_position.resize(MAX_BOIDS);
-    array_boid_rotation.resize(MAX_BOIDS);
-    array_boid_velocity.resize(MAX_BOIDS);
-    array_boid_health.resize(MAX_BOIDS);
-    array_boid_type.resize(MAX_BOIDS);
-  }
+  BoidSim();
   ~BoidSim();
 
   void _process(double delta) override;
