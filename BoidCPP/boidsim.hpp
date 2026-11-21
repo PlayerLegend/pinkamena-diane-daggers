@@ -35,6 +35,29 @@ public:
   float floor_height = 0;
 
   float height_target = 0.5;
+
+  static void _bind_methods();
+
+#define BOID_PROP(T, N)                                                        \
+  void set_##N(T v) { N = v; }                                                 \
+  T get_##N() const { return N; }
+
+  BOID_PROP(Ref<Mesh>, mesh)
+  BOID_PROP(Ref<Material>, material_override)
+  BOID_PROP(int, health)
+  BOID_PROP(float, max_speed)
+  BOID_PROP(float, min_speed)
+  BOID_PROP(float, max_force)
+  BOID_PROP(float, weight_separation)
+  BOID_PROP(float, weight_alignment)
+  BOID_PROP(float, weight_cohesion)
+  BOID_PROP(float, weight_bounds)
+  BOID_PROP(float, weight_floor)
+  BOID_PROP(float, weight_obstacles)
+  BOID_PROP(float, weight_chase)
+  BOID_PROP(float, radius_collision)
+  BOID_PROP(float, floor_height)
+  BOID_PROP(float, height_target)
 };
 
 class BoidSim : public Node {
