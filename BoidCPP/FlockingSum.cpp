@@ -7,9 +7,12 @@ void BoidSim::FlockingSum::set_sums(BoidID boid_count,
                                     const PackedVector3Array &array_velocity) {
   tick++;
 
+  const Vector3 *p_pos = array_position.ptr();
+  const Vector3 *p_vel = array_velocity.ptr();
+
   for (size_t i = 0; i < boid_count; i++) {
-    const Vector3 &pos = array_position[i];
-    const Vector3 &vel = array_velocity[i];
+    const Vector3 &pos = p_pos[i];
+    const Vector3 &vel = p_vel[i];
     Sum &sum = sums[get_cell_index(f2i(pos.x), f2i(pos.y), f2i(pos.z))];
 
     if (sum.tick != tick) {

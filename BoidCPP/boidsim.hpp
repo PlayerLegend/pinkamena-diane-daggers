@@ -194,14 +194,21 @@ public:
   PackedVector4Array array_rotation;
   PackedVector3Array array_velocity;
   PackedInt32Array array_health;
-  PackedInt32Array array_type;
+  PackedVector3Array array_steering_flock;
+
+  PackedInt32Array type_end; // last index of a type + 1
+  PackedInt32Array type_stopped_prev;
 
 private:
   Vector3 *p_pos;
   Vector4 *p_rot;
   Vector3 *p_vel;
+  Vector3 *p_steer_flock;
   int *p_health;
-  int *p_type;
+
+  BoidID _new_boid_index(int type_index);
+  void _move_boid(int from, int to);
+  int _type_of(BoidID boid) const;
 
 public:
   TypedArray<BoidType> boid_types;
@@ -219,13 +226,17 @@ protected:
   static void _bind_methods();
 
 private:
-  Vector3 _get_separation(BoidID boid, Ref<BoidType> &type);
-  Vector3 _get_alignment(int boid, Ref<BoidType> &type,
+  Vector3 _get_separation(BoidID boid, const Ref<BoidType> &type);
+  Vector3 _get_alignment(BoidID boid, const Ref<BoidType> &type,
                          const FlockingSum::Sum &sum);
-  Vector3 _get_cohesion(int boid, Ref<BoidType> &type,
+  Vector3 _get_cohesion(BoidID boid, const Ref<BoidType> &type,
                         const FlockingSum::Sum &sum);
 
-  Vector3 _get_boid_pass_steering(BoidID boid, Ref<BoidType> &type);
+  Vector3 _get_boid_pass_steering(BoidID boid, const Ref<BoidType> &type);
+
+  void _compute_steering();
+
+  Vector3 _apply_steering(BoidID boid, Vector3 steer);
 
 public:
   BoidSim();
