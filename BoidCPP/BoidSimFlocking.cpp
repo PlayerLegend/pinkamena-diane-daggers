@@ -14,7 +14,7 @@ Vector3 _steer_towards(Vector3 have_vel, Vector3 wishdir, float wishspeed) {
 }
 
 Vector3 BoidSim::_get_separation(BoidArrays::Pointers &p, BoidID boid,
-                                 const Ref<BoidType> &type) {
+                                 const BoidType *type) {
   // use only this cell for speed
 
   Vector3 push_separation = Vector3{};
@@ -47,13 +47,13 @@ Vector3 BoidSim::_get_separation(BoidArrays::Pointers &p, BoidID boid,
 }
 
 Vector3 BoidSim::_get_alignment(BoidArrays::Pointers &p, BoidID boid,
-                                const Ref<BoidType> &type,
+                                const BoidType *type,
                                 const FlockingSum::Sum &sum) {
   return _steer_towards(p.vel[boid], sum.get_velocity(p.vel[boid]),
                         type->max_speed);
 }
 Vector3 BoidSim::_get_cohesion(BoidArrays::Pointers &p, BoidID boid,
-                               const Ref<BoidType> &type,
+                               const BoidType *type,
                                const FlockingSum::Sum &sum) {
 
   return _steer_towards(p.vel[boid],
@@ -62,7 +62,7 @@ Vector3 BoidSim::_get_cohesion(BoidArrays::Pointers &p, BoidID boid,
 }
 
 Vector3 BoidSim::_get_boid_pass_steering(BoidArrays::Pointers &p, BoidID boid,
-                                         const Ref<BoidType> &type) {
+                                         const BoidType *type) {
   FlockingSum::Sum sum = flocking_sum.get_sum(p.pos[boid]);
   Vector3 separation = _get_separation(p, boid, type);
   Vector3 alignment = _get_alignment(p, boid, type, sum);
@@ -79,6 +79,9 @@ void BoidSim::_compute_steering(BoidArrays::Pointers &p) {
   for (size_t type_index = 0; type_index < boid_arrays.type_count;
        type_index++) {
     BoidArrays::Region region(boid_arrays, type_index);
+
+    if (!region.type)
+      continue;
 
     int iterations = region.count;
     if (iterations > 100)
@@ -104,6 +107,9 @@ static bool _get_nearest_chase_target(Vector3 &out, Vector3 self,
   for (auto node : targets) {
     Node3D *node_3d = Object::cast_to<Node3D>(node);
 
+    if (!node_3d)
+      continue;
+
     Vector3 pos = node_3d->get_global_position();
     float dist = self.distance_squared_to(pos);
     if (dist < best) {
@@ -117,7 +123,7 @@ static bool _get_nearest_chase_target(Vector3 &out, Vector3 self,
 }
 
 Vector3 BoidSim::_get_chase_steering(BoidArrays::Pointers &p, BoidID boid,
-                                     const Ref<BoidType> &type,
+                                     const BoidType *type,
                                      const TypedArray<Node> &targets) {
   Vector3 target;
   if (_get_nearest_chase_target(target, p.pos[boid], targets)) {
@@ -146,11 +152,18 @@ Quaternion _look_rotation(const Vector3 &direction,
 }
 
 void BoidSim::_compute_transforms(BoidArrays::Pointers &p, double delta) {
-  _compute_steering(p);
+
+  if (!boid_mmi)
+    return;
 
   for (size_t type_index = 0; type_index < boid_arrays.type_count;
        type_index++) {
     BoidArrays::Region region(boid_arrays, type_index);
+
+    if (!region.type)
+      continue;
+
+    boid_mmi->start_type(type_index);
 
     for (int boid = region.begin; boid < region.end; boid++) {
 
@@ -161,22 +174,33 @@ void BoidSim::_compute_transforms(BoidArrays::Pointers &p, double delta) {
       float height = p.pos[boid].y;
 
       if (height < region.type->floor_height && new_velocity.y < 0)
-        new_velocity.y = 0;
+        new_velocity.y = 0.1;
 
       float speed = new_velocity.length();
 
-      if (speed > 0.01)
-        new_velocity =
-            (new_velocity / speed) *
-            Math::clamp(speed, region.type->min_speed, region.type->max_speed);
+      Vector3 dir;
+      if (speed > 0.001f)
+        dir = new_velocity / speed;
+      else
+        dir = p.get_rot(boid).xform(Vector3(0, 0, -1));
+
+      new_velocity = dir * Math::clamp(speed, region.type->min_speed,
+                                       region.type->max_speed);
 
       p.vel[boid] = new_velocity;
       p.set_pos(boid, p.pos[boid] + new_velocity * delta);
 
       Quaternion wish_rotation = _look_rotation(new_velocity);
 
-      p.set_rot(boid, p.get_rot(boid).slerp(wish_rotation, delta));
+      const float turn_slerp_fac =
+          1.0f - Math::exp(-region.type->turn_rate * (float)delta);
+
+      p.set_rot(boid, p.get_rot(boid).slerp(wish_rotation, turn_slerp_fac));
+
+      boid_mmi->set_transform(Transform3D(Basis(p.get_rot(boid)), p.pos[boid]));
     }
+
+    boid_mmi->finish_type(type_index);
   }
 }
 

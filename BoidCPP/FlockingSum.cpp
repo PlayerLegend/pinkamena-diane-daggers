@@ -2,9 +2,9 @@
 
 using namespace godot;
 
-void BoidSim::FlockingSum::set_sums(BoidID boid_count,
-                                    const PackedVector3Array &array_position,
-                                    const PackedVector3Array &array_velocity) {
+void FlockingSum::set_sums(BoidID boid_count,
+                           const PackedVector3Array &array_position,
+                           const PackedVector3Array &array_velocity) {
   tick++;
 
   const Vector3 *p_pos = array_position.ptr();
@@ -26,7 +26,7 @@ void BoidSim::FlockingSum::set_sums(BoidID boid_count,
   }
 }
 
-BoidSim::FlockingSum::Sum BoidSim::FlockingSum::get_sum(Vector3 pos) {
+FlockingSum::Sum FlockingSum::get_sum(Vector3 pos) {
   const int32_t x0 = f2i(pos.x - BOID_NEIGHBOR_RADIUS);
   const int32_t y0 = f2i(pos.y - BOID_NEIGHBOR_RADIUS);
   const int32_t z0 = f2i(pos.z - BOID_NEIGHBOR_RADIUS);

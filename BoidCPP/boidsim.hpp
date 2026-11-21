@@ -104,6 +104,8 @@ public:
 
   float height_target = 0.5;
 
+  float turn_rate = 0.5;
+
   static void _bind_methods();
 
 #define BOID_PROP(T, N)                                                        \
@@ -194,14 +196,18 @@ public:
   PackedInt32Array type_end; // last index of a type + 1
   PackedInt32Array type_iter;
 
-  size_t type_count;
-
-private:
-  BoidID _new_boid_index(int type_index);
-  void _move_boid(int from, int to);
-  int _type_of(BoidID boid) const;
+  size_t type_count = 0;
 
 public:
+  class Pointers;
+
+private:
+  BoidID _new_boid_index(Pointers &p, int type_index);
+  void _move_boid(Pointers &p, int from, int to);
+
+public:
+  int type_of(BoidID boid) const;
+
   void set_types(TypedArray<BoidType> boid_types);
 
   BoidID add_boid(int type_index, Vector3 pos, Quaternion r, Vector3 velocity,
@@ -216,15 +222,15 @@ public:
   class Pointers {
     friend BoidArrays;
 
-    Vector3 *pos_w;
-    NearbyLookup *nearby_lookup;
+    Vector3 *pos_w = nullptr;
+    NearbyLookup *nearby_lookup = nullptr;
 
   public:
-    const Vector3 *pos;
-    Vector4 *rot;
-    Vector3 *vel;
-    int *health;
-    Vector3 *steer;
+    const Vector3 *pos = nullptr;
+    Vector4 *rot = nullptr;
+    Vector3 *vel = nullptr;
+    int *health = nullptr;
+    Vector3 *steer = nullptr;
 
     Quaternion get_rot(BoidID boid) const {
       const Vector4 &r = rot[boid];
@@ -240,7 +246,6 @@ public:
       pos_w[boid] = pos;
     }
 
-    Pointers();
     Pointers(BoidArrays &);
   };
 
@@ -250,7 +255,7 @@ public:
 
   public:
     int type_index;
-    Ref<const BoidType> type;
+    const BoidType *type;
     size_t begin;
     size_t end;
     size_t count;
@@ -259,9 +264,6 @@ public:
 
     Region(BoidArrays &, size_t type_index);
   };
-
-private:
-  Pointers _ptr;
 
 public:
   BoidArrays(NearbyLookup &l);
@@ -274,6 +276,7 @@ class BoidMMI : public Node {
   int current_type = -1;
   int current_transform = 0;
   float *p_transform = nullptr;
+  GDCLASS(BoidMMI, Node);
 
 protected:
   static void _bind_methods() {}
@@ -298,7 +301,7 @@ private:
   BoidArrays boid_arrays;
 
 private:
-  uint32_t tick;
+  uint32_t tick = 0;
 
 public:
   int add_boid(int type_index, Vector3 pos, Quaternion r, Vector3 velocity,
@@ -306,24 +309,31 @@ public:
 
   void remove(int boid);
 
-  PackedInt32Array list(Vector3 pos);
+  int raycast(Vector3 origin, Vector3 direction);
 
 protected:
   static void _bind_methods();
 
 private:
+  BoidMMI *boid_mmi = nullptr;
+  TypedArray<BoidType> types;
+
+public:
+  void set_types(TypedArray<BoidType> t);
+  TypedArray<BoidType> get_types() const { return types; }
+
+private:
   Vector3 _get_separation(BoidArrays::Pointers &p, BoidID boid,
-                          const Ref<BoidType> &type);
+                          const BoidType *type);
   Vector3 _get_alignment(BoidArrays::Pointers &p, BoidID boid,
-                         const Ref<BoidType> &type,
-                         const FlockingSum::Sum &sum);
+                         const BoidType *type, const FlockingSum::Sum &sum);
   Vector3 _get_cohesion(BoidArrays::Pointers &p, BoidID boid,
-                        const Ref<BoidType> &type, const FlockingSum::Sum &sum);
+                        const BoidType *type, const FlockingSum::Sum &sum);
 
   Vector3 _get_boid_pass_steering(BoidArrays::Pointers &p, BoidID boid,
-                                  const Ref<BoidType> &type);
+                                  const BoidType *type);
   Vector3 _get_chase_steering(BoidArrays::Pointers &p, BoidID boid,
-                              const Ref<BoidType> &type,
+                              const BoidType *type,
                               const TypedArray<Node> &targets);
 
   void _compute_steering(BoidArrays::Pointers &p);
