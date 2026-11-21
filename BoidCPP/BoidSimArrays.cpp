@@ -9,7 +9,7 @@ void BoidSim::_move_boid(int from, int to) {
   p_rot[to] = p_rot[from];
   p_vel[to] = p_vel[from];
   p_health[to] = p_health[from];
-  p_steer_flock[to] = p_steer_flock[from];
+  p_steer[to] = p_steer[from];
 
   nearby_lookup.unlink(to);
   set_position(to, p_pos[from]);

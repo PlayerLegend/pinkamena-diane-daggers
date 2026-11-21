@@ -203,12 +203,20 @@ private:
   Vector3 *p_pos;
   Vector4 *p_rot;
   Vector3 *p_vel;
-  Vector3 *p_steer_flock;
+  Vector3 *p_steer;
   int *p_health;
 
   BoidID _new_boid_index(int type_index);
   void _move_boid(int from, int to);
   int _type_of(BoidID boid) const;
+  Quaternion _get_rot(BoidID boid) const {
+    const Vector4 &r = p_rot[boid];
+    return Quaternion(r.x, r.y, r.z, r.w);
+  }
+
+  void _set_rot(BoidID boid, Quaternion r) {
+    p_rot[boid] = Vector4(r.x, r.y, r.z, r.w);
+  }
 
 public:
   TypedArray<BoidType> boid_types;
@@ -233,10 +241,12 @@ private:
                         const FlockingSum::Sum &sum);
 
   Vector3 _get_boid_pass_steering(BoidID boid, const Ref<BoidType> &type);
+  Vector3 _get_chase_steering(BoidID boid, const Ref<BoidType> &type,
+                              const TypedArray<Node> &targets);
 
   void _compute_steering();
 
-  Vector3 _apply_steering(BoidID boid, Vector3 steer);
+  void _apply_steering(double delta);
 
 public:
   BoidSim();
