@@ -3,11 +3,15 @@
 #include <assert.h>
 #include <godot_cpp/classes/material.hpp>
 #include <godot_cpp/classes/mesh.hpp>
+#include <godot_cpp/classes/multi_mesh.hpp>
+#include <godot_cpp/classes/multi_mesh_instance3d.hpp>
 #include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/classes/resource.hpp>
+#include <godot_cpp/variant/packed_float32_array.hpp>
 #include <godot_cpp/variant/packed_int32_array.hpp>
 #include <godot_cpp/variant/packed_vector3_array.hpp>
 #include <godot_cpp/variant/packed_vector4_array.hpp>
+#include <vector>
 
 namespace godot {
 
@@ -58,6 +62,26 @@ public:
   BOID_PROP(float, radius_collision)
   BOID_PROP(float, floor_height)
   BOID_PROP(float, height_target)
+};
+
+class BoidMMI : public Node {
+  static constexpr int TRANSFORM_FLOATS = 12;
+  std ::vector<Ref<MultiMesh>> multimeshes;
+  PackedFloat32Array transforms;
+  int current_type = -1;
+  int current_transform = 0;
+  int max_boids = 0;
+  float *p_transform = nullptr;
+
+protected:
+  static void _bind_methods() {}
+
+public:
+  void set_types(TypedArray<BoidType> boid_types, int max_boids);
+
+  void start_type(uint16_t type_index);
+  void set_transform(Transform3D transform);
+  void finish_type(uint16_t type_index);
 };
 
 class BoidSim : public Node {
