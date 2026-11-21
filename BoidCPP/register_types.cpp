@@ -3,6 +3,7 @@
 #include "boidsim.hpp"
 
 #include <gdextension_interface.h>
+#include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
 
@@ -13,6 +14,7 @@ void initialize_boidsim(ModuleInitializationLevel p_level) {
     return;
   }
 
+  GDREGISTER_CLASS(BoidType);
   GDREGISTER_CLASS(BoidSim);
 }
 
@@ -23,7 +25,6 @@ void uninitialize_boidsim(ModuleInitializationLevel p_level) {
 }
 
 extern "C" {
-// Initialization.
 GDExtensionBool GDE_EXPORT
 boidsim_init(GDExtensionInterfaceGetProcAddress p_get_proc_address,
              const GDExtensionClassLibraryPtr p_library,
