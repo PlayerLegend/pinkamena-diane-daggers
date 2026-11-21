@@ -80,12 +80,12 @@ private:
       }
     };
 
-  private:
     void set_sums(BoidID boid_count, const PackedVector3Array &array_position,
                   const PackedVector3Array &array_velocity);
 
     Sum get_sum(Vector3 pos);
 
+  private:
     std::array<Sum, array_width * array_width * array_height> sums;
 
     static int32_t f2i(float f) { return (int32_t)std::floor(f / CELL_WIDTH); }
@@ -163,6 +163,7 @@ private:
   };
 
   NearbyLookup nearby_lookup;
+  FlockingSum flocking_sum;
 
 public:
   BoidID boid_count = 0;
@@ -194,11 +195,14 @@ public:
 protected:
   static void _bind_methods();
 
-  Vector3 _get_avoidance(BoidID boid, Ref<BoidType> &type);
+private:
+  Vector3 _get_separation(BoidID boid, Ref<BoidType> &type);
   Vector3 _get_alignment(int boid, Ref<BoidType> &type,
                          const FlockingSum::Sum &sum);
   Vector3 _get_cohesion(int boid, Ref<BoidType> &type,
                         const FlockingSum::Sum &sum);
+
+  Vector3 _get_boid_pass_steering(BoidID boid, Ref<BoidType> &type);
 
 public:
   BoidSim();
