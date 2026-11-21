@@ -2,22 +2,22 @@
 
 using namespace godot;
 
-void BoidSim::_move_boid(int from, int to) {
+void BoidArrays::_move_boid(int from, int to) {
   if (from == to)
     return;
 
-  p_rot[to] = p_rot[from];
-  p_vel[to] = p_vel[from];
-  p_health[to] = p_health[from];
-  p_steer[to] = p_steer[from];
+  _ptr.rot[to] = _ptr.rot[from];
+  _ptr.vel[to] = _ptr.vel[from];
+  _ptr.health[to] = _ptr.health[from];
+  _ptr.steer[to] = _ptr.steer[from];
 
   nearby_lookup.unlink(to);
-  set_position(to, p_pos[from]);
+  _ptr.set_pos(to, _ptr.pos[from]);
 
   nearby_lookup.unlink(from);
 }
 
-BoidSim::BoidID BoidSim::_new_boid_index(int type_index) {
+BoidID BoidArrays::_new_boid_index(int type_index) {
   const int type_count = (int)type_end.size();
   if (type_index < 0 || type_index >= type_count || boid_count >= MAX_BOIDS)
     return BOID_NULL;
@@ -43,15 +43,8 @@ BoidSim::BoidID BoidSim::_new_boid_index(int type_index) {
   return ends[type_index]++;
 }
 
-void BoidSim::set_position(int boid, Vector3 pos) {
-  if (boid >= boid_count || boid < 0)
-    return;
-  nearby_lookup.insert(boid, pos);
-  p_pos[boid] = pos;
-}
-
-int BoidSim::add_boid(int type_index, Vector3 pos, Quaternion r,
-                      Vector3 velocity, int health) {
+BoidID BoidArrays::add_boid(int type_index, Vector3 pos, Quaternion r,
+                            Vector3 velocity, int health) {
   if (boid_count >= MAX_BOIDS)
     return -1;
 
@@ -63,14 +56,14 @@ int BoidSim::add_boid(int type_index, Vector3 pos, Quaternion r,
   if (boid >= MAX_BOIDS)
     return -1;
 
-  set_position(boid, pos);
-  p_rot[boid] = Vector4(r.x, r.y, r.z, r.w);
-  p_vel[boid] = velocity;
-  p_health[boid] = health;
+  _ptr.set_pos(boid, pos);
+  _ptr.rot[boid] = Vector4(r.x, r.y, r.z, r.w);
+  _ptr.vel[boid] = velocity;
+  _ptr.health[boid] = health;
   return boid;
 }
 
-int BoidSim::_type_of(BoidID boid) const {
+int BoidArrays::_type_of(BoidID boid) const {
   if (boid >= boid_count)
     return -1;
 
@@ -89,7 +82,7 @@ int BoidSim::_type_of(BoidID boid) const {
   return lo < (int)type_end.size() ? lo : -1;
 }
 
-void BoidSim::remove(int boid) {
+void BoidArrays::remove_boid(BoidID boid) {
   const int type = _type_of(boid);
   if (type < 0)
     return;
@@ -112,4 +105,35 @@ void BoidSim::remove(int boid) {
 
   boid_count--;
   nearby_lookup.unlink(boid_count);
+}
+void BoidArrays::set_types(TypedArray<BoidType> types) {
+  assert(boid_count == 0);
+
+  boid_types = types;
+
+  type_count = types.size();
+  type_end.resize(type_count);
+  type_iter.resize(type_count);
+  type_end.fill(0);
+  type_iter.fill(0);
+}
+
+BoidArrays::BoidArrays(NearbyLookup &l) : nearby_lookup(l), _ptr(*this) {
+  array_position.resize(MAX_BOIDS);
+  array_rotation.resize(MAX_BOIDS);
+  array_velocity.resize(MAX_BOIDS);
+  array_health.resize(MAX_BOIDS);
+  array_steering_flock.resize(MAX_BOIDS);
+
+  _ptr = Pointers(*this);
+}
+
+BoidArrays::Region::Region(BoidArrays &a, size_t index)
+    : type_index(index), iter(a.type_iter[index]) {
+
+  type = a.boid_types[index];
+
+  begin = (index > 0) ? a.type_end[index - 1] : 0;
+  end = a.type_end[index];
+  count = end - begin;
 }

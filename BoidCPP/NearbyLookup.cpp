@@ -1,7 +1,7 @@
 #include "boidsim.hpp"
 using namespace godot;
 
-void BoidSim::NearbyLookup::unlink(BoidID id) {
+void NearbyLookup::unlink(BoidID id) {
   assert(id < MAX_BOIDS);
   BoidLink &link = links[id];
 
@@ -22,7 +22,7 @@ void BoidSim::NearbyLookup::unlink(BoidID id) {
   link.cell_index = BoidLink::CELL_NULL;
 }
 
-void BoidSim::NearbyLookup::insert(uint16_t boid, Vector3 pos) {
+void NearbyLookup::insert(uint16_t boid, Vector3 pos) {
   assert(boid < MAX_BOIDS);
 
   CellIndex cell_index = get_cell_index(f2i(pos.x), f2i(pos.y), f2i(pos.z));

@@ -3,7 +3,7 @@
 
 using namespace godot;
 
-void BoidMMI::set_types(TypedArray<BoidType> boid_types, int p_max_boids) {
+void BoidMMI::set_types(TypedArray<BoidType> boid_types) {
   // Tear down anything from a previous call.
   TypedArray<Node> old_children = get_children();
   for (int i = 0; i < old_children.size(); i++) {
@@ -18,8 +18,6 @@ void BoidMMI::set_types(TypedArray<BoidType> boid_types, int p_max_boids) {
   current_type = -1;
   current_transform = 0;
 
-  max_boids = p_max_boids < 0 ? 0 : p_max_boids;
-
   for (int i = 0; i < boid_types.size(); i++) {
     Ref<BoidType> type = boid_types[i];
 
@@ -31,7 +29,7 @@ void BoidMMI::set_types(TypedArray<BoidType> boid_types, int p_max_boids) {
     if (type.is_valid())
       mm->set_mesh(type->get_mesh());
     // Allocate once; visible_instance_count controls how many are drawn.
-    mm->set_instance_count(max_boids);
+    mm->set_instance_count(MAX_BOIDS);
     mm->set_visible_instance_count(0);
 
     MultiMeshInstance3D *mmi = memnew(MultiMeshInstance3D);
@@ -43,7 +41,7 @@ void BoidMMI::set_types(TypedArray<BoidType> boid_types, int p_max_boids) {
     multimeshes.push_back(mm);
   }
 
-  transforms.resize((int64_t)max_boids * TRANSFORM_FLOATS);
+  transforms.resize((int64_t)MAX_BOIDS * TRANSFORM_FLOATS);
 }
 
 void BoidMMI::start_type(uint16_t type_index) {
@@ -60,7 +58,7 @@ void BoidMMI::start_type(uint16_t type_index) {
 }
 
 void BoidMMI::set_transform(Transform3D transform) {
-  if (current_type < 0 || !p_transform || current_transform >= max_boids)
+  if (current_type < 0 || !p_transform || current_transform >= MAX_BOIDS)
     return;
 
   float *dest = p_transform + current_transform * TRANSFORM_FLOATS;
@@ -88,7 +86,7 @@ void BoidMMI::finish_type(uint16_t type_index) {
     return;
 
   const Ref<MultiMesh> &mm = multimeshes[type_index];
-  // Buffer is always max_boids * 12 floats; entries past the visible count
+  // Buffer is always MAX_BOIDS * 12 floats; entries past the visible count
   // are stale and never drawn.
   mm->set_buffer(transforms);
   mm->set_visible_instance_count(current_transform);

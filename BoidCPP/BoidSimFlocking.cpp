@@ -1,5 +1,5 @@
 #include "boidsim.hpp"
-#include <godot_cpp/classes/engine.hpp>
+
 #include <godot_cpp/classes/node3d.hpp>
 #include <godot_cpp/classes/scene_tree.hpp>
 #include <godot_cpp/core/class_db.hpp>
@@ -13,12 +13,13 @@ Vector3 _steer_towards(Vector3 have_vel, Vector3 wishdir, float wishspeed) {
   return wishdir.normalized() * wishspeed - have_vel;
 }
 
-Vector3 BoidSim::_get_separation(BoidID boid, const Ref<BoidType> &type) {
+Vector3 BoidSim::_get_separation(BoidArrays::Pointers &p, BoidID boid,
+                                 const Ref<BoidType> &type) {
   // use only this cell for speed
 
   Vector3 push_separation = Vector3{};
 
-  Vector3 boid_pos = p_pos[boid];
+  Vector3 boid_pos = p.pos[boid];
 
   BoidID local_list = nearby_lookup.lookup_cell(boid_pos);
 
@@ -31,7 +32,7 @@ Vector3 BoidSim::_get_separation(BoidID boid, const Ref<BoidType> &type) {
     if (other == boid)
       continue;
 
-    Vector3 offset = boid_pos - p_pos[other];
+    Vector3 offset = boid_pos - p.pos[other];
     float dist2 = offset.length_squared();
 
     if (dist2 < BOID_SEPARATION_SQUARED && dist2 > 0.01)
@@ -42,68 +43,55 @@ Vector3 BoidSim::_get_separation(BoidID boid, const Ref<BoidType> &type) {
       break;
   }
 
-  return _steer_towards(p_vel[boid], push_separation, type->max_speed);
+  return _steer_towards(p.vel[boid], push_separation, type->max_speed);
 }
 
-Vector3 BoidSim::_get_alignment(BoidID boid, const Ref<BoidType> &type,
+Vector3 BoidSim::_get_alignment(BoidArrays::Pointers &p, BoidID boid,
+                                const Ref<BoidType> &type,
                                 const FlockingSum::Sum &sum) {
-  return _steer_towards(p_vel[boid], sum.get_velocity(p_vel[boid]),
+  return _steer_towards(p.vel[boid], sum.get_velocity(p.vel[boid]),
                         type->max_speed);
 }
-Vector3 BoidSim::_get_cohesion(BoidID boid, const Ref<BoidType> &type,
+Vector3 BoidSim::_get_cohesion(BoidArrays::Pointers &p, BoidID boid,
+                               const Ref<BoidType> &type,
                                const FlockingSum::Sum &sum) {
 
-  return _steer_towards(p_vel[boid],
-                        sum.get_position(p_pos[boid]) - p_pos[boid],
+  return _steer_towards(p.vel[boid],
+                        sum.get_position(p.pos[boid]) - p.pos[boid],
                         type->max_speed);
 }
 
-Vector3 BoidSim::_get_boid_pass_steering(BoidID boid,
+Vector3 BoidSim::_get_boid_pass_steering(BoidArrays::Pointers &p, BoidID boid,
                                          const Ref<BoidType> &type) {
-  FlockingSum::Sum sum = flocking_sum.get_sum(p_pos[boid]);
-  Vector3 separation = _get_separation(boid, type);
-  Vector3 alignment = _get_alignment(boid, type, sum);
-  Vector3 cohesion = _get_cohesion(boid, type, sum);
+  FlockingSum::Sum sum = flocking_sum.get_sum(p.pos[boid]);
+  Vector3 separation = _get_separation(p, boid, type);
+  Vector3 alignment = _get_alignment(p, boid, type, sum);
+  Vector3 cohesion = _get_cohesion(p, boid, type, sum);
 
   return separation * type->weight_separation +
          alignment * type->weight_alignment + cohesion * type->weight_cohesion;
 }
 
-void BoidSim::_compute_steering() {
+void BoidSim::_compute_steering(BoidArrays::Pointers &p) {
   TypedArray<Node> chase_targets =
       get_tree()->get_nodes_in_group("chase_targets");
 
-  for (int type_index = 0, max = type_end.size(), begin = 0; type_index < max;
-       begin = type_end[type_index], type_index++) {
+  for (size_t type_index = 0; type_index < boid_arrays.type_count;
+       type_index++) {
+    BoidArrays::Region region(boid_arrays, type_index);
 
-    const Ref<BoidType> type = boid_types[type_index];
+    int iterations = region.count;
+    if (iterations > 100)
+      iterations = 100;
 
-    if (!type.is_valid())
-      continue;
+    for (int i = 0; i < iterations; i++) {
+      BoidID boid = region.get_boid();
 
-    int end = type_end[type_index];
-    int prev = type_stopped_prev[type_index];
+      Vector3 steer_flock = _get_boid_pass_steering(p, boid, region.type);
+      Vector3 steer_chase =
+          _get_chase_steering(p, boid, region.type, chase_targets);
 
-    int count = end - begin;
-
-    int iter = count;
-
-    if (iter > 100)
-      iter = 100;
-
-    if (iter > 0) {
-      int boid = 0;
-      for (int i = 0; i < iter; i++) {
-
-        boid = begin + (prev + i) % count;
-
-        Vector3 steer_flock = _get_boid_pass_steering(boid, type);
-        Vector3 steer_chase = _get_chase_steering(boid, type, chase_targets);
-
-        p_steer[boid] = steer_flock + steer_chase;
-      }
-
-      type_stopped_prev[type_index] = (prev + iter) % count;
+      p.steer[boid] = steer_flock + steer_chase;
     }
   }
 }
@@ -128,11 +116,12 @@ static bool _get_nearest_chase_target(Vector3 &out, Vector3 self,
   return result;
 }
 
-Vector3 BoidSim::_get_chase_steering(BoidID boid, const Ref<BoidType> &type,
+Vector3 BoidSim::_get_chase_steering(BoidArrays::Pointers &p, BoidID boid,
+                                     const Ref<BoidType> &type,
                                      const TypedArray<Node> &targets) {
   Vector3 target;
-  if (_get_nearest_chase_target(target, p_pos[boid], targets)) {
-    return _steer_towards(p_vel[boid], target - p_pos[boid], type->max_speed) *
+  if (_get_nearest_chase_target(target, p.pos[boid], targets)) {
+    return _steer_towards(p.vel[boid], target - p.pos[boid], type->max_speed) *
            type->weight_chase;
   } else {
     return Vector3{};
@@ -156,41 +145,37 @@ Quaternion _look_rotation(const Vector3 &direction,
   return b.get_rotation_quaternion();
 }
 
-void BoidSim::_compute_transforms(double delta) {
-  _compute_steering();
+void BoidSim::_compute_transforms(BoidArrays::Pointers &p, double delta) {
+  _compute_steering(p);
 
-  for (int type_index = 0, max = type_end.size(), begin = 0; type_index < max;
-       begin = type_end[type_index], type_index++) {
+  for (size_t type_index = 0; type_index < boid_arrays.type_count;
+       type_index++) {
+    BoidArrays::Region region(boid_arrays, type_index);
 
-    const Ref<BoidType> type = boid_types[type_index];
-
-    if (!type.is_valid())
-      continue;
-
-    int end = type_end[type_index];
-
-    for (int boid = begin; boid < end; boid++) {
+    for (int boid = region.begin; boid < region.end; boid++) {
 
       Vector3 new_velocity =
-          p_vel[boid] + p_steer[boid].limit_length(type->max_force) * delta;
+          p.vel[boid] +
+          p.steer[boid].limit_length(region.type->max_force) * delta;
 
-      float height = p_pos[boid].y;
+      float height = p.pos[boid].y;
 
-      if (height < type->floor_height && new_velocity.y < 0)
+      if (height < region.type->floor_height && new_velocity.y < 0)
         new_velocity.y = 0;
 
       float speed = new_velocity.length();
 
       if (speed > 0.01)
-        new_velocity = (new_velocity / speed) *
-                       Math::clamp(speed, type->min_speed, type->max_speed);
+        new_velocity =
+            (new_velocity / speed) *
+            Math::clamp(speed, region.type->min_speed, region.type->max_speed);
 
-      p_vel[boid] = new_velocity;
-      p_pos[boid] += new_velocity * delta;
+      p.vel[boid] = new_velocity;
+      p.set_pos(boid, p.pos[boid] + new_velocity * delta);
 
       Quaternion wish_rotation = _look_rotation(new_velocity);
 
-      _set_rot(boid, _get_rot(boid).slerp(wish_rotation, delta));
+      p.set_rot(boid, p.get_rot(boid).slerp(wish_rotation, delta));
     }
   }
 }
@@ -198,13 +183,10 @@ void BoidSim::_compute_transforms(double delta) {
 void BoidSim::_tick(double delta) {
   tick++;
   if (tick % 5 == 0)
-    flocking_sum.set_sums(boid_count, array_position, array_velocity);
+    boid_arrays.set_flocking_sums(flocking_sum);
 
-  _compute_steering();
-  _compute_transforms(delta);
-}
-void BoidSim::_physics_process(double delta) {
-  if (Engine::get_singleton()->is_editor_hint())
-    return;
-  _tick(delta);
+  BoidArrays::Pointers pointers(boid_arrays);
+
+  _compute_steering(pointers);
+  _compute_transforms(pointers, delta);
 }

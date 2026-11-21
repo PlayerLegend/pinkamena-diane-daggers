@@ -19,7 +19,6 @@
 [ext_resource type="Script" uid="uid://blxd2e2temnsn" path="res://PlayerSpawner/player_spawner.gd" id="13_4b1ax"]
 [ext_resource type="AudioStream" uid="uid://c27ntfdwhgedr" path="res://Sounds/waaw.wav" id="14_tg2wk"]
 [ext_resource type="Script" uid="uid://cxxgbb6lniq0i" path="res://GameWorld/MainGameWorld/projectile_parent.gd" id="15_qbr1c"]
-[ext_resource type="PackedScene" uid="uid://bp6b5mb741712" path="res://Centipede/Centipede1/Centipede1.tscn" id="19_4hsto"]
 
 [sub_resource type="Environment" id="Environment_0lili"]
 background_mode = 1
@@ -83,8 +82,6 @@ metadata/_custom_type_script = "uid://blxd2e2temnsn"
 [node name="ProjectileParent" type="Node3D" parent="." unique_id=291182081 node_paths=PackedStringArray("boid_manager")]
 script = ExtResource("15_qbr1c")
 boid_manager = NodePath("../BoidManager")
-
-[node name="Centipede1" parent="." unique_id=1581042715 instance=ExtResource("19_4hsto")]
 
 [node name="DecalSubViewport" type="SubViewport" parent="." unique_id=892893044]
 size = Vector2i(2048, 2048)

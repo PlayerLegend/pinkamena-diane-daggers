@@ -38,7 +38,8 @@ func _check_for_deaths():
         
          
 func _physics_process(_delta: float) -> void:
-    _check_for_deaths()
+    #_check_for_deaths()
+    pass
     
 func _process(delta: float) -> void:
     super(delta)
