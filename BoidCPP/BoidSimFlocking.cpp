@@ -73,8 +73,6 @@ void BoidSim::_compute_steering() {
   TypedArray<Node> chase_targets =
       get_tree()->get_nodes_in_group("chase_targets");
 
-  flocking_sum.set_sums(boid_count, array_position, array_velocity);
-
   for (int type_index = 0, max = type_end.size(), begin = 0; type_index < max;
        begin = type_end[type_index], type_index++) {
 
@@ -158,7 +156,9 @@ Quaternion _look_rotation(const Vector3 &direction,
   return b.get_rotation_quaternion();
 }
 
-void BoidSim::_apply_steering(double delta) {
+void BoidSim::_compute_transforms(double delta) {
+  _compute_steering();
+
   for (int type_index = 0, max = type_end.size(), begin = 0; type_index < max;
        begin = type_end[type_index], type_index++) {
 
@@ -195,9 +195,16 @@ void BoidSim::_apply_steering(double delta) {
   }
 }
 
-void BoidSim::_process(double delta) {
+void BoidSim::_tick(double delta) {
+  tick++;
+  if (tick % 5 == 0)
+    flocking_sum.set_sums(boid_count, array_position, array_velocity);
+
+  _compute_steering();
+  _compute_transforms(delta);
+}
+void BoidSim::_physics_process(double delta) {
   if (Engine::get_singleton()->is_editor_hint())
     return;
-  _compute_steering();
-  _apply_steering(delta);
+  _tick(delta);
 }

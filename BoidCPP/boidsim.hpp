@@ -206,6 +206,8 @@ private:
   Vector3 *p_steer;
   int *p_health;
 
+  uint32_t tick;
+
   BoidID _new_boid_index(int type_index);
   void _move_boid(int from, int to);
   int _type_of(BoidID boid) const;
@@ -246,13 +248,14 @@ private:
 
   void _compute_steering();
 
-  void _apply_steering(double delta);
+  void _compute_transforms(double delta);
+  void _tick(double delta);
 
 public:
   BoidSim();
   ~BoidSim();
 
-  void _process(double delta) override;
+  void _physics_process(double delta) override;
 };
 
 } // namespace godot
