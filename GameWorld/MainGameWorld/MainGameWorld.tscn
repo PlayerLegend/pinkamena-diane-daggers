@@ -13,7 +13,6 @@
 [ext_resource type="PackedScene" uid="uid://cp3pewe063a34" path="res://Gibs/Cupcake/CupcakeGib.tscn" id="9_0xjj3"]
 [ext_resource type="PackedScene" uid="uid://cpbdy64obvfj6" path="res://Gibs/Ball1/Ball1Gib.tscn" id="10_4phr6"]
 [ext_resource type="PackedScene" uid="uid://bh07fmuqqi32k" path="res://Gibs/Hat1/Hat1Gib.tscn" id="11_e3ypn"]
-[ext_resource type="PackedScene" uid="uid://chwknn2g41lxo" path="res://BoidManager/BoidManager.tscn" id="12_15qal"]
 [ext_resource type="PackedScene" uid="uid://tgmwp568r7p6" path="res://Xtal/XtalPickup.tscn" id="12_ebbfy"]
 [ext_resource type="Script" uid="uid://dfgbisixanupx" path="res://GameWorld/MainGameWorld/actors_manager.gd" id="12_se08m"]
 [ext_resource type="Script" uid="uid://blxd2e2temnsn" path="res://PlayerSpawner/player_spawner.gd" id="13_4b1ax"]
@@ -24,8 +23,9 @@
 background_mode = 1
 ambient_light_source = 1
 
-[node name="MainGameWorld" type="Node3D" unique_id=1209546168]
+[node name="MainGameWorld" type="Node3D" unique_id=1209546168 node_paths=PackedStringArray("boid_sim")]
 script = ExtResource("1_lc3mr")
+boid_sim = NodePath("BoidSim")
 menu_world = ExtResource("2_u6lad")
 player_light = true
 metadata/_custom_type_script = "uid://4pbiob3hlex8"
@@ -46,19 +46,19 @@ sub_viewport = NodePath("../DecalSubViewport")
 repeat = ExtResource("5_u6lad")
 spawn_parent = NodePath("../ActorsManager")
 
-[node name="AfterimageSpawner" type="Node3D" parent="." unique_id=901342506 node_paths=PackedStringArray("boid_manager")]
+[node name="AfterimageSpawner" type="Node3D" parent="." unique_id=901342506]
 script = ExtResource("6_tg2wk")
-boid_manager = NodePath("../BoidManager")
+boid_manager = null
 
 [node name="StaticMeshManager" parent="." unique_id=1745606803 instance=ExtResource("7_4hsto")]
 
-[node name="DropSpawner" type="Node3D" parent="." unique_id=1049974983 node_paths=PackedStringArray("static_mesh_manager", "decal_canvas", "boid_manager")]
+[node name="DropSpawner" type="Node3D" parent="." unique_id=1049974983 node_paths=PackedStringArray("static_mesh_manager", "decal_canvas")]
 script = ExtResource("8_l5122")
+gib_scenes = Array[PackedScene]([ExtResource("9_0xjj3"), ExtResource("10_4phr6"), ExtResource("11_e3ypn")])
+xtal_pickup_scene = ExtResource("12_ebbfy")
 static_mesh_manager = NodePath("../StaticMeshManager")
 decal_canvas = NodePath("../DecalCanvas")
-gib_scenes = Array[PackedScene]([ExtResource("9_0xjj3"), ExtResource("10_4phr6"), ExtResource("11_e3ypn")])
-boid_manager = NodePath("../BoidManager")
-xtal_pickup_scene = ExtResource("12_ebbfy")
+boid_manager = null
 
 [node name="DeathSound" type="AudioStreamPlayer3D" parent="DropSpawner" unique_id=751153661]
 stream = ExtResource("14_tg2wk")
@@ -67,21 +67,27 @@ volume_db = -4.444
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=595729715]
 environment = SubResource("Environment_0lili")
 
-[node name="ActorsManager" type="MultiplayerSpawner" parent="." unique_id=1439276912 node_paths=PackedStringArray("boid_manager")]
+[node name="ActorsManager" type="MultiplayerSpawner" parent="." unique_id=1439276912]
 spawn_path = NodePath(".")
 script = ExtResource("12_se08m")
-boid_manager = NodePath("../BoidManager")
-
-[node name="BoidManager" parent="." unique_id=1957767101 instance=ExtResource("12_15qal")]
+boid_manager = null
 
 [node name="PlayerSpawner" type="Node3D" parent="." unique_id=517530346]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.134716, 0)
 script = ExtResource("13_4b1ax")
 metadata/_custom_type_script = "uid://blxd2e2temnsn"
 
-[node name="ProjectileParent" type="Node3D" parent="." unique_id=291182081 node_paths=PackedStringArray("boid_manager")]
+[node name="ProjectileParent" type="Node3D" parent="." unique_id=291182081]
 script = ExtResource("15_qbr1c")
-boid_manager = NodePath("../BoidManager")
+boid_manager = null
 
 [node name="DecalSubViewport" type="SubViewport" parent="." unique_id=892893044]
 size = Vector2i(2048, 2048)
+
+[node name="BoidSim" type="BoidSim" parent="." unique_id=1000670076 node_paths=PackedStringArray("boid_arrays", "boid_mmi")]
+boid_arrays = NodePath("BoidArrays")
+boid_mmi = NodePath("BoidMMI")
+
+[node name="BoidArrays" type="BoidArrays" parent="BoidSim" unique_id=298067663]
+
+[node name="BoidMMI" type="BoidMMI" parent="BoidSim" unique_id=290663640]

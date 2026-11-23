@@ -5,7 +5,8 @@ extends GameWorld
 
 @onready var _light_energy_target: float
 @onready var projectile_parent: Node3D = $ProjectileParent
-@onready var boid_manager: BoidManager = $BoidManager
+@export var boid_sim: BoidSim
+
 @export var menu_world: PackedScene
 @export var game_over_screen: Control
 signal player_died(player: PlayerController, stats: GameOverStats)
@@ -27,14 +28,14 @@ func _check_for_deaths():
                 stats.power = node.attack_power
                 stats.death_type = "Fallen"
                 player_died.emit(node, stats)
-            var boid = boid_manager.get_boid_at_point(node.position)
-            if boid >= 0:
-                var boid_type: BoidType = boid_manager.get_boid_type(boid)
-                var stats := GameOverStats.new()
-                stats.time = time
-                stats.power = node.attack_power
-                stats.death_type = boid_type.death_type
-                player_died.emit(node, stats)
+            #var boid = boid_manager.get_boid_at_point(node.position)
+            #if boid >= 0:
+                #var boid_type: BoidType = boid_manager.get_boid_type(boid)
+                #var stats := GameOverStats.new()
+                #stats.time = time
+                #stats.power = node.attack_power
+                #stats.death_type = boid_type.death_type
+                #player_died.emit(node, stats)
         
          
 func _physics_process(_delta: float) -> void:

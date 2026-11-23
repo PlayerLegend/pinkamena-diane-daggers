@@ -3,7 +3,7 @@ extends LineProjectile
 @onready var mesh_instance_3d: MeshInstance3D = $MeshInstance3D
 @export var projectile_material: Material
 @export var splatter_scene: PackedScene
-@export var boid_manager: BoidManager
+@export var boid_sim: BoidSim
 
 var mesh: Mesh:
     set(value):
@@ -25,10 +25,11 @@ func _fly_physics_hit(other: Node3D, shape: CollisionShape3D) -> void:
     queue_free()
 
 func _fly_physics_active(_delta: float) -> void:
-    if not boid_manager:
+    if not boid_sim:
         return
         
-    var boid: int = boid_manager.raycast(position - fly_direction * fly_speed, fly_direction, fly_speed)
+    var boid: int = boid_sim.raycast(position, fly_direction * fly_speed)
+    
     if boid < 0:
         return
         

@@ -128,6 +128,7 @@ public:
   BOID_PROP(float, radius_collision)
   BOID_PROP(float, floor_height)
   BOID_PROP(float, height_target)
+  BOID_PROP(float, turn_rate)
 };
 
 class FlockingSum {
@@ -180,9 +181,31 @@ private:
 public:
 };
 
-class BoidArrays {
+class BoidArrays : public Node {
+  GDCLASS(BoidArrays, Node)
+
   BoidID boid_count = 0;
-  NearbyLookup &nearby_lookup;
+  NearbyLookup nearby_lookup;
+
+public:
+  BoidID get_boid_count() const { return boid_count; }
+  size_t get_type_count() const { return type_count; }
+
+  PackedVector3Array get_array_position() const { return array_position; }
+  PackedVector4Array get_array_rotation() const { return array_rotation; }
+  PackedVector3Array get_array_velocity() const { return array_velocity; }
+  PackedInt32Array get_array_health() const { return array_health; }
+  PackedVector3Array get_array_steering_flock() const {
+    return array_steering_flock;
+  }
+
+  TypedArray<BoidType> get_boid_types() const { return boid_types; }
+
+  PackedInt32Array get_type_end() const { return type_end; }
+  PackedInt32Array get_type_iter() const { return type_iter; }
+
+protected:
+  static void _bind_methods();
 
 public:
   PackedVector3Array array_position;
@@ -206,6 +229,7 @@ private:
   void _move_boid(Pointers &p, int from, int to);
 
 public:
+  NearbyLookup &get_nearby_lookup() { return nearby_lookup; }
   int type_of(BoidID boid) const;
 
   void set_types(TypedArray<BoidType> boid_types);
@@ -266,7 +290,7 @@ public:
   };
 
 public:
-  BoidArrays(NearbyLookup &l);
+  BoidArrays();
 };
 
 class BoidMMI : public Node {
@@ -296,11 +320,8 @@ class BoidSim : public Node {
   float BOID_SEPARATION_SQUARED = BOID_SEPARATION * BOID_SEPARATION;
 
 private:
-  NearbyLookup nearby_lookup;
+  // NearbyLookup nearby_lookup;
   FlockingSum flocking_sum;
-  BoidArrays boid_arrays;
-
-private:
   uint32_t tick = 0;
 
 public:
@@ -311,14 +332,22 @@ public:
 
   int raycast(Vector3 origin, Vector3 direction);
 
+private:
+  void _apply_types();
+
 protected:
   static void _bind_methods();
 
-private:
-  BoidMMI *boid_mmi = nullptr;
-  TypedArray<BoidType> types;
-
 public:
+  BoidArrays *boid_arrays = nullptr;
+  void set_boid_arrays(BoidArrays *p);
+  BoidArrays *get_boid_arrays() const { return boid_arrays; }
+
+  BoidMMI *boid_mmi = nullptr;
+  void set_boid_mmi(BoidMMI *p);
+  BoidMMI *get_boid_mmi() const { return boid_mmi; }
+
+  TypedArray<BoidType> types;
   void set_types(TypedArray<BoidType> t);
   TypedArray<BoidType> get_types() const { return types; }
 

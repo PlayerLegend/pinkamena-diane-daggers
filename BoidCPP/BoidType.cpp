@@ -26,5 +26,5 @@ void BoidType::_bind_methods() {
   BIND_BOID_PROP(radius_collision, Variant::FLOAT, "radius_collision")
   BIND_BOID_PROP(floor_height, Variant::FLOAT, "floor_height")
   BIND_BOID_PROP(height_target, Variant::FLOAT, "height_target")
-  BIND_BOID_PROP(height_target, Variant::FLOAT, "turn_rate")
+  BIND_BOID_PROP(turn_rate, Variant::FLOAT, "turn_rate")
 }

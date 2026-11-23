@@ -15,11 +15,16 @@ Vector3 _steer_towards(Vector3 have_vel, Vector3 wishdir, float wishspeed) {
 
 Vector3 BoidSim::_get_separation(BoidArrays::Pointers &p, BoidID boid,
                                  const BoidType *type) {
+  if (!boid_arrays)
+    return Vector3{};
+
   // use only this cell for speed
 
   Vector3 push_separation = Vector3{};
 
   Vector3 boid_pos = p.pos[boid];
+
+  NearbyLookup &nearby_lookup = boid_arrays->get_nearby_lookup();
 
   BoidID local_list = nearby_lookup.lookup_cell(boid_pos);
 
@@ -73,12 +78,15 @@ Vector3 BoidSim::_get_boid_pass_steering(BoidArrays::Pointers &p, BoidID boid,
 }
 
 void BoidSim::_compute_steering(BoidArrays::Pointers &p) {
+  if (!boid_arrays)
+    return;
+
   TypedArray<Node> chase_targets =
       get_tree()->get_nodes_in_group("chase_targets");
 
-  for (size_t type_index = 0; type_index < boid_arrays.type_count;
+  for (size_t type_index = 0; type_index < boid_arrays->type_count;
        type_index++) {
-    BoidArrays::Region region(boid_arrays, type_index);
+    BoidArrays::Region region(*boid_arrays, type_index);
 
     if (!region.type)
       continue;
@@ -153,12 +161,15 @@ Quaternion _look_rotation(const Vector3 &direction,
 
 void BoidSim::_compute_transforms(BoidArrays::Pointers &p, double delta) {
 
+  if (!boid_arrays)
+    return;
+
   if (!boid_mmi)
     return;
 
-  for (size_t type_index = 0; type_index < boid_arrays.type_count;
+  for (size_t type_index = 0; type_index < boid_arrays->type_count;
        type_index++) {
-    BoidArrays::Region region(boid_arrays, type_index);
+    BoidArrays::Region region(*boid_arrays, type_index);
 
     if (!region.type)
       continue;
@@ -205,11 +216,15 @@ void BoidSim::_compute_transforms(BoidArrays::Pointers &p, double delta) {
 }
 
 void BoidSim::_tick(double delta) {
+
+  if (!boid_arrays)
+    return;
+
   tick++;
   if (tick % 5 == 0)
-    boid_arrays.set_flocking_sums(flocking_sum);
+    boid_arrays->set_flocking_sums(flocking_sum);
 
-  BoidArrays::Pointers pointers(boid_arrays);
+  BoidArrays::Pointers pointers(*boid_arrays);
 
   _compute_steering(pointers);
   _compute_transforms(pointers, delta);

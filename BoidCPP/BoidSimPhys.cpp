@@ -34,6 +34,9 @@ inline bool ray_sphere_intersect(Vector3 origin, Vector3 dir, Vector3 center,
 // Requires: distance / 2 + radius_collision <= BOID_NEIGHBOR_RADIUS, since
 // only the cells around the ray's midpoint are searched.
 int BoidSim::raycast(Vector3 origin, Vector3 direction) {
+  if (!boid_arrays)
+    return -1;
+
   float distance = direction.length();
 
   if (distance <= 0.0f || direction.is_zero_approx())
@@ -46,22 +49,24 @@ int BoidSim::raycast(Vector3 origin, Vector3 direction) {
 
   const Vector3 mid = origin + direction * (distance * 0.5f);
 
-  BoidArrays::Pointers p(boid_arrays);
+  BoidArrays::Pointers p(*boid_arrays);
 
   int best_boid = -1;
   float best_t = distance;
+
+  NearbyLookup &nearby_lookup = boid_arrays->get_nearby_lookup();
 
   const std::array<BoidID, 8> heads = nearby_lookup.lookup_area(mid);
 
   for (BoidID head : heads) {
     for (BoidID boid = head; boid < MAX_BOIDS;
          boid = nearby_lookup.next(boid)) {
-      const int type_index = boid_arrays.type_of(boid);
+      const int type_index = boid_arrays->type_of(boid);
       if (type_index < 0)
         continue;
 
       const BoidType *type =
-          Object::cast_to<BoidType>(boid_arrays.boid_types[type_index]);
+          Object::cast_to<BoidType>(boid_arrays->boid_types[type_index]);
       if (!type)
         continue;
 
