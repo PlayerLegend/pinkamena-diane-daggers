@@ -1,4 +1,4 @@
-[gd_scene format=4 uid="uid://nx0ankqp6uuq"]
+[gd_scene format=4 uid="uid://ptugie3nevt6"]
 
 [ext_resource type="PackedScene" uid="uid://bsuwo86vic8t0" path="res://Squids/Squid1/squid1.blend" id="1_832qw"]
 [ext_resource type="Shader" uid="uid://bchfflaswajjd" path="res://Skulls/wobble.gdshader" id="2_cp16h"]
@@ -18,8 +18,6 @@ shader_parameter/displacement_distance = 0.2
 shader_parameter/noise_scale = 10.0
 shader_parameter/noise_texture = SubResource("NoiseTexture3D_s0quj")
 shader_parameter/albedo_texture = ExtResource("3_2k51c")
-shader_parameter/albedo_tint = Color(1, 1, 1, 1)
-shader_parameter/uv_scale = 1.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_e53sn"]
 render_priority = 0
@@ -28,8 +26,6 @@ shader_parameter/displacement_distance = 0.2
 shader_parameter/noise_scale = 10.0
 shader_parameter/noise_texture = SubResource("NoiseTexture3D_s0quj")
 shader_parameter/albedo_texture = ExtResource("4_t8c0u")
-shader_parameter/albedo_tint = Color(1, 1, 1, 1)
-shader_parameter/uv_scale = 1.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_djvgv"]
 render_priority = 0
@@ -37,8 +33,6 @@ shader = ExtResource("2_cp16h")
 shader_parameter/displacement_distance = 0.2
 shader_parameter/noise_scale = 10.0
 shader_parameter/noise_texture = SubResource("NoiseTexture3D_s0quj")
-shader_parameter/albedo_tint = Color(1, 1, 1, 1)
-shader_parameter/uv_scale = 1.0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_djvgv"]
 _surfaces = [{
@@ -168,5 +162,5 @@ metadata/extras = {
 [node name="@StaticBody3D@162399" type="StaticBody3D" parent="." index="2" unique_id=858236707]
 collision_layer = 4
 
-[node name="@CollisionShape3D@162400" type="CollisionShape3D" parent="col" parent_id_path=PackedInt32Array(1839812849) index="0" unique_id=1906650200]
+[node name="@CollisionShape3D@162400" type="CollisionShape3D" parent="col" parent_id_path=PackedInt32Array(256131853) index="0" unique_id=1906650200]
 shape = SubResource("ConcavePolygonShape3D_33vcc")

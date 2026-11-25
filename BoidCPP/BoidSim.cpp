@@ -21,6 +21,39 @@ void BoidSim::remove(int boid) {
   if (boid >= 0 && boid < MAX_BOIDS)
     boid_arrays->remove_boid((BoidID)boid);
 }
+int BoidSim::get_health(int boid) {
+  if (!boid_arrays)
+    return 0;
+  if (boid < 0 || boid >= (int)boid_arrays->get_boid_count())
+    return 0;
+  BoidArrays::Pointers p(*boid_arrays);
+  return p.health[boid];
+}
+
+void BoidSim::set_health(int boid, int health) {
+  if (!boid_arrays)
+    return;
+  if (boid < 0 || boid >= (int)boid_arrays->get_boid_count())
+    return;
+  BoidArrays::Pointers p(*boid_arrays);
+  p.health[boid] = health;
+}
+
+void BoidSim::set_flash(int boid, double flash_time) {
+  // todo
+}
+
+int BoidSim::get_type_index(BoidType *type) const {
+  if (!type)
+    return -1;
+
+  for (int i = 0; i < types.size(); i++) {
+    if (Object::cast_to<BoidType>(types[i]) == type)
+      return i;
+  }
+
+  return -1;
+}
 
 // Engine interface
 
@@ -74,6 +107,15 @@ void BoidSim::_bind_methods() {
   ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "boid_mmi",
                             PROPERTY_HINT_NODE_TYPE, "BoidMMI"),
                "set_boid_mmi", "get_boid_mmi");
+  ClassDB::bind_method(D_METHOD("get_health", "boid"), &BoidSim::get_health);
+  ClassDB::bind_method(D_METHOD("set_health", "boid", "health"),
+                       &BoidSim::set_health);
+
+  ClassDB::bind_method(D_METHOD("set_flash", "boid", "health"),
+                       &BoidSim::set_flash);
+
+  ClassDB::bind_method(D_METHOD("get_type_index", "type"),
+                       &BoidSim::get_type_index);
 }
 
 void BoidSim::_physics_process(double delta) {

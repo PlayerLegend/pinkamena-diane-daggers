@@ -1,0 +1,8 @@
+[gd_resource type="BoidType" format=3 uid="uid://cvagjti2y45cp"]
+
+[ext_resource type="Material" uid="uid://ccxd18s7i7rc6" path="res://Skulls/Skull3/mat_skull_3.tres" id="1_25snp"]
+[ext_resource type="ArrayMesh" uid="uid://c1dly1rpqymky" path="res://Skulls/Skull3/skull3.obj" id="2_hkc2v"]
+
+[resource]
+mesh = ExtResource("2_hkc2v")
+material_override = ExtResource("1_25snp")

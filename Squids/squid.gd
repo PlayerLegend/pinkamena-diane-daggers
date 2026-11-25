@@ -13,7 +13,7 @@ var fly_direction: Vector3
 @export var spawn_rate: float = 0.05
 @export var attack_rate: float = 2 #20
 @export var spawn_output: Node3D
-@export var boid_manager: BoidManager
+@export var boid_sim: BoidSim
 
 @export var pain_sound: AudioStreamPlayer3D
 @export var death_sound: AudioStreamPlayer3D
@@ -49,10 +49,10 @@ func spawn_boid(boid_type: BoidType):
     var new_xform = spawn_output.global_transform
     var offs = Vector3(randf_range(-1,1), 5, randf_range(-1,1)).normalized()
     var new_vel = 3 * offs
-    boid_manager.add_boid(boid_type, new_xform, new_vel)
+    boid_sim.add_boid(boid_sim.get_type_index(boid_type), new_xform.origin, new_xform.basis.get_rotation_quaternion(), new_vel, boid_type.health)
 
 func attack_idle(delta: float):
-    if not boid_manager:
+    if not boid_sim:
         return
     attack_cooldown -= delta
     spawn_cooldown -= delta

@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://b1vh3dqy5xcdv" path="res://Menu/MouseConfig/MouseConfig.tscn" id="3_gxsnu"]
 [ext_resource type="Script" uid="uid://bbw27es4k2f0" path="res://Menu/MainMenu/background.gd" id="5_ddfq2"]
 [ext_resource type="Resource" uid="uid://dgggbwe0wep0e" path="res://Menu/MainMenu/menu_boidtype.tres" id="6_eqvia"]
-[ext_resource type="Script" uid="uid://c4jr8b24c4o7r" path="res://BoidManager/boid_manager.gd" id="6_qd2ih"]
+[ext_resource type="BoidType" uid="uid://vfs5uauflrmo" path="res://BoidTypes/Skull1Type.tres" id="7_eqvia"]
 
 [sub_resource type="Environment" id="Environment_eqvia"]
 background_mode = 1
@@ -65,17 +65,13 @@ size_flags_vertical = 3
 [node name="Background" type="Node3D" parent="." unique_id=709729592 node_paths=PackedStringArray("boid_manager", "boid_spawn_point", "boid_target_point")]
 script = ExtResource("5_ddfq2")
 boid_type = ExtResource("6_eqvia")
-boid_manager = NodePath("BoidManager")
+boid_manager = NodePath("")
 boid_spawn_point = NodePath("BoidSpawnPoint")
 boid_target_point = NodePath("BoidTarget")
 
 [node name="Camera3D" type="Camera3D" parent="Background" unique_id=1727480508]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.606382, 6.813631, 2.8125424)
 current = true
-
-[node name="BoidManager" type="Node3D" parent="Background" unique_id=713920982]
-script = ExtResource("6_qd2ih")
-metadata/_custom_type_script = "uid://c4jr8b24c4o7r"
 
 [node name="BoidSpawnPoint" type="Marker3D" parent="Background" unique_id=347095566]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.606382, 4.2684255, 0)
@@ -91,6 +87,16 @@ omni_range = 5.735613
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Background" unique_id=2113383334]
 environment = SubResource("Environment_eqvia")
+
+[node name="BoidSim" type="BoidSim" parent="Background" unique_id=1336877118 node_paths=PackedStringArray("boid_arrays", "boid_mmi")]
+types = Array[BoidType]([ExtResource("7_eqvia")])
+boid_arrays = NodePath("BoidArrays")
+boid_mmi = NodePath("BoidMMI")
+
+[node name="BoidMMI" type="BoidMMI" parent="Background/BoidSim" unique_id=1855478051]
+
+[node name="BoidArrays" type="BoidArrays" parent="Background/BoidSim" unique_id=1222639596]
+boid_types = Array[BoidType]([ExtResource("7_eqvia")])
 
 [connection signal="pressed" from="VBoxContainer/PlayButton" to="." method="_on_play_button_pressed"]
 [connection signal="net_connect" from="VBoxContainer/Network" to="." method="_on_network_net_connect"]

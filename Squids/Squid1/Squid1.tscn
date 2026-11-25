@@ -2,12 +2,11 @@
 
 [ext_resource type="Script" uid="uid://dbw41yoekaikh" path="res://Squids/Squid1/squid_1.gd" id="1_dq5yt"]
 [ext_resource type="ArrayMesh" uid="uid://bq2m3sdocqw4" path="res://Squids/Squid1/squid1.obj" id="1_ugp72"]
-[ext_resource type="Script" uid="uid://ccb31lioy8b6j" path="res://BoidManager/boid_type.gd" id="2_ll0ug"]
 [ext_resource type="PackedScene" uid="uid://tgmwp568r7p6" path="res://Xtal/XtalPickup.tscn" id="2_qcr0k"]
-[ext_resource type="Resource" uid="uid://ck5s2ghgryskv" path="res://BoidManager/skull_1.tres" id="3_alveb"]
+[ext_resource type="BoidType" uid="uid://vfs5uauflrmo" path="res://BoidTypes/Skull1Type.tres" id="3_gu4xj"]
 [ext_resource type="Script" uid="uid://d350u8evihs1u" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="3_xo4qj"]
-[ext_resource type="Resource" uid="uid://begmqtybc0sut" path="res://BoidManager/skull_2.tres" id="4_alveb"]
 [ext_resource type="Script" uid="uid://dour8fehaaugp" path="res://addons/netfox/tick-interpolator.gd" id="4_gbdfl"]
+[ext_resource type="BoidType" uid="uid://cawou1u2hgk6o" path="res://BoidTypes/Skull2Type.tres" id="4_yhlmd"]
 [ext_resource type="Shader" uid="uid://crg60oti12e6c" path="res://Squids/squid.gdshader" id="9_yhlmd"]
 [ext_resource type="Texture2D" uid="uid://s2okqjxbkma" path="res://Squids/Squid1/squid1_color.png" id="10_yhlmd"]
 [ext_resource type="PackedScene" uid="uid://c0kp5ysyaagut" path="res://Xtal/XtalTarget.tscn" id="11_yhlmd"]
@@ -34,27 +33,25 @@ shader_parameter/phase_offset = 0.0
 shader_parameter/tint_color = Color(1, 1, 1, 1)
 shader_parameter/albedo_texture = ExtResource("10_yhlmd")
 
-[node name="Squid1" type="AnimatableBody3D" unique_id=1326225278 node_paths=PackedStringArray("rollback_synchronizer", "spawn_output")]
+[node name="Squid1" type="AnimatableBody3D" unique_id=1995379469 node_paths=PackedStringArray("rollback_synchronizer", "spawn_output")]
 collision_layer = 0
 collision_mask = 0
 script = ExtResource("1_dq5yt")
 rollback_synchronizer = NodePath("RollbackSynchronizer")
 xtal_scene = ExtResource("2_qcr0k")
 spawn_count = Array[int]([10, 1])
-spawn_boid_type = Array[ExtResource("2_ll0ug")]([ExtResource("3_alveb"), ExtResource("4_alveb")])
+spawn_boid_type = Array[BoidType]([ExtResource("3_gu4xj"), ExtResource("4_yhlmd")])
 spawn_output = NodePath("Marker3D")
-metadata/_custom_type_script = "uid://bjcbs7mr6mqi2"
+metadata/_custom_type_script = "uid://bm5ew4s8dcg4e"
 
-[node name="RollbackSynchronizer" type="Node" parent="." unique_id=349656129 node_paths=PackedStringArray("root")]
+[node name="RollbackSynchronizer" type="Node" parent="." unique_id=349656129]
 script = ExtResource("3_xo4qj")
-root = NodePath("..")
 enable_prediction = true
 state_properties = Array[String]([":position", ":fly_direction"])
 metadata/_custom_type_script = "uid://d350u8evihs1u"
 
-[node name="TickInterpolator" type="Node" parent="." unique_id=581391939 node_paths=PackedStringArray("root")]
+[node name="TickInterpolator" type="Node" parent="." unique_id=581391939]
 script = ExtResource("4_gbdfl")
-root = NodePath("..")
 properties = Array[String]([":position", ":fly_direction"])
 metadata/_custom_type_script = "uid://dour8fehaaugp"
 

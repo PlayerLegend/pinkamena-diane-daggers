@@ -49,6 +49,8 @@ public:
   void set_types(TypedArray<BoidType> t);
   TypedArray<BoidType> get_types() const { return types; }
 
+  int get_type_index(BoidType *type) const;
+
 private:
   Vector3 _get_separation(BoidArrays::Pointers &p, BoidID boid,
                           const BoidType *type);
@@ -75,5 +77,9 @@ public:
   ~BoidSim();
 
   void _physics_process(double delta) override;
+
+  int get_health(int boid);
+  void set_health(int boid, int health);
+  void set_flash(int boid, double flash_time);
 };
 } // namespace godot

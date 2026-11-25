@@ -2,7 +2,7 @@ extends Node3D
 
 var boid_cooldown: float
 @export var boid_type: BoidType
-@export var boid_manager: BoidManager
+@export var boid_sim: BoidSim
 @export var boid_spawn_point: Marker3D
 @export var boid_target_point: Marker3D
 
@@ -20,12 +20,12 @@ func _physics_process(delta: float) -> void:
     if boid_cooldown <= 0:
         boid_cooldown = 0.05
         var boid_position = _random_boid_position()
-        boid_manager.add_boid(boid_type, Transform3D(Basis.IDENTITY, boid_position),Vector3.ZERO)
+        boid_sim.add_boid(boid_sim.get_type_index(boid_type), boid_position, Quaternion.IDENTITY,Vector3.ZERO, boid_type.health)
     else:
         boid_cooldown -= delta
         
-    for boid in boid_manager.get_boids_in_area(boid_target_point.position, 1.0):
-        boid_manager.remove_boid(boid)
+    for boid in boid_sim.get_boids_in_area(boid_target_point.position, 1.0):
+        boid_sim.remove_boid(boid)
     
 func _on_visibility_changed() -> void:
     boid_manager.clear()
