@@ -5,7 +5,6 @@
 [ext_resource type="PackedScene" uid="uid://co8tu78tmwalb" path="res://Menu/SaveConfig/SaveConfig.tscn" id="3_8a3ah"]
 [ext_resource type="PackedScene" uid="uid://b1vh3dqy5xcdv" path="res://Menu/MouseConfig/MouseConfig.tscn" id="3_gxsnu"]
 [ext_resource type="Script" uid="uid://bbw27es4k2f0" path="res://Menu/MainMenu/background.gd" id="5_ddfq2"]
-[ext_resource type="BoidType" uid="uid://vfs5uauflrmo" path="res://BoidTypes/Skull1Type.tres" id="6_qd2ih"]
 [ext_resource type="BoidType" uid="uid://1ykt04i3pk58" path="res://BoidTypes/MenuBoidType.tres" id="7_eqvia"]
 
 [sub_resource type="Environment" id="Environment_eqvia"]
@@ -64,7 +63,7 @@ size_flags_vertical = 3
 
 [node name="Background" type="Node3D" parent="." unique_id=709729592 node_paths=PackedStringArray("boid_sim", "boid_spawn_point", "boid_target_point")]
 script = ExtResource("5_ddfq2")
-boid_type = ExtResource("6_qd2ih")
+boid_type = ExtResource("7_eqvia")
 boid_sim = NodePath("BoidSim")
 boid_spawn_point = NodePath("BoidSpawnPoint")
 boid_target_point = NodePath("BoidTarget")

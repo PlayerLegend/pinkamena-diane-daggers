@@ -1,4 +1,5 @@
 #include "BoidSim.hpp"
+#include "BoidState.hpp"
 
 using namespace godot;
 
@@ -18,8 +19,17 @@ void BoidSim::remove(int boid) {
   if (!boid_arrays)
     return;
 
-  if (boid >= 0 && boid < MAX_BOIDS)
-    boid_arrays->remove_boid((BoidID)boid);
+  if (boid >= 0 && boid < MAX_BOIDS) {
+
+    Ref<BoidState> state = boid_arrays->get_state(boid);
+
+    boid_arrays->remove_boid(boid);
+
+    if (state.is_valid()) {
+      UtilityFunctions::print("Emit removed boid signal");
+      emit_signal("boid_removed", state);
+    }
+  }
 }
 void BoidSim::clear() {
   if (boid_arrays)

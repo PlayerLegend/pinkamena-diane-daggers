@@ -26,21 +26,25 @@ func _fly_physics_hit(other: Node3D, shape: CollisionShape3D) -> void:
 
 func _fly_physics_active(_delta: float) -> void:
     if not boid_sim:
+        push_warning("Boidsim not set in projectile")
+        queue_free()
         return
-        
-    var boid: int = boid_sim.raycast(position, fly_direction * fly_speed)
+    
+    var path = fly_direction * fly_speed    
+    
+    var boid: int = boid_sim.raycast(position - path, path)
     
     if boid < 0:
         return
-        
+    
     var health: int = boid_sim.get_health(boid)
     health -= 1
     boid_sim.set_health(boid, health)
     
     
     if health <= 0:
-        boid_sim.remove_boid(boid)
-        
+        print("Tried removing boid ", boid)
+        boid_sim.remove(boid)
     else:
         boid_sim.set_flash(boid, 1.0 / 20.0)
         

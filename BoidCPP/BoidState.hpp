@@ -9,8 +9,6 @@ class BoidState : public RefCounted {
   GDCLASS(BoidState, RefCounted)
 
 public:
-  Ref<Mesh> mesh;
-  Ref<Material> material_override;
   BoidType *type;
   int health = 0;
   Vector3 position;
@@ -22,8 +20,7 @@ public:
   void set_##N(T v) { N = v; }                                                 \
   T get_##N() const { return N; }
 
-  BOID_PROP(Ref<Mesh>, mesh)
-  BOID_PROP(Ref<Material>, material_override)
+  BOID_PROP(BoidType *, type)
   BOID_PROP(int, health)
   BOID_PROP(Vector3, position)
   BOID_PROP(Vector3, velocity)

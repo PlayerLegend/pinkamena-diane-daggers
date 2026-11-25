@@ -3,6 +3,27 @@
 
 using namespace godot;
 
+Ref<BoidState> BoidArrays::get_state(BoidID boid) {
+  Ref<BoidState> result = memnew(BoidState);
+  int type_index = type_of(boid);
+  if (type_index < 0)
+    return nullptr;
+
+  BoidType *type = Object::cast_to<BoidType>(boid_types[type_index]);
+  if (!type)
+    return nullptr;
+
+  Pointers p(*this);
+
+  result->type = type;
+  result->health = p.health[boid];
+  result->position = p.pos[boid];
+  result->velocity = p.vel[boid];
+  result->rotation = p.get_rot(boid);
+
+  return result;
+}
+
 void BoidArrays::_move_boid(Pointers &p, int from, int to) {
   if (from == to)
     return;
@@ -104,6 +125,8 @@ void BoidArrays::remove_boid(BoidID boid) {
 
   boid_count--;
   nearby_lookup.unlink(boid_count);
+
+  UtilityFunctions::print("Removed boid ", boid);
 }
 
 void BoidArrays::set_types(TypedArray<BoidType> types) {

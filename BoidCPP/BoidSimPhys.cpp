@@ -35,18 +35,22 @@ inline bool ray_sphere_intersect(Vector3 origin, Vector3 dir, Vector3 center,
 // Requires: distance / 2 + radius_collision <= BOID_NEIGHBOR_RADIUS, since
 // only the cells around the ray's midpoint are searched.
 int BoidSim::raycast(Vector3 origin, Vector3 direction) {
-  if (!boid_arrays)
+  if (!boid_arrays) {
+    godot::UtilityFunctions::push_warning("boid_arrays is not set");
     return -1;
+  }
+
+  if (direction.is_zero_approx()) {
+    UtilityFunctions::push_warning("Bad direction in raycast ", direction);
+    return -1;
+  }
 
   float distance = direction.length();
 
-  if (distance <= 0.0f || direction.is_zero_approx())
-    return -1;
-
   direction /= distance;
 
-  if (distance * 0.5f >= BOID_NEIGHBOR_RADIUS)
-    UtilityFunctions::push_warning("Bad distance in raycast ", distance);
+  // if (distance * 0.5f >= BOID_NEIGHBOR_RADIUS)
+  // UtilityFunctions::push_warning("Bad distance in raycast ", distance);
 
   const Vector3 mid = origin + direction * (distance * 0.5f);
 
@@ -70,6 +74,9 @@ int BoidSim::raycast(Vector3 origin, Vector3 direction) {
         Object::cast_to<BoidType>(boid_arrays->boid_types[type_index]);
     if (!type)
       continue;
+
+    if ((p.pos[boid] - origin).length() < type->radius_collision)
+      return boid;
 
     float t;
     if (ray_sphere_intersect(origin, direction, p.pos[boid],

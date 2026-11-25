@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BoidDefs.hpp"
+#include "BoidState.hpp"
 #include "BoidType.hpp"
 #include "FlockingSum.hpp"
 #include "NearbyLookup.hpp"
@@ -130,6 +131,8 @@ public:
     type_iter.fill(0);
     nearby_lookup = NearbyLookup();
   }
+
+  Ref<BoidState> get_state(BoidID boid);
   BoidArrays();
 };
 } // namespace godot

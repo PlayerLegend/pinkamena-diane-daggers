@@ -34,6 +34,7 @@ func spawn_xtal(pos: Vector3):
 func _on_boid_removed(
     state: BoidState
 ):
+    print("Got boid removed signal in drop spawner")
     var randvel = Vector3(
         randf_range(-1,1),
         randf_range(0,1),
