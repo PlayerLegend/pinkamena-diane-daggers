@@ -54,5 +54,7 @@ public:
   BOID_PROP(float, floor_height)
   BOID_PROP(float, height_target)
   BOID_PROP(float, turn_rate)
+
+#undef BOID_PROP
 };
 } // namespace godot
