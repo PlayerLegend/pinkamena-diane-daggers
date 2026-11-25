@@ -5,6 +5,8 @@ extends LineProjectile
 @export var splatter_scene: PackedScene
 @export var boid_sim: BoidSim
 
+var _last_pos: Vector3
+
 var mesh: Mesh:
     set(value):
         mesh_instance_3d.mesh = value
@@ -14,6 +16,7 @@ var mesh: Mesh:
 func _ready() -> void:
     add_to_group("avoid_targets")
     mesh = mesh
+    _last_pos = position
 
 func _fly_physics_hit(other: Node3D, shape: CollisionShape3D) -> void:
     #print("Projectile hit ", other)
@@ -30,9 +33,8 @@ func _fly_physics_active(_delta: float) -> void:
         queue_free()
         return
     
-    var path = fly_direction * fly_speed    
-    
-    var boid: int = boid_sim.raycast(position - path, path)
+    var boid: int = boid_sim.raycast(_last_pos, position - _last_pos)
+    _last_pos = position
     
     if boid < 0:
         return
