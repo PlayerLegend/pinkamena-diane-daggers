@@ -5,6 +5,7 @@
 #include <array>
 #include <cmath>
 #include <godot_cpp/variant/vector3.hpp>
+#include <vector>
 
 namespace godot {
 class NearbyLookup : public SpatialHashBase {
@@ -34,6 +35,7 @@ public:
     std::array<BoidID, 8> heads;
     NearbyLookup &parent;
     uint8_t head_index = 0;
+    Vector3 position;
 
   public:
     BoidID next() {
@@ -48,8 +50,21 @@ public:
       return BOID_NULL;
     }
 
+    void fill_vector(std::vector<BoidID> &dest, const Vector3 *positions,
+                     double radius) {
+      dest.resize(0);
+      BoidID boid;
+
+      while ((boid = next()) < MAX_BOIDS) {
+        Vector3 offset = position - positions[boid];
+
+        if (offset.length_squared() < BOID_NEIGHBOR_RADIUS_SQUARED)
+          dest.push_back(boid);
+      }
+    }
+
     Results(NearbyLookup &p, Vector3 pos)
-        : parent(p), heads(p.lookup_area(pos)) {}
+        : parent(p), heads(p.lookup_area(pos)), position(pos) {}
   };
 
   std::array<BoidID, 8> lookup_area(Vector3 pos) {

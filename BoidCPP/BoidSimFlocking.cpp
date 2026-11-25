@@ -13,25 +13,23 @@ Vector3 _steer_towards(Vector3 have_vel, Vector3 wishdir, float wishspeed) {
   return wishdir.normalized() * wishspeed - have_vel;
 }
 
-Vector3 BoidSim::_get_separation(BoidArrays::Pointers &p, BoidID boid,
-                                 const BoidType *type) {
-  if (!boid_arrays)
-    return Vector3{};
-
+Vector3 _get_separation(BoidArrays::Pointers &p, BoidID boid,
+                        const BoidType *type,
+                        const std::vector<BoidID> &nearby) {
   Vector3 push_separation = Vector3{};
 
   Vector3 boid_pos = p.pos[boid];
 
-  NearbyLookup &nearby_lookup = boid_arrays->get_nearby_lookup();
+  // NearbyLookup &nearby_lookup = boid_arrays->get_nearby_lookup();
 
   int count = 0;
 
-  NearbyLookup::Results results(nearby_lookup, boid_pos);
+  // NearbyLookup::Results results(nearby_lookup, boid_pos);
 
-  BoidID other;
+  // BoidID other;
 
-  while ((other = results.next()) < MAX_BOIDS) {
-
+  // while ((other = results.next()) < MAX_BOIDS)
+  for (auto other : nearby) {
     if (other == boid)
       continue;
 
@@ -49,18 +47,29 @@ Vector3 BoidSim::_get_separation(BoidArrays::Pointers &p, BoidID boid,
   return _steer_towards(p.vel[boid], push_separation, type->max_speed);
 }
 
-Vector3 BoidSim::_get_alignment(BoidArrays::Pointers &p, BoidID boid,
-                                const BoidType *type,
-                                const FlockingSum::Sum &sum) {
-  return _steer_towards(p.vel[boid], sum.get_velocity(), type->max_speed);
-}
-Vector3 BoidSim::_get_cohesion(BoidArrays::Pointers &p, BoidID boid,
-                               const BoidType *type,
-                               const FlockingSum::Sum &sum) {
+Vector3 _get_alignment(BoidArrays::Pointers &p, BoidID boid,
+                       const BoidType *type,
+                       const std::vector<BoidID> &nearby) {
+  Vector3 velocity_sum;
+  for (auto other : nearby) {
+    if (other != boid)
+      velocity_sum += p.vel[other];
+  }
+  velocity_sum /= (double)nearby.size();
 
-  return _steer_towards(p.vel[boid],
-                        sum.get_position(p.pos[boid]) - p.pos[boid],
-                        type->max_speed);
+  return _steer_towards(p.vel[boid], velocity_sum, type->max_speed);
+}
+
+Vector3 _get_cohesion(BoidArrays::Pointers &p, BoidID boid,
+                      const BoidType *type, const std::vector<BoidID> &nearby) {
+  Vector3 position_sum;
+  for (auto other : nearby)
+    if (other != boid)
+      position_sum += p.pos[other];
+
+  position_sum /= (double)nearby.size();
+
+  return _steer_towards(p.vel[boid], position_sum, type->max_speed);
 }
 
 std::vector<Vector3> BoidSim::_get_chase_target_positions() {
@@ -79,12 +88,14 @@ std::vector<Vector3> BoidSim::_get_chase_target_positions() {
   return result;
 }
 
-Vector3 BoidSim::_get_boid_pass_steering(BoidArrays::Pointers &p, BoidID boid,
-                                         const BoidType *type) {
-  FlockingSum::Sum sum = flocking_sum.get_sum(p.pos[boid]);
-  Vector3 separation = _get_separation(p, boid, type);
-  Vector3 alignment = _get_alignment(p, boid, type, sum);
-  Vector3 cohesion = _get_cohesion(p, boid, type, sum);
+Vector3 _get_boid_pass_steering(const std::vector<BoidID> &nearby,
+                                BoidArrays::Pointers &p, BoidID boid,
+                                const BoidType *type) {
+  // FlockingSum::Sum sum = flocking_sum.get_sum(p.pos[boid]);
+
+  Vector3 separation = _get_separation(p, boid, type, nearby);
+  Vector3 alignment = _get_alignment(p, boid, type, nearby);
+  Vector3 cohesion = _get_cohesion(p, boid, type, nearby);
 
   return separation * type->weight_separation +
          alignment * type->weight_alignment + cohesion * type->weight_cohesion;
@@ -95,6 +106,10 @@ void BoidSim::_compute_steering(BoidArrays::Pointers &p) {
     return;
 
   std::vector<Vector3> chase_targets = _get_chase_target_positions();
+
+  std::vector<BoidID> nearby;
+
+  NearbyLookup &nearby_lookup = boid_arrays->get_nearby_lookup();
 
   for (size_t type_index = 0; type_index < boid_arrays->type_count;
        type_index++) {
@@ -110,7 +125,11 @@ void BoidSim::_compute_steering(BoidArrays::Pointers &p) {
     for (int i = 0; i < iterations; i++) {
       BoidID boid = region.get_boid();
 
-      Vector3 steer_flock = _get_boid_pass_steering(p, boid, region.type);
+      NearbyLookup::Results nearby_result(nearby_lookup, p.pos[boid]);
+      nearby_result.fill_vector(nearby, p.pos, BOID_NEIGHBOR_RADIUS);
+
+      Vector3 steer_flock =
+          _get_boid_pass_steering(nearby, p, boid, region.type);
       Vector3 steer_chase =
           _get_chase_steering(p, boid, region.type, chase_targets);
 
@@ -227,8 +246,8 @@ void BoidSim::_tick(double delta) {
     return;
 
   tick++;
-  if (tick % 5 == 0)
-    boid_arrays->set_flocking_sums(flocking_sum);
+  // if (tick % 10 == 0)
+  // boid_arrays->set_flocking_sums(flocking_sum);
 
   BoidArrays::Pointers pointers(*boid_arrays);
 

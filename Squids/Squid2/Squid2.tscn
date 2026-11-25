@@ -4,7 +4,6 @@
 [ext_resource type="PackedScene" uid="uid://tgmwp568r7p6" path="res://Xtal/XtalPickup.tscn" id="2_bxqbr"]
 [ext_resource type="BoidType" uid="uid://vfs5uauflrmo" path="res://BoidTypes/Skull1Type.tres" id="3_60xb1"]
 [ext_resource type="ArrayMesh" uid="uid://s6rj67sm370r" path="res://Squids/Squid2/squid2.obj" id="4_3n5ed"]
-[ext_resource type="BoidType" uid="uid://cvagjti2y45cp" path="res://BoidTypes/Skull3Type.tres" id="4_bxqbr"]
 [ext_resource type="Material" uid="uid://c6rasamdiaqqi" path="res://Squids/Squid2/mat_squid_2.tres" id="5_mjd54"]
 [ext_resource type="Material" uid="uid://ba0iq7h7ct67l" path="res://Squids/Squid2/mat_squid_2_glass.tres" id="6_3as0k"]
 [ext_resource type="Material" uid="uid://4oj54wrbd8v7" path="res://Squids/Squid2/mat_squid_2_outline.tres" id="7_w8gqi"]
@@ -18,8 +17,8 @@ collision_mask = 0
 script = ExtResource("1_rxsc7")
 rollback_synchronizer = NodePath("RollbackSynchronizer")
 xtal_scene = ExtResource("2_bxqbr")
-spawn_count = Array[int]([10, 1])
-spawn_boid_type = Array[BoidType]([ExtResource("3_60xb1"), ExtResource("4_bxqbr")])
+spawn_count = Array[int]([10])
+spawn_boid_type = Array[BoidType]([ExtResource("3_60xb1")])
 spawn_output = NodePath("Marker3D")
 metadata/_custom_type_script = "uid://bjcbs7mr6mqi2"
 

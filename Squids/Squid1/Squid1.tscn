@@ -6,7 +6,6 @@
 [ext_resource type="BoidType" uid="uid://vfs5uauflrmo" path="res://BoidTypes/Skull1Type.tres" id="3_gu4xj"]
 [ext_resource type="Script" uid="uid://d350u8evihs1u" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="3_xo4qj"]
 [ext_resource type="Script" uid="uid://dour8fehaaugp" path="res://addons/netfox/tick-interpolator.gd" id="4_gbdfl"]
-[ext_resource type="BoidType" uid="uid://cawou1u2hgk6o" path="res://BoidTypes/Skull2Type.tres" id="4_yhlmd"]
 [ext_resource type="Shader" uid="uid://crg60oti12e6c" path="res://Squids/squid.gdshader" id="9_yhlmd"]
 [ext_resource type="Texture2D" uid="uid://s2okqjxbkma" path="res://Squids/Squid1/squid1_color.png" id="10_yhlmd"]
 [ext_resource type="PackedScene" uid="uid://c0kp5ysyaagut" path="res://Xtal/XtalTarget.tscn" id="11_yhlmd"]
@@ -39,8 +38,8 @@ collision_mask = 0
 script = ExtResource("1_dq5yt")
 rollback_synchronizer = NodePath("RollbackSynchronizer")
 xtal_scene = ExtResource("2_qcr0k")
-spawn_count = Array[int]([10, 1])
-spawn_boid_type = Array[BoidType]([ExtResource("3_gu4xj"), ExtResource("4_yhlmd")])
+spawn_count = Array[int]([10])
+spawn_boid_type = Array[BoidType]([ExtResource("3_gu4xj")])
 spawn_output = NodePath("Marker3D")
 pain_sound = NodePath("PainSound")
 death_sound = NodePath("DeathSound")
