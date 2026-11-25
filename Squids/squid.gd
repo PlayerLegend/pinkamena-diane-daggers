@@ -45,14 +45,20 @@ func _ready():
             child.xtal_died.connect(_xtal_died)
 
 func spawn_boid(boid_type: BoidType):
+    
+    print("Tried spawning a boid")
+    
     assert(spawn_output)
     var new_xform = spawn_output.global_transform
     var offs = Vector3(randf_range(-1,1), 5, randf_range(-1,1)).normalized()
     var new_vel = 3 * offs
-    boid_sim.add_boid(boid_sim.get_type_index(boid_type), new_xform.origin, new_xform.basis.get_rotation_quaternion(), new_vel, boid_type.health)
+    var type_index = boid_sim.get_type_index(boid_type)
+    var boid = boid_sim.add_boid(type_index, new_xform.origin, new_xform.basis.get_rotation_quaternion(), new_vel, boid_type.health)
+    print("Spawned a boid ", boid, " type ", type_index)
 
 func attack_idle(delta: float):
     if not boid_sim:
+        push_warning("Missing Boidsim")
         return
     attack_cooldown -= delta
     spawn_cooldown -= delta

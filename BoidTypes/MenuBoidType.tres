@@ -1,0 +1,6 @@
+[gd_resource type="BoidType" format=3 uid="uid://1ykt04i3pk58"]
+
+[ext_resource type="ArrayMesh" uid="uid://mor87fxp7iva" path="res://Skulls/Skull1/skull1.obj" id="2_pyxgh"]
+
+[resource]
+mesh = ExtResource("2_pyxgh")

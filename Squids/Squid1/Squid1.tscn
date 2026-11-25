@@ -33,7 +33,7 @@ shader_parameter/phase_offset = 0.0
 shader_parameter/tint_color = Color(1, 1, 1, 1)
 shader_parameter/albedo_texture = ExtResource("10_yhlmd")
 
-[node name="Squid1" type="AnimatableBody3D" unique_id=1995379469 node_paths=PackedStringArray("rollback_synchronizer", "spawn_output")]
+[node name="Squid1" type="AnimatableBody3D" unique_id=1995379469 node_paths=PackedStringArray("rollback_synchronizer", "spawn_output", "pain_sound", "death_sound")]
 collision_layer = 0
 collision_mask = 0
 script = ExtResource("1_dq5yt")
@@ -42,16 +42,20 @@ xtal_scene = ExtResource("2_qcr0k")
 spawn_count = Array[int]([10, 1])
 spawn_boid_type = Array[BoidType]([ExtResource("3_gu4xj"), ExtResource("4_yhlmd")])
 spawn_output = NodePath("Marker3D")
+pain_sound = NodePath("PainSound")
+death_sound = NodePath("DeathSound")
 metadata/_custom_type_script = "uid://bm5ew4s8dcg4e"
 
-[node name="RollbackSynchronizer" type="Node" parent="." unique_id=349656129]
+[node name="RollbackSynchronizer" type="Node" parent="." unique_id=349656129 node_paths=PackedStringArray("root")]
 script = ExtResource("3_xo4qj")
+root = NodePath("..")
 enable_prediction = true
 state_properties = Array[String]([":position", ":fly_direction"])
 metadata/_custom_type_script = "uid://d350u8evihs1u"
 
-[node name="TickInterpolator" type="Node" parent="." unique_id=581391939]
+[node name="TickInterpolator" type="Node" parent="." unique_id=581391939 node_paths=PackedStringArray("root")]
 script = ExtResource("4_gbdfl")
+root = NodePath("..")
 properties = Array[String]([":position", ":fly_direction"])
 metadata/_custom_type_script = "uid://dour8fehaaugp"
 
