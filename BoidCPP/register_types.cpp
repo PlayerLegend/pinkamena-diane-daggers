@@ -1,6 +1,6 @@
 #include "register_types.hpp"
 
-#include "boidsim.hpp"
+#include "boid.hpp"
 
 #include <gdextension_interface.h>
 #include <godot_cpp/core/class_db.hpp>

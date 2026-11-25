@@ -1,4 +1,5 @@
-#include "boidsim.hpp"
+#include "NearbyLookup.hpp"
+#include <cassert>
 using namespace godot;
 
 void NearbyLookup::unlink(BoidID id) {

@@ -1,4 +1,4 @@
-#include "boidsim.hpp"
+#include "FlockingSum.hpp"
 
 using namespace godot;
 

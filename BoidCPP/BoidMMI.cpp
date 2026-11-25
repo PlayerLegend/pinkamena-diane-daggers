@@ -1,4 +1,4 @@
-#include "boidsim.hpp"
+#include "BoidMMI.hpp"
 #include <godot_cpp/variant/typed_array.hpp>
 
 using namespace godot;
@@ -57,7 +57,7 @@ void BoidMMI::start_type(uint16_t type_index) {
   p_transform = transforms.ptrw();
 }
 
-void BoidMMI::set_transform(Transform3D transform) {
+void BoidMMI::set_transform(const Transform3D &transform) {
   if (current_type < 0 || !p_transform || current_transform >= MAX_BOIDS)
     return;
 

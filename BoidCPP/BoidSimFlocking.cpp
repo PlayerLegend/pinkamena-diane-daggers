@@ -1,4 +1,4 @@
-#include "boidsim.hpp"
+#include "BoidSim.hpp"
 
 #include <godot_cpp/classes/node3d.hpp>
 #include <godot_cpp/classes/scene_tree.hpp>
@@ -54,8 +54,7 @@ Vector3 BoidSim::_get_separation(BoidArrays::Pointers &p, BoidID boid,
 Vector3 BoidSim::_get_alignment(BoidArrays::Pointers &p, BoidID boid,
                                 const BoidType *type,
                                 const FlockingSum::Sum &sum) {
-  return _steer_towards(p.vel[boid], sum.get_velocity(p.vel[boid]),
-                        type->max_speed);
+  return _steer_towards(p.vel[boid], sum.get_velocity(), type->max_speed);
 }
 Vector3 BoidSim::_get_cohesion(BoidArrays::Pointers &p, BoidID boid,
                                const BoidType *type,
@@ -64,6 +63,22 @@ Vector3 BoidSim::_get_cohesion(BoidArrays::Pointers &p, BoidID boid,
   return _steer_towards(p.vel[boid],
                         sum.get_position(p.pos[boid]) - p.pos[boid],
                         type->max_speed);
+}
+
+std::vector<Vector3> BoidSim::_get_chase_target_positions() {
+  std::vector<Vector3> result;
+
+  TypedArray<Node> chase_targets =
+      get_tree()->get_nodes_in_group("chase_targets");
+
+  for (auto node : chase_targets) {
+    Node3D *node_3d = Object::cast_to<Node3D>(node);
+
+    if (node_3d)
+      result.push_back(node_3d->get_global_position());
+  }
+
+  return result;
 }
 
 Vector3 BoidSim::_get_boid_pass_steering(BoidArrays::Pointers &p, BoidID boid,
@@ -81,8 +96,7 @@ void BoidSim::_compute_steering(BoidArrays::Pointers &p) {
   if (!boid_arrays)
     return;
 
-  TypedArray<Node> chase_targets =
-      get_tree()->get_nodes_in_group("chase_targets");
+  std::vector<Vector3> chase_targets = _get_chase_target_positions();
 
   for (size_t type_index = 0; type_index < boid_arrays->type_count;
        type_index++) {
@@ -108,17 +122,11 @@ void BoidSim::_compute_steering(BoidArrays::Pointers &p) {
 }
 
 static bool _get_nearest_chase_target(Vector3 &out, Vector3 self,
-                                      const TypedArray<Node> &targets) {
+                                      const std::vector<Vector3> &targets) {
   bool result = false;
   float best = INFINITY;
 
-  for (auto node : targets) {
-    Node3D *node_3d = Object::cast_to<Node3D>(node);
-
-    if (!node_3d)
-      continue;
-
-    Vector3 pos = node_3d->get_global_position();
+  for (auto pos : targets) {
     float dist = self.distance_squared_to(pos);
     if (dist < best) {
       best = dist;
@@ -132,7 +140,7 @@ static bool _get_nearest_chase_target(Vector3 &out, Vector3 self,
 
 Vector3 BoidSim::_get_chase_steering(BoidArrays::Pointers &p, BoidID boid,
                                      const BoidType *type,
-                                     const TypedArray<Node> &targets) {
+                                     const std::vector<Vector3> &targets) {
   Vector3 target;
   if (_get_nearest_chase_target(target, p.pos[boid], targets)) {
     return _steer_towards(p.vel[boid], target - p.pos[boid], type->max_speed) *

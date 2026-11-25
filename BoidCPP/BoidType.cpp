@@ -1,4 +1,4 @@
-#include "boidsim.hpp"
+#include "BoidType.hpp"
 
 using namespace godot;
 

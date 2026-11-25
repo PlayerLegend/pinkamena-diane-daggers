@@ -1,4 +1,4 @@
-#include "boidsim.hpp"
+#include "BoidArrays.hpp"
 #include <godot_cpp/core/error_macros.hpp>
 
 using namespace godot;
