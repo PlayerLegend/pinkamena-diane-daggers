@@ -27,7 +27,7 @@ func _physics_process(delta: float) -> void:
     else:
         boid_cooldown -= delta
         
-    for boid in boid_sim.get_boids_in_near_radius(boid_target_point.position, 1.0):
+    for boid in boid_sim.get_boids_in_near_radius(boid_target_point.position, 2.0):
         print("Removed boid ", boid)
         boid_sim.remove(boid)
     

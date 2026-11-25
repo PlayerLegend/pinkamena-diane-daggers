@@ -2,26 +2,22 @@ class_name AfterimageSpawner
 extends Node3D
 
 var afterimage_scene = preload("res://Skulls/SkullAfterimage.tscn")
-@export var boid_manager: BoidManager
+@export var boid_sim: BoidSim
 
 func _on_boid_removed(
-    _type: BoidType,
-    boid_mesh: Mesh,
-    pos: Vector3,
-    _velocity: Vector3,
-    rot: Quaternion,
-    health: int
+    state: BoidState
     ):
-        if health > 0:
+        if state.health > 0:
             return
         var afterimage: SkullAfterimage = afterimage_scene.instantiate()
         add_child(afterimage)
-        afterimage.global_transform = Transform3D(rot, pos)
-        afterimage.set_mesh_1(boid_mesh)
+        afterimage.global_transform = Transform3D(state.rotation, state.position)
+        afterimage.set_mesh_1(state.mesh)
         #var splatter = splatter_scene.instantiate()
         #get_tree().current_scene.add_child(splatter)
         #splatter.place(BoidManager.get_boid_position(boid))
     
 
 func _ready():
-    boid_manager.boid_removed.connect(_on_boid_removed)
+    assert(boid_sim)
+    boid_sim.boid_removed.connect(_on_boid_removed)

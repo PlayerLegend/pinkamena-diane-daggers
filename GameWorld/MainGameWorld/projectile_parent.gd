@@ -1,10 +1,10 @@
 extends Node3D
 
-@export var boid_manager: BoidManager
+@export var boid_sim: BoidSim
 
 func _ready():
     child_entered_tree.connect(_on_child_entered_tree)
 
 func _on_child_entered_tree(node: Node):
     if node is LetterProjectile:
-        node.boid_manager = boid_manager
+        node.boid_sim = boid_sim

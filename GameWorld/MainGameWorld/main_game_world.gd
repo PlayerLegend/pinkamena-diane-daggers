@@ -8,13 +8,17 @@ extends GameWorld
 @export var boid_sim: BoidSim
 
 @export var menu_world: PackedScene
-@export var game_over_screen: Control
+#@export var game_over_screen: Control
 signal player_died(player: PlayerController, stats: GameOverStats)
 @onready var decal_canvas: DecalCanvas = $DecalCanvas
 
 func _ready():
     _light_energy_target = omni_light_3d.light_energy
     omni_light_3d.light_energy = 0
+    assert(boid_sim)
+    assert(menu_world)
+    #assert(game_over_screen)
+    
 func _check_for_deaths():
     if time < 0.5:
         return

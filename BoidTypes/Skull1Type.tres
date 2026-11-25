@@ -1,8 +1,11 @@
 [gd_resource type="BoidType" format=3 uid="uid://vfs5uauflrmo"]
 
-[ext_resource type="Material" uid="uid://canm5gpxeigyy" path="res://Materials/mat_skull.tres" id="1_g0g7s"]
-[ext_resource type="ArrayMesh" uid="uid://mor87fxp7iva" path="res://Skulls/Skull1/skull1.obj" id="2_2r3ke"]
+[ext_resource type="Material" uid="uid://ccxd18s7i7rc6" path="res://Skulls/Skull3/mat_skull_3.tres" id="1_5ouey"]
+[ext_resource type="ArrayMesh" uid="uid://mor87fxp7iva" path="res://Skulls/Skull1/skull1.obj" id="2_2jq3w"]
 
 [resource]
-mesh = ExtResource("2_2r3ke")
-material_override = ExtResource("1_g0g7s")
+mesh = ExtResource("2_2jq3w")
+material_override = ExtResource("1_5ouey")
+max_speed = 6.0
+min_speed = 1.0
+max_force = 4.0

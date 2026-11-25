@@ -126,6 +126,12 @@ void BoidSim::_bind_methods() {
 
   ClassDB::bind_method(D_METHOD("get_boids_in_near_radius", "pos", "radius"),
                        &BoidSim::get_boids_in_near_radius);
+
+  ClassDB::bind_method(D_METHOD("clear"), &BoidSim::clear);
+
+  ADD_SIGNAL(MethodInfo("boid_removed",
+                        PropertyInfo(Variant::OBJECT, "boid_state",
+                                     PROPERTY_HINT_NONE, "BoidState")));
 }
 
 void BoidSim::_physics_process(double delta) {

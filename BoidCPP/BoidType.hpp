@@ -31,6 +31,9 @@ public:
 
   float turn_rate = 0.5;
 
+  int gib_count = 0;
+  bool drops_xtal = false;
+
   static void _bind_methods();
 
 #define BOID_PROP(T, N)                                                        \
@@ -54,6 +57,8 @@ public:
   BOID_PROP(float, floor_height)
   BOID_PROP(float, height_target)
   BOID_PROP(float, turn_rate)
+  BOID_PROP(int, gib_count)
+  BOID_PROP(bool, drops_xtal)
 
 #undef BOID_PROP
 };

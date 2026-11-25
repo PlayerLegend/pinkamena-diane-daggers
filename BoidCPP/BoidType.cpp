@@ -27,4 +27,6 @@ void BoidType::_bind_methods() {
   BIND_BOID_PROP(floor_height, Variant::FLOAT, "floor_height")
   BIND_BOID_PROP(height_target, Variant::FLOAT, "height_target")
   BIND_BOID_PROP(turn_rate, Variant::FLOAT, "turn_rate")
+  BIND_BOID_PROP(gib_count, Variant::INT, "gib_count")
+  BIND_BOID_PROP(drops_xtal, Variant::BOOL, "drops_xtal")
 }

@@ -15,6 +15,7 @@ void initialize_boidsim(ModuleInitializationLevel p_level) {
   }
 
   GDREGISTER_CLASS(BoidType);
+  GDREGISTER_CLASS(BoidState);
   GDREGISTER_CLASS(BoidSim);
   GDREGISTER_CLASS(BoidMMI);
   GDREGISTER_CLASS(BoidArrays);

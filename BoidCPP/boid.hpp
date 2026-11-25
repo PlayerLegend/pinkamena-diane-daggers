@@ -4,6 +4,7 @@
 #include "BoidDefs.hpp"
 #include "BoidMMI.hpp"
 #include "BoidSim.hpp"
+#include "BoidState.hpp"
 #include "BoidType.hpp"
 #include "FlockingSum.hpp"
 #include "NearbyLookup.hpp"

@@ -46,19 +46,19 @@ sub_viewport = NodePath("../DecalSubViewport")
 repeat = ExtResource("5_u6lad")
 spawn_parent = NodePath("../ActorsManager")
 
-[node name="AfterimageSpawner" type="Node3D" parent="." unique_id=901342506]
+[node name="AfterimageSpawner" type="Node3D" parent="." unique_id=901342506 node_paths=PackedStringArray("boid_sim")]
 script = ExtResource("6_tg2wk")
-boid_manager = null
+boid_sim = NodePath("../BoidSim")
 
 [node name="StaticMeshManager" parent="." unique_id=1745606803 instance=ExtResource("7_4hsto")]
 
-[node name="DropSpawner" type="Node3D" parent="." unique_id=1049974983 node_paths=PackedStringArray("static_mesh_manager", "decal_canvas")]
+[node name="DropSpawner" type="Node3D" parent="." unique_id=1049974983 node_paths=PackedStringArray("static_mesh_manager", "decal_canvas", "boid_sim")]
 script = ExtResource("8_l5122")
-gib_scenes = Array[PackedScene]([ExtResource("9_0xjj3"), ExtResource("10_4phr6"), ExtResource("11_e3ypn")])
-xtal_pickup_scene = ExtResource("12_ebbfy")
-boid_manager = null
 static_mesh_manager = NodePath("../StaticMeshManager")
 decal_canvas = NodePath("../DecalCanvas")
+gib_scenes = Array[PackedScene]([ExtResource("9_0xjj3"), ExtResource("10_4phr6"), ExtResource("11_e3ypn")])
+boid_sim = NodePath("../BoidSim")
+xtal_pickup_scene = ExtResource("12_ebbfy")
 
 [node name="DeathSound" type="AudioStreamPlayer3D" parent="DropSpawner" unique_id=751153661]
 stream = ExtResource("14_tg2wk")
@@ -67,10 +67,10 @@ volume_db = -4.444
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=595729715]
 environment = SubResource("Environment_0lili")
 
-[node name="ActorsManager" type="MultiplayerSpawner" parent="." unique_id=1439276912]
+[node name="ActorsManager" type="MultiplayerSpawner" parent="." unique_id=1439276912 node_paths=PackedStringArray("boid_sim")]
 spawn_path = NodePath(".")
 script = ExtResource("12_se08m")
-boid_manager = null
+boid_sim = NodePath("../BoidSim")
 
 [node name="PlayerSpawner" type="Node3D" parent="." unique_id=517530346]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.134716, 0)
@@ -79,7 +79,6 @@ metadata/_custom_type_script = "uid://blxd2e2temnsn"
 
 [node name="ProjectileParent" type="Node3D" parent="." unique_id=291182081]
 script = ExtResource("15_qbr1c")
-boid_manager = null
 
 [node name="DecalSubViewport" type="SubViewport" parent="." unique_id=892893044]
 size = Vector2i(2048, 2048)
