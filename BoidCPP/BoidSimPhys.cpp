@@ -1,4 +1,5 @@
 #include "BoidSim.hpp"
+#include <algorithm>
 
 using namespace godot;
 
@@ -56,29 +57,53 @@ int BoidSim::raycast(Vector3 origin, Vector3 direction) {
 
   NearbyLookup &nearby_lookup = boid_arrays->get_nearby_lookup();
 
-  const std::array<BoidID, 8> heads = nearby_lookup.lookup_area(mid);
+  NearbyLookup::Results results(nearby_lookup, mid);
 
-  for (BoidID head : heads) {
-    for (BoidID boid = head; boid < MAX_BOIDS;
-         boid = nearby_lookup.next(boid)) {
-      const int type_index = boid_arrays->type_of(boid);
-      if (type_index < 0)
-        continue;
+  BoidID boid;
 
-      const BoidType *type =
-          Object::cast_to<BoidType>(boid_arrays->boid_types[type_index]);
-      if (!type)
-        continue;
+  while ((boid = results.next()) < MAX_BOIDS) {
+    const int type_index = boid_arrays->type_of(boid);
+    if (type_index < 0)
+      continue;
 
-      float t;
-      if (ray_sphere_intersect(origin, direction, p.pos[boid],
-                               type->radius_collision, best_t, t) &&
-          t <= best_t) {
-        best_t = t;
-        best_boid = (int)boid;
-      }
+    const BoidType *type =
+        Object::cast_to<BoidType>(boid_arrays->boid_types[type_index]);
+    if (!type)
+      continue;
+
+    float t;
+    if (ray_sphere_intersect(origin, direction, p.pos[boid],
+                             type->radius_collision, best_t, t) &&
+        t <= best_t) {
+      best_t = t;
+      best_boid = (int)boid;
     }
   }
 
   return best_boid;
+}
+
+PackedInt32Array BoidSim::get_boids_in_near_radius(Vector3 position,
+                                                   float radius) {
+  PackedInt32Array result;
+  if (!boid_arrays)
+    return result;
+
+  const float radius_squared = radius * radius;
+
+  NearbyLookup &nearby_lookup = boid_arrays->get_nearby_lookup();
+  BoidArrays::Pointers p(*boid_arrays);
+
+  NearbyLookup::Results results(nearby_lookup, position);
+
+  BoidID boid;
+  while ((boid = results.next()) < MAX_BOIDS) {
+    if (p.pos[boid].distance_squared_to(position) <= radius_squared)
+      result.push_back((int)boid);
+  }
+
+  std::sort(result.ptrw(), result.ptrw() + result.size(),
+            [](int a, int b) { return a > b; });
+
+  return result;
 }

@@ -30,6 +30,28 @@ public:
     return table[get_cell_index(f2i(pos.x), f2i(pos.y), f2i(pos.z))];
   }
 
+  class Results {
+    std::array<BoidID, 8> heads;
+    NearbyLookup &parent;
+    uint8_t head_index = 0;
+
+  public:
+    BoidID next() {
+      while (head_index < 8) {
+        BoidID head = heads[head_index];
+        if (head < MAX_BOIDS) {
+          heads[head_index] = parent.next(head);
+          return head;
+        }
+        head_index++;
+      }
+      return BOID_NULL;
+    }
+
+    Results(NearbyLookup &p, Vector3 pos)
+        : parent(p), heads(p.lookup_area(pos)) {}
+  };
+
   std::array<BoidID, 8> lookup_area(Vector3 pos) {
     const int32_t x0 = f2i(pos.x - BOID_NEIGHBOR_RADIUS);
     const int32_t y0 = f2i(pos.y - BOID_NEIGHBOR_RADIUS);

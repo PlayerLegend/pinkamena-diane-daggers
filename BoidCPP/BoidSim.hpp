@@ -28,7 +28,10 @@ public:
 
   void remove(int boid);
 
+  void clear();
+
   int raycast(Vector3 origin, Vector3 direction);
+  PackedInt32Array get_boids_in_near_radius(Vector3 position, float radius);
 
 private:
   void _apply_types();

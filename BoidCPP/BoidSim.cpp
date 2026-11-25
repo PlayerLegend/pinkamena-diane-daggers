@@ -21,6 +21,13 @@ void BoidSim::remove(int boid) {
   if (boid >= 0 && boid < MAX_BOIDS)
     boid_arrays->remove_boid((BoidID)boid);
 }
+void BoidSim::clear() {
+  if (boid_arrays)
+    boid_arrays->clear();
+  if (boid_mmi)
+    boid_mmi->clear();
+}
+
 int BoidSim::get_health(int boid) {
   if (!boid_arrays)
     return 0;
@@ -116,6 +123,9 @@ void BoidSim::_bind_methods() {
 
   ClassDB::bind_method(D_METHOD("get_type_index", "type"),
                        &BoidSim::get_type_index);
+
+  ClassDB::bind_method(D_METHOD("get_boids_in_near_radius", "pos", "radius"),
+                       &BoidSim::get_boids_in_near_radius);
 }
 
 void BoidSim::_physics_process(double delta) {

@@ -20,15 +20,19 @@ func _physics_process(delta: float) -> void:
     if boid_cooldown <= 0:
         boid_cooldown = 0.05
         var boid_position = _random_boid_position()
-        boid_sim.add_boid(boid_sim.get_type_index(boid_type), boid_position, Quaternion.IDENTITY,Vector3.ZERO, boid_type.health)
+        var type_index = boid_sim.get_type_index(boid_type)
+
+        var boid = boid_sim.add_boid(type_index, boid_position, Quaternion.IDENTITY,Vector3.ZERO, boid_type.health)
+        print("Added boid ", boid, " type index ", type_index)
     else:
         boid_cooldown -= delta
         
-    for boid in boid_sim.get_boids_in_area(boid_target_point.position, 1.0):
-        boid_sim.remove_boid(boid)
+    for boid in boid_sim.get_boids_in_near_radius(boid_target_point.position, 1.0):
+        print("Removed boid ", boid)
+        boid_sim.remove(boid)
     
 func _on_visibility_changed() -> void:
-    boid_manager.clear()
+    boid_sim.clear()
     if visible:
         boid_target_point.add_to_group("chase_targets")
     else:

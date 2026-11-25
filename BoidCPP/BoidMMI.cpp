@@ -94,3 +94,14 @@ void BoidMMI::finish_type(uint16_t type_index) {
   current_type = -1;
   p_transform = nullptr;
 }
+
+void BoidMMI::clear() {
+  for (const Ref<MultiMesh> &mm : multimeshes) {
+    if (mm.is_valid())
+      mm->set_visible_instance_count(0);
+  }
+
+  current_type = -1;
+  current_transform = 0;
+  p_transform = nullptr;
+}

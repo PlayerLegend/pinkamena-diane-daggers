@@ -18,21 +18,19 @@ Vector3 BoidSim::_get_separation(BoidArrays::Pointers &p, BoidID boid,
   if (!boid_arrays)
     return Vector3{};
 
-  // use only this cell for speed
-
   Vector3 push_separation = Vector3{};
 
   Vector3 boid_pos = p.pos[boid];
 
   NearbyLookup &nearby_lookup = boid_arrays->get_nearby_lookup();
 
-  BoidID local_list = nearby_lookup.lookup_cell(boid_pos);
-
   int count = 0;
 
-  while (local_list < MAX_BOIDS) {
-    BoidID other = local_list;
-    local_list = nearby_lookup.next(local_list);
+  NearbyLookup::Results results(nearby_lookup, boid_pos);
+
+  BoidID other;
+
+  while ((other = results.next()) < MAX_BOIDS) {
 
     if (other == boid)
       continue;

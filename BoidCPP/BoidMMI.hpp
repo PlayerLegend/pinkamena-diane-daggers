@@ -32,5 +32,7 @@ public:
   void start_type(uint16_t type_index);
   void set_transform(const Transform3D &transform);
   void finish_type(uint16_t type_index);
+
+  void clear();
 };
 } // namespace godot

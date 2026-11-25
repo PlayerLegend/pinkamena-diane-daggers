@@ -124,6 +124,12 @@ public:
   };
 
 public:
+  void clear() {
+    boid_count = 0;
+    type_end.fill(0);
+    type_iter.fill(0);
+    nearby_lookup = NearbyLookup();
+  }
   BoidArrays();
 };
 } // namespace godot
