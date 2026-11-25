@@ -14,10 +14,6 @@ namespace godot {
 class BoidSim : public Node {
   GDCLASS(BoidSim, Node)
 
-  static constexpr float BOID_SEPARATION = 1.0;
-  static constexpr float BOID_SEPARATION_SQUARED =
-      BOID_SEPARATION * BOID_SEPARATION;
-
 private:
   FlockingSum flocking_sum;
   uint32_t tick = 0;
