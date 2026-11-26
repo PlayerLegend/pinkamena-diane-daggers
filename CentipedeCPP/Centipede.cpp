@@ -5,7 +5,7 @@
 
 using namespace godot;
 
-void Centipede::_ready() {
+void Centipede::ready() {
 
   if (Engine::get_singleton()->is_editor_hint())
     return;
@@ -167,35 +167,20 @@ void Centipede::advance_children() {
   }
 }
 
-void Centipede::_rollback_tick(double, int64_t, bool p_is_fresh) {
-
-  if (segment_spacing <= 0 || std::isnan(segment_spacing)) {
-
-    godot::UtilityFunctions::push_warning(
-        "Invalid segment_spacing on Centipede");
-    queue_free();
-    return;
-  }
-
+void Centipede::advance() {
   if (Engine::get_singleton()->is_editor_hint() || targets.size() == 0)
     return;
 
-  // netfox has already restored state properties; mirror them into the ring.
   receive_recent();
-
-  // Authority records; so does anyone resimulating. Fresh ticks on other
-  // peers build the body purely from synced state and must not touch _recent_*.
-  if (is_multiplayer_authority() || !p_is_fresh) {
-    advance_targets();
-    send_recent(std::max<int>(head_advance_count, RECENT_WINDOW));
-  }
-
+  advance_targets();
+  send_recent(std::max<int>(head_advance_count, RECENT_WINDOW));
   advance_children();
 }
 
 void Centipede::_bind_methods() {
-  ClassDB::bind_method(D_METHOD("_rollback_tick", "delta", "tick", "is_fresh"),
-                       &Centipede::_rollback_tick);
+
+  ClassDB::bind_method(D_METHOD("ready"), &Centipede::ready);
+  ClassDB::bind_method(D_METHOD("advance"), &Centipede::advance);
 
   ClassDB::bind_method(D_METHOD("set_recent_positions", "v"),
                        &Centipede::set_recent_positions);

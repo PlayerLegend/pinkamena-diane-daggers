@@ -20,10 +20,12 @@ func _helper_find_player() -> PlayerController:
     return result
 
 func _rollback_tick(delta: float, _tick, _is_fresh):
-    super(delta, _tick, _is_fresh)
+    
     
     if not is_multiplayer_authority() and _is_fresh:
         return
+    
+    advance();
         
     var player = _helper_find_player()
     
@@ -57,7 +59,7 @@ func _xtal_died(xtal: XtalTarget):
     _drop_xtal(xtal.global_transform)
 
 func _ready():
-    super()
+    ready()
     assert(xtal_pickup)
     for child in get_children():
         if child.has_signal("xtal_died"):

@@ -21,6 +21,7 @@
 [ext_resource type="BoidType" uid="uid://vfs5uauflrmo" path="res://BoidTypes/Skull1Type.tres" id="19_0xjj3"]
 [ext_resource type="BoidType" uid="uid://cawou1u2hgk6o" path="res://BoidTypes/Skull2Type.tres" id="20_4phr6"]
 [ext_resource type="BoidType" uid="uid://cvagjti2y45cp" path="res://BoidTypes/Skull3Type.tres" id="21_e3ypn"]
+[ext_resource type="PackedScene" uid="uid://bp6b5mb741712" path="res://Centipede/Centipede1/Centipede1.tscn" id="22_4phr6"]
 
 [sub_resource type="Environment" id="Environment_0lili"]
 background_mode = 1
@@ -96,3 +97,5 @@ boid_mmi = NodePath("BoidMMI")
 boid_types = Array[BoidType]([ExtResource("19_0xjj3"), ExtResource("20_4phr6"), ExtResource("21_e3ypn")])
 
 [node name="BoidMMI" type="BoidMMI" parent="BoidSim" unique_id=290663640]
+
+[node name="Centipede1" parent="." unique_id=1581042715 instance=ExtResource("22_4phr6")]

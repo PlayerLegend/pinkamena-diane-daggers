@@ -54,7 +54,7 @@ class Centipede : public Node3D {
 
 public:
   int head_index = 0;
-  void _rollback_tick(double delta, int64_t tick, bool is_fresh);
+  void advance();
 
 public:
   void set_recent_positions(const PackedVector3Array &v) {
@@ -78,7 +78,7 @@ public:
 
   double get_segment_spacing() const { return segment_spacing; }
 
-  void _ready() override;
+  void ready();
 
 protected:
   static void _bind_methods();

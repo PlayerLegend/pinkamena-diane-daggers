@@ -1,21 +1,37 @@
 [gd_scene format=3 uid="uid://bp6b5mb741712"]
 
 [ext_resource type="Script" uid="uid://2gtxpcanwnb3" path="res://Centipede/Centipede1/centipede_1.gd" id="1_eqail"]
-[ext_resource type="PackedScene" uid="uid://cqbeyffithmai" path="res://Centipede/Centipede1/CentipedeSegment.tscn" id="2_eqail"]
 [ext_resource type="PackedScene" uid="uid://tgmwp568r7p6" path="res://Xtal/XtalPickup.tscn" id="2_l7lnl"]
 [ext_resource type="PackedScene" uid="uid://uxq2q1xp0n8t" path="res://Centipede/Centipede1/CentipedeHead.glb" id="4_l7lnl"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_d47sy"]
 
-[node name="Centipede1" type="Node3D" unique_id=1581042715 node_paths=PackedStringArray("tail")]
+[node name="Centipede1" type="Centipede" unique_id=1453582697]
 script = ExtResource("1_eqail")
 xtal_pickup = ExtResource("2_l7lnl")
-tail = NodePath("MeshInstance3D")
-segment_scene = ExtResource("2_eqail")
-metadata/_custom_type_script = "uid://bqjob566f118q"
 
 [node name="CentipedeHead" parent="." unique_id=1285869696 instance=ExtResource("4_l7lnl")]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=129119607]
-visible = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.2509108)
+mesh = SubResource("BoxMesh_d47sy")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=1777206490]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.2509108)
+mesh = SubResource("BoxMesh_d47sy")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="." unique_id=817630589]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.2509108)
+mesh = SubResource("BoxMesh_d47sy")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="." unique_id=1080556861]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.2509108)
+mesh = SubResource("BoxMesh_d47sy")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="." unique_id=1248297385]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.2509108)
+mesh = SubResource("BoxMesh_d47sy")
+
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="." unique_id=991615577]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.2509108)
 mesh = SubResource("BoxMesh_d47sy")
