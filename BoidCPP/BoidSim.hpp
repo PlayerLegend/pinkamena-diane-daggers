@@ -51,15 +51,6 @@ public:
   int get_type_index(BoidType *type) const;
 
 private:
-  // Vector3 _get_separation(BoidArrays::Pointers &p, BoidID boid,
-  //                         const BoidType *type);
-  // Vector3 _get_alignment(BoidArrays::Pointers &p, BoidID boid,
-  //                        const BoidType *type, const FlockingSum::Sum &sum);
-  // Vector3 _get_cohesion(BoidArrays::Pointers &p, BoidID boid,
-  //                       const BoidType *type, const FlockingSum::Sum &sum);
-
-  // Vector3 _get_boid_pass_steering(BoidArrays::Pointers &p, BoidID boid,
-  // const BoidType *type);
   Vector3 _get_chase_steering(BoidArrays::Pointers &p, BoidID boid,
                               const BoidType *type,
                               const std::vector<Vector3> &targets);
