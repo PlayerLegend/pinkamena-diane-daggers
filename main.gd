@@ -20,6 +20,8 @@ var current_menu: Control
 
 var server_is_started: bool
 
+var hide_frames: int = 0
+
 func _on_save_config() -> void:
     Config.save()
 
@@ -54,6 +56,11 @@ func _show_game():
         current_menu = null
 
 func _process(_delta: float):
+    if hide_frames <= 0:
+        if not screen.visible:
+            screen.visible = true
+    else:
+        hide_frames -= 1
     if game_world_manager.game_world is MenuWorld and not main_menu.visible:
         main_menu.show()
         GUIDE.disable_mapping_context(guide_map_fps)
@@ -128,6 +135,8 @@ func _on_main_menu_net_host(port: int) -> void:
     _start_server.call_deferred(port)
 
 func _on_game_world_manager_world_changed(new_world: GameWorld) -> void:
+    screen.visible = false
+    hide_frames = 5
     non_spatial_audio.play_sound(game_start_audio)
     if new_world is MainGameWorld:
         new_world.player_died.connect(_on_player_died)
