@@ -1,4 +1,4 @@
-class_name Centipede
+class_name CentipedeOld
 extends Node3D
 
 @export var tail: Node3D

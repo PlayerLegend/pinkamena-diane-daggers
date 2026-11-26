@@ -22,6 +22,13 @@ GLB_BLEND_FILES ?= \
 OBJ_FILES := $(OBJ_BLEND_FILES:.blend=.obj)
 GLB_FILES := $(GLB_BLEND_FILES:.blend=.glb)
 
+OTHER_GLB := \
+	Centipede/Centipede1/CentipedeSegment.glb
+
+test: Centipede/Centipede1/CentipedeSegment.glb
+Centipede/Centipede1/CentipedeSegment.glb: Centipede/Centipede1/CentipedeSegment.blend
+	blender -b "$<" --python blender-vat-glb-export.py -- "$@"
+
 all: $(OBJ_FILES) $(GLB_FILES)
 	@echo $(OBJ_FILES)
 

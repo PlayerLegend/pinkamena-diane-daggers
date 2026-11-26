@@ -1,12 +1,11 @@
 [gd_scene format=3 uid="uid://cqbeyffithmai"]
 
 [ext_resource type="Script" uid="uid://c1jk68nrlklb3" path="res://Centipede/Centipede1/centipede_segment.gd" id="1_0y84i"]
-[ext_resource type="PackedScene" uid="uid://gdu272b5ojbt" path="res://Centipede/Centipede1/CentipedeSegment.glb" id="1_cxmlo"]
+[ext_resource type="PackedScene" uid="uid://dbau4jtvhhbg4" path="res://Centipede/Centipede1/CentipedeSegment.glb" id="1_cxmlo"]
 [ext_resource type="PackedScene" uid="uid://c0kp5ysyaagut" path="res://Xtal/XtalTarget.tscn" id="3_fvo3c"]
 
-[node name="CentipedeSegment" type="Node3D" unique_id=48875206 node_paths=PackedStringArray("animation_player")]
+[node name="CentipedeSegment" type="Node3D" unique_id=48875206]
 script = ExtResource("1_0y84i")
-animation_player = NodePath("CentipedeSegment/AnimationPlayer")
 
 [node name="CentipedeSegment" parent="." unique_id=1124305234 instance=ExtResource("1_cxmlo")]
 
