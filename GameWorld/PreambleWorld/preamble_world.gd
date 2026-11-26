@@ -10,10 +10,13 @@ extends GameWorld
 @export var next_world: PackedScene
 @onready var beckon: Node3D = $Beckon
 @export var start_sounds: Array[AudioStream]
+@export var decal_material: ShaderMaterial
 
 func _ready() -> void:
     start_game_trigger.body_entered.connect(_on_start_game_trigger_body_entered)
     omni_light_3d.light_energy = 0.01
+    assert(decal_material)
+    decal_material.set_shader_parameter("decal_texture", Texture.new())
 
 func _light_waiver() -> float:
     return (1.0 + 0.5 * sin(Time.get_ticks_msec() / 1000.0))
