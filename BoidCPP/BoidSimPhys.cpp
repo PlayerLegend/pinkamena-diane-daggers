@@ -36,7 +36,11 @@ inline bool ray_sphere_intersect(Vector3 origin, Vector3 dir, Vector3 center,
 // only the cells around the ray's midpoint are searched.
 int BoidSim::raycast(Vector3 origin, Vector3 direction) {
   if (!boid_arrays) {
-    godot::UtilityFunctions::push_warning("boid_arrays is not set");
+    static bool did_warn = false;
+    if (!did_warn) {
+      did_warn = true;
+      godot::UtilityFunctions::push_warning("boid_arrays is not set");
+    }
     return -1;
   }
 
