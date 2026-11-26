@@ -51,7 +51,7 @@ web: build
 test-web:
 	rm -rf export
 	make web
-	(cd $(dir $(EXPORT_WEB_TARGET)) && python3 -m http.server)
+	python3 test-web.py $(dir $(EXPORT_WEB_TARGET))
 
 clean:
 	scons -c

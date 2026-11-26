@@ -19,7 +19,7 @@ def start_server(directory):
     httpd.serve_forever()
 
 def open_browser():
-    subprocess.Popen(['chromium-browser', '--incognito', 'http://localhost:8000/DianeDaggers.html'])
+    return subprocess.Popen(['chromium-browser', '--incognito', 'http://localhost:8000/DianeDaggers.html'])
 
 def signal_handler(sig, frame):
     sys.exit(0)
@@ -38,11 +38,11 @@ def main():
     server_thread.start()
     
     time.sleep(1)  # Give server time to start
-    open_browser()
+    browser_process = open_browser()
     
     try:
-        while True:
-            time.sleep(1000)
+        browser_process.wait()
+        sys.exit(0)
     except KeyboardInterrupt:
         sys.exit(0)
 
