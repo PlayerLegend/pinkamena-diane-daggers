@@ -94,7 +94,6 @@ void Centipede::setup_multiplayer() {
       ":recent_rotations",
   };
 
-  // Build this BEFORE adding the netfox nodes, so they aren't in the list.
   TypedArray<String> interp_props = {":global_transform"};
 
   TypedArray<Node> children = get_children();
@@ -110,17 +109,13 @@ void Centipede::setup_multiplayer() {
   ERR_FAIL_NULL(rollback_synchronizer);
   rollback_synchronizer->set("state_properties", sync_props);
   rollback_synchronizer->set("root", this);
+  add_child(rollback_synchronizer, false, INTERNAL_MODE_BACK);
 
   Node *tick_interpolator = instantiate_global_class("TickInterpolator");
-  if (tick_interpolator == nullptr) {
-    memdelete(rollback_synchronizer);
-    return;
-  }
+  ERR_FAIL_NULL(tick_interpolator);
   tick_interpolator->set("properties", interp_props);
   tick_interpolator->set("root", this);
-
-  add_child(rollback_synchronizer);
-  add_child(tick_interpolator);
+  add_child(tick_interpolator, false, INTERNAL_MODE_BACK);
 
   rollback_synchronizer->call("process_settings");
 }
