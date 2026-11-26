@@ -169,18 +169,20 @@ BoidArrays::Pointers::Pointers(BoidArrays &a)
       steer(a.array_steering_flock.ptrw()) {}
 
 void BoidArrays::_bind_methods() {
-  ClassDB::bind_method(D_METHOD("type_of", "boid"), &BoidArrays::type_of);
+  // ClassDB::bind_method(D_METHOD("type_of", "boid"), &BoidArrays::type_of);
 
-  ClassDB::bind_method(D_METHOD("set_types", "types"), &BoidArrays::set_types);
-  ClassDB::bind_method(D_METHOD("get_boid_types"), &BoidArrays::get_boid_types);
-  ClassDB::bind_method(D_METHOD("add_boid", "type_index", "pos", "rotation",
-                                "velocity", "health"),
-                       &BoidArrays::add_boid);
-  ClassDB::bind_method(D_METHOD("remove_boid", "boid"),
-                       &BoidArrays::remove_boid);
+  // ClassDB::bind_method(D_METHOD("set_types", "types"),
+  // &BoidArrays::set_types); ClassDB::bind_method(D_METHOD("get_boid_types"),
+  // &BoidArrays::get_boid_types); ClassDB::bind_method(D_METHOD("add_boid",
+  // "type_index", "pos", "rotation", "velocity", "health"),
+  // &BoidArrays::add_boid);
+  // ClassDB::bind_method(D_METHOD("remove_boid", "boid"),
+  // &BoidArrays::remove_boid);
 
-  ClassDB::bind_method(D_METHOD("get_boid_count"), &BoidArrays::get_boid_count);
-  ClassDB::bind_method(D_METHOD("get_type_count"), &BoidArrays::get_type_count);
+  // ClassDB::bind_method(D_METHOD("get_boid_count"),
+  // &BoidArrays::get_boid_count);
+  // ClassDB::bind_method(D_METHOD("get_type_count"),
+  // &BoidArrays::get_type_count);
 
   ClassDB::bind_method(D_METHOD("get_array_position"),
                        &BoidArrays::get_array_position);
@@ -193,23 +195,27 @@ void BoidArrays::_bind_methods() {
   ClassDB::bind_method(D_METHOD("get_array_steering_flock"),
                        &BoidArrays::get_array_steering_flock);
 
-  ClassDB::bind_method(D_METHOD("get_type_end"), &BoidArrays::get_type_end);
-  ClassDB::bind_method(D_METHOD("get_type_iter"), &BoidArrays::get_type_iter);
+  // ClassDB::bind_method(D_METHOD("get_type_end"), &BoidArrays::get_type_end);
+  // ClassDB::bind_method(D_METHOD("get_type_iter"),
+  // &BoidArrays::get_type_iter);
 
-  ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "boid_types",
-                            PROPERTY_HINT_TYPE_STRING,
-                            String::num_int64(Variant::OBJECT) + "/" +
-                                String::num_int64(PROPERTY_HINT_RESOURCE_TYPE) +
-                                ":BoidType"),
-               "set_types", "get_boid_types");
+  // ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "boid_types",
+  //                           PROPERTY_HINT_TYPE_STRING,
+  //                           String::num_int64(Variant::OBJECT) + "/" +
+  //                               String::num_int64(PROPERTY_HINT_RESOURCE_TYPE)
+  //                               +
+  //                               ":BoidType"),
+  //              "set_types", "get_boid_types");
 
-  ADD_PROPERTY(PropertyInfo(Variant::INT, "boid_count", PROPERTY_HINT_NONE, "",
-                            PROPERTY_USAGE_EDITOR),
-               "", "get_boid_count");
+  // ADD_PROPERTY(PropertyInfo(Variant::INT, "boid_count", PROPERTY_HINT_NONE,
+  // "",
+  //                           PROPERTY_USAGE_EDITOR),
+  //              "", "get_boid_count");
 
-  ADD_PROPERTY(PropertyInfo(Variant::INT, "type_count", PROPERTY_HINT_NONE, "",
-                            PROPERTY_USAGE_EDITOR),
-               "", "get_type_count");
+  // ADD_PROPERTY(PropertyInfo(Variant::INT, "type_count", PROPERTY_HINT_NONE,
+  // "",
+  //                           PROPERTY_USAGE_EDITOR),
+  //              "", "get_type_count");
 
   ADD_PROPERTY(PropertyInfo(Variant::PACKED_VECTOR3_ARRAY, "array_position",
                             PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR),
@@ -232,11 +238,11 @@ void BoidArrays::_bind_methods() {
                             PROPERTY_USAGE_EDITOR),
                "", "get_array_steering_flock");
 
-  ADD_PROPERTY(PropertyInfo(Variant::PACKED_INT32_ARRAY, "type_end",
-                            PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR),
-               "", "get_type_end");
+  // ADD_PROPERTY(PropertyInfo(Variant::PACKED_INT32_ARRAY, "type_end",
+  //                           PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR),
+  //              "", "get_type_end");
 
-  ADD_PROPERTY(PropertyInfo(Variant::PACKED_INT32_ARRAY, "type_iter",
-                            PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR),
-               "", "get_type_iter");
+  // ADD_PROPERTY(PropertyInfo(Variant::PACKED_INT32_ARRAY, "type_iter",
+  //                           PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR),
+  //              "", "get_type_iter");
 }
