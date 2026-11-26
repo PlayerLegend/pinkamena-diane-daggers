@@ -19,6 +19,7 @@ script = ExtResource("1_d3flc")
 projectile_material = SubResource("StandardMaterial3D_d3flc")
 splatter_scene = ExtResource("2_hckbp")
 fly_speed = 40.0
+fly_time = 1.5
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1463985040]
 shape = SubResource("SphereShape3D_d3flc")

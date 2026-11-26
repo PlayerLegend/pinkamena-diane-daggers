@@ -5,7 +5,6 @@ class_name LineProjectile
 var fly_start: Vector3
 var fly_direction: Vector3
 var fly_elapsed: float
-var fly_lifetime: float = 1.5
 @export var fly_speed: float = 1.0
 @export var fly_finish_scene: PackedScene
 @export var fly_finish_node: Node
@@ -61,7 +60,7 @@ func _fly_physics_hit(_other: Node3D, _shape: CollisionShape3D) -> void:
     queue_free()
 
 func _physics_process(delta: float) -> void:
-    if fly_elapsed > fly_lifetime:
+    if fly_elapsed > fly_time:
         queue_free()
         return
     if _is_finished:
