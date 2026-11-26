@@ -40,6 +40,15 @@ game_over_audio = ExtResource("7_devvj")
 game_over_screen = NodePath("GameOverScreen")
 boid_types = Array[BoidType]([ExtResource("8_5tuhn"), ExtResource("9_2gh4u"), ExtResource("10_devvj")])
 
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1665910606]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
 [node name="Screen" parent="." unique_id=1531499629 node_paths=PackedStringArray("main_menu", "game_world_manager") instance=ExtResource("19_2gh4u")]
 material = SubResource("ShaderMaterial_2gh4u")
 render_height = 240
