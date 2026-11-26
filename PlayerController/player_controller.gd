@@ -1,4 +1,4 @@
-extends SlideBody3D
+extends PhysicsCharacter
 
 class_name PlayerController
 
@@ -72,18 +72,6 @@ func _helper_jump():
 
 func _helper_fall(delta: float):
     velocity += -walk_gravity * delta * up_direction
-
-func _helper_get_walk_basis():
-    var look_basis = Basis(input.look)
-    var forward: Vector3 = -look_basis.z
-    var forward_flat = forward - forward * up_direction.dot(forward)
-    var up = up_direction
-    
-    print("test ", up_direction.dot(look_basis.y) < 0)
-    
-    if up_direction.dot(look_basis.y) < 0:
-        up = -up
-    return Basis.looking_at(forward_flat, up)
 
 func _helper_get_wishdir():
     
@@ -162,8 +150,8 @@ func _helper_phys_floor(delta: float, wishdir: Vector3, is_on_floor: bool):
 func _helper_phys_update_camera(velocity_start: Vector3, _is_on_floor: bool):
     
     var accel = velocity - velocity_start
-    camera_controller.set_accel(accel)
-    camera_controller.set_gravity(-up_direction)
+    #camera_controller.set_accel(accel)
+    #camera_controller.set_gravity(-up_direction)
     
 func _helper_phys_apply_explosion_knock():
     if not explosion_knock:
@@ -184,18 +172,8 @@ func _process(delta: float):
     if body_light.energy_scale > 1.0:
         light_decay *= 10
     body_light.energy_scale = lerp(body_light.energy_scale, _light_fade_target, light_decay)
-    _debug_find_stale()
     var local_direction = quaternion.inverse() * up_direction
     camera_controller.position = camera_controller.position.slerp(local_direction * camera_offset, delta)
-
-func _debug_find_stale() -> void:
-    for s in get_tree().root.find_children("*", "RollbackSynchronizer", true, false):
-        for n in s._nodes:
-            if not is_instance_valid(n):
-                print("STALE in ", s.get_path(),
-                    " root=", s.root.get_path() if is_instance_valid(s.root) else "<freed>",
-                    " queued_for_deletion=", s.is_queued_for_deletion(),
-                    " inside_tree=", s.is_inside_tree())
 
 func _helper_phys_rollback_else(delta: float):
     
@@ -207,7 +185,7 @@ func _helper_phys_rollback_else(delta: float):
 
     var collision := move_and_slide(delta)
     
-    var is_on_floor := collision.did_hit
+    var is_on_floor := collision != null
     
     _helper_apply_acceleration(wishdir, delta, is_on_floor)
     
@@ -217,11 +195,6 @@ func _helper_phys_rollback_else(delta: float):
     
     _helper_phys_floor(delta, wishdir, is_on_floor)
     
-    if collision.did_hit:
-        is_on_floor = true
-    else:
-        is_on_floor = false
-        
     look_direction = -camera.global_basis.z
 
 func _rollback_tick(delta: float, _tick, _is_fresh):

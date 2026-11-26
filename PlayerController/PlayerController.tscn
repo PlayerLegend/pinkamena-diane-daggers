@@ -42,9 +42,10 @@ metadata/_custom_type_script = "uid://bjcbs7mr6mqi2"
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1865844835]
 shape = SubResource("SphereShape3D_ycagd")
 
-[node name="CamLook" type="Node3D" parent="." unique_id=1709621993]
+[node name="CamLook" type="Node3D" parent="." unique_id=1709621993 node_paths=PackedStringArray("physics_character")]
 script = ExtResource("2_2ud5e")
 guide_action_look = ExtResource("3_s3jlx")
+physics_character = NodePath("..")
 
 [node name="Camera3D" type="Camera3D" parent="CamLook" unique_id=1026726029]
 
@@ -103,7 +104,7 @@ stream = ExtResource("17_4lh6h")
 [node name="HoofVisual" parent="HoofTranslation/HoofRotation" unique_id=1166108711 instance=ExtResource("2_mj3g2")]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 0, -0.33322963, -0.20944302)
 
-[node name="Skeleton3D" parent="HoofTranslation/HoofRotation/HoofVisual/HoofArmature" parent_id_path=PackedInt32Array(1166108711, 850612460) index="0" unique_id=1467136739]
+[node name="Skeleton3D" parent="HoofTranslation/HoofRotation/HoofVisual/HoofArmature" parent_id_path=PackedInt32Array(1166108711, 1007351115) index="0" unique_id=760919836]
 script = SubResource("GDScript_mj3g2")
 
 [node name="SpringBoneSimulator3D" type="SpringBoneSimulator3D" parent="HoofTranslation/HoofRotation/HoofVisual/HoofArmature/Skeleton3D" index="0" unique_id=794747021]
@@ -137,7 +138,7 @@ settings/0/joints/3/bone = 3
 settings/0/enable_all_child_collisions = true
 settings/0/exclude_collision_count = 0
 
-[node name="HoofMesh" parent="HoofTranslation/HoofRotation/HoofVisual/HoofArmature/Skeleton3D" index="1" unique_id=1904036456]
+[node name="HoofMesh" parent="HoofTranslation/HoofRotation/HoofVisual/HoofArmature/Skeleton3D" index="1" unique_id=1036121267]
 surface_material_override/0 = ExtResource("12_qu0x6")
 surface_material_override/1 = ExtResource("13_pmdbm")
 
