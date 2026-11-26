@@ -149,11 +149,19 @@ void Centipede::advance_children() {
 
   size_t i = 0;
 
+  bool did_set_head = false;
+
   for (auto child_node : get_children()) {
 
     Node3D *child = Object::cast_to<Node3D>(child_node);
     if (!child)
       continue;
+
+    if (!did_set_head) {
+      did_set_head = true;
+      child->set_global_transform(get_global_transform());
+      continue;
+    }
 
     size_t prev = i + head_index;
     size_t next = prev + 1;
