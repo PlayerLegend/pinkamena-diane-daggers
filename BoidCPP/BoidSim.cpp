@@ -9,8 +9,14 @@ BoidSim::BoidSim() {}
 BoidSim::~BoidSim() {}
 
 int BoidSim::add_boid(int t, Vector3 pos, Quaternion r, Vector3 vel, int hp) {
-  if (!boid_arrays)
+  if (!boid_arrays) {
+    static bool did_warn = false;
+    if (!did_warn) {
+      did_warn = true;
+      UtilityFunctions::push_warning("Missing BoidArrays in BoidSim");
+    }
     return -1;
+  }
 
   BoidID id = boid_arrays->add_boid(t, pos, r, vel, hp);
   return id == BOID_NULL ? -1 : (int)id;
