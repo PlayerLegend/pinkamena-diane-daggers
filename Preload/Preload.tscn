@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://tvniw2yusocj"]
+
+[ext_resource type="Script" uid="uid://xu4p3klcsgbn" path="res://Preload/preload.gd" id="1_qqtpn"]
+[ext_resource type="PackedScene" uid="uid://b5gkindyf3e41" path="res://Spiders/Spider1/Spider1.tscn" id="2_xtgcp"]
+[ext_resource type="PackedScene" uid="uid://emivj6qf322m" path="res://Squids/Squid1/Squid1.tscn" id="3_jiy3d"]
+[ext_resource type="PackedScene" uid="uid://cnvu48qqm5pwm" path="res://Squids/Squid2/Squid2.tscn" id="4_ooaj7"]
+[ext_resource type="PackedScene" uid="uid://bp6b5mb741712" path="res://Centipede/Centipede1/Centipede1.tscn" id="5_ou5le"]
+
+[node name="Preload" type="Node" unique_id=1179742739]
+script = ExtResource("1_qqtpn")
+
+[node name="Spider1" parent="." unique_id=1250429410 instance=ExtResource("2_xtgcp")]
+transform = Transform3D(-0.98879856, 0, -0.14925638, 0, 1, 0, 0.14925638, 0, -0.98879856, 0, 0, -7.999019)
+
+[node name="Squid1" parent="." unique_id=1995379469 instance=ExtResource("3_jiy3d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.7254114, 0, 0)
+
+[node name="Squid2" parent="." unique_id=1405901256 instance=ExtResource("4_ooaj7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.2329774, 0, -1.7998362)
+
+[node name="Centipede1" parent="." unique_id=1453582697 instance=ExtResource("5_ou5le")]
