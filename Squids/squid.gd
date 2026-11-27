@@ -38,7 +38,6 @@ func _ready():
     position = -arena_radius * fly_direction
     position.y = height
     
-    
     for child in get_children():
         if child is XtalTarget:
             xtal_count += 1

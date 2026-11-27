@@ -72,6 +72,22 @@ Vector3 _get_cohesion(BoidArrays::Pointers &p, BoidID boid,
   return _steer_towards(p.vel[boid], position_sum, type->max_speed);
 }
 
+std::vector<Vector3> BoidSim::_get_avoid_target_positions() {
+  std::vector<Vector3> result;
+
+  TypedArray<Node> avoid_targets =
+      get_tree()->get_nodes_in_group("avoid_targets");
+
+  for (auto node : avoid_targets) {
+    Node3D *node_3d = Object::cast_to<Node3D>(node);
+
+    if (node_3d)
+      result.push_back(node_3d->get_global_position());
+  }
+
+  return result;
+}
+
 std::vector<Vector3> BoidSim::_get_chase_target_positions() {
   std::vector<Vector3> result;
 
@@ -101,6 +117,23 @@ Vector3 _get_boid_pass_steering(const std::vector<BoidID> &nearby,
          alignment * type->weight_alignment + cohesion * type->weight_cohesion;
 }
 
+void BoidSim::_sum_avoidance_push(BoidArrays::Pointers &p,
+                                  NearbyLookup &nearby_lookup) {
+  std::vector<BoidID> results_array;
+
+  for (auto avoid_position : _get_avoid_target_positions()) {
+    NearbyLookup::Results results(nearby_lookup, avoid_position);
+    results.fill_vector(results_array, p.pos, BOID_AVOIDANCE_RADIUS);
+    for (auto boid : results_array) {
+      Vector3 offset = p.pos[boid] - avoid_position;
+      float dist2 = offset.length_squared();
+
+      if (dist2 < BOID_AVOIDANCE_RADIUS_SQUARED && dist2 > 0.01)
+        avoid_push[boid] += offset / dist2;
+    }
+  }
+}
+
 void BoidSim::_compute_steering(BoidArrays::Pointers &p) {
   if (!boid_arrays)
     return;
@@ -110,6 +143,8 @@ void BoidSim::_compute_steering(BoidArrays::Pointers &p) {
   std::vector<BoidID> nearby;
 
   NearbyLookup &nearby_lookup = boid_arrays->get_nearby_lookup();
+
+  _sum_avoidance_push(p, nearby_lookup);
 
   for (size_t type_index = 0; type_index < boid_arrays->type_count;
        type_index++) {
@@ -132,8 +167,11 @@ void BoidSim::_compute_steering(BoidArrays::Pointers &p) {
           _get_boid_pass_steering(nearby, p, boid, region.type);
       Vector3 steer_chase =
           _get_chase_steering(p, boid, region.type, chase_targets);
+      Vector3 steer_avoid =
+          _steer_towards(p.vel[boid], avoid_push[boid], region.type->max_speed);
+      avoid_push[boid] = Vector3{};
 
-      p.steer[boid] = steer_flock + steer_chase;
+      p.steer[boid] = steer_flock + steer_chase + steer_avoid;
     }
   }
 }
@@ -209,7 +247,8 @@ void BoidSim::_compute_transforms(BoidArrays::Pointers &p, double delta) {
 
       float height = p.pos[boid].y;
 
-      if (height < region.type->floor_height && new_velocity.y < 0)
+      if (height < region.type->floor_height + region.type->radius_collision &&
+          new_velocity.y < 0)
         new_velocity.y = 0.1;
 
       float speed = new_velocity.length();

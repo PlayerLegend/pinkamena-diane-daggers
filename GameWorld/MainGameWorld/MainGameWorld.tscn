@@ -18,10 +18,9 @@
 [ext_resource type="Script" uid="uid://blxd2e2temnsn" path="res://PlayerSpawner/player_spawner.gd" id="13_4b1ax"]
 [ext_resource type="AudioStream" uid="uid://c27ntfdwhgedr" path="res://Sounds/waaw.wav" id="14_tg2wk"]
 [ext_resource type="Script" uid="uid://cxxgbb6lniq0i" path="res://GameWorld/MainGameWorld/projectile_parent.gd" id="15_qbr1c"]
-[ext_resource type="BoidType" uid="uid://vfs5uauflrmo" path="res://BoidTypes/Skull1Type.tres" id="19_0xjj3"]
-[ext_resource type="BoidType" uid="uid://cawou1u2hgk6o" path="res://BoidTypes/Skull2Type.tres" id="20_4phr6"]
-[ext_resource type="BoidType" uid="uid://cvagjti2y45cp" path="res://BoidTypes/Skull3Type.tres" id="21_e3ypn"]
-[ext_resource type="PackedScene" uid="uid://bp6b5mb741712" path="res://Centipede/Centipede1/Centipede1.tscn" id="22_4phr6"]
+[ext_resource type="BoidType" uid="uid://vfs5uauflrmo" path="res://BoidTypes/Skull1Type.tres" id="19_4phr6"]
+[ext_resource type="BoidType" uid="uid://cawou1u2hgk6o" path="res://BoidTypes/Skull2Type.tres" id="20_e3ypn"]
+[ext_resource type="BoidType" uid="uid://cvagjti2y45cp" path="res://BoidTypes/Skull3Type.tres" id="21_15qal"]
 
 [sub_resource type="Environment" id="Environment_0lili"]
 background_mode = 1
@@ -89,13 +88,10 @@ boid_sim = NodePath("../BoidSim")
 size = Vector2i(2048, 2048)
 
 [node name="BoidSim" type="BoidSim" parent="." unique_id=1000670076 node_paths=PackedStringArray("boid_arrays", "boid_mmi")]
-types = Array[BoidType]([ExtResource("19_0xjj3"), ExtResource("20_4phr6"), ExtResource("21_e3ypn")])
+types = Array[BoidType]([ExtResource("19_4phr6"), ExtResource("20_e3ypn"), ExtResource("21_15qal")])
 boid_arrays = NodePath("BoidArrays")
 boid_mmi = NodePath("BoidMMI")
 
 [node name="BoidArrays" type="BoidArrays" parent="BoidSim" unique_id=298067663]
-boid_types = Array[BoidType]([ExtResource("19_0xjj3"), ExtResource("20_4phr6"), ExtResource("21_e3ypn")])
 
 [node name="BoidMMI" type="BoidMMI" parent="BoidSim" unique_id=290663640]
-
-[node name="Centipede1" parent="." unique_id=1581042715 instance=ExtResource("22_4phr6")]

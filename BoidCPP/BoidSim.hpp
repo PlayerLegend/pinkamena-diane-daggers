@@ -17,6 +17,7 @@ class BoidSim : public Node {
 private:
   FlockingSum flocking_sum;
   uint32_t tick = 0;
+  std::array<Vector3, MAX_BOIDS> avoid_push = {};
 
 public:
   int add_boid(int type_index, Vector3 pos, Quaternion r, Vector3 velocity,
@@ -61,6 +62,8 @@ private:
   void _tick(double delta);
 
   std::vector<Vector3> _get_chase_target_positions();
+  std::vector<Vector3> _get_avoid_target_positions();
+  void _sum_avoidance_push(BoidArrays::Pointers &p, NearbyLookup &nearby);
 
 public:
   BoidSim();

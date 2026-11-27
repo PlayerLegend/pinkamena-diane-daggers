@@ -21,7 +21,7 @@ public:
   float weight_bounds = 1.1;
   float weight_floor = 1.5;
   float weight_obstacles = 1.0;
-  float weight_chase = 0.3;
+  float weight_chase = 1.0;
 
   float radius_collision = 0.5;
 

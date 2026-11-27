@@ -69,17 +69,17 @@ boid_spawn_point = NodePath("BoidSpawnPoint")
 boid_target_point = NodePath("BoidTarget")
 
 [node name="Camera3D" type="Camera3D" parent="Background" unique_id=1727480508]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.606382, 6.813631, 2.8125424)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.814, 2.813)
 current = true
 
 [node name="BoidSpawnPoint" type="Marker3D" parent="Background" unique_id=347095566]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.606382, 4.2684255, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.268, 0)
 
 [node name="BoidTarget" type="Marker3D" parent="Background" unique_id=1976908691]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.606382, 18.121035, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 18.121, 0)
 
 [node name="OmniLight3D" type="OmniLight3D" parent="Background" unique_id=1331810512]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.606382, 10.25945, 2.0248275)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.259, 2.025)
 light_color = Color(0.9711314, 0, 0.46871656, 1)
 light_energy = 1.455
 omni_range = 5.735613
@@ -95,7 +95,6 @@ boid_mmi = NodePath("BoidMMI")
 [node name="BoidMMI" type="BoidMMI" parent="Background/BoidSim" unique_id=1855478051]
 
 [node name="BoidArrays" type="BoidArrays" parent="Background/BoidSim" unique_id=1222639596]
-boid_types = Array[BoidType]([ExtResource("7_eqvia")])
 
 [connection signal="pressed" from="VBoxContainer/PlayButton" to="." method="_on_play_button_pressed"]
 [connection signal="net_connect" from="VBoxContainer/Network" to="." method="_on_network_net_connect"]

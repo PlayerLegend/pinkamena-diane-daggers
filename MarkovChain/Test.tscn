@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://dcy8x82dbra5n"]
+
+[ext_resource type="Script" uid="uid://8bhm4pi7ioet" path="res://MarkovChain/test.gd" id="1_ymqal"]
+
+[node name="Test" type="Node" unique_id=1754217821]
+script = ExtResource("1_ymqal")

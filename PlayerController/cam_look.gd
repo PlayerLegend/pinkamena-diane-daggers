@@ -36,7 +36,7 @@ func _get_accel_knock(delta: float) -> Quaternion:
 
 func _get_roll_fix(delta: float, pitch_roll: Vector2):
     var pitch := pitch_roll.x
-    var limit = deg_to_rad(50)
+    var limit = deg_to_rad(45)
     
     delta *= max(0, 1.0 - abs(pitch) / limit)
     
@@ -66,7 +66,7 @@ func _on_set_mouse_scale(mscale: float, _area:float, _degrees: float):
     _mouse_scale = mscale
     
 func _ready():
-    _roll_oscillator = DampedOscillatorFloat.new(70)
+    _roll_oscillator = DampedOscillatorFloat.new(400)
     _jump_oscillator = DampedOscillatorFloat.new(70)
     _lean_oscillator = DampedOscillatorFloat.new(400)
     var mouse_scale = Config.get_mouse_scale()

@@ -2,7 +2,8 @@ shader_type spatial;
 
 uniform sampler2D vat_positions : filter_nearest, repeat_disable;
 uniform sampler2D vat_normals : filter_nearest, repeat_disable;
-uniform float time = 0.0;
+
+instance uniform float time = 0.0;
  
 void vertex() {
 	ivec2 size = textureSize(vat_positions, 0);

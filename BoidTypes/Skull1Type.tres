@@ -6,3 +6,4 @@
 [resource]
 mesh = ExtResource("2_2jq3w")
 material_override = ExtResource("1_5ouey")
+weight_chase = 1.0
