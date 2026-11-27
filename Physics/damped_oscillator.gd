@@ -4,6 +4,7 @@ extends RefCounted
 var stiffness: float
 var damping: float
 var position: float
+var target: float = 0
 var velocity: float
 var acceleration: float
 
@@ -16,6 +17,6 @@ func _init(stiff: float, damp: float =-1.0):
 var delta: float:
     set(value):
         delta = value
-        acceleration = -stiffness * position - damping * velocity
+        acceleration = stiffness * (target - position) - damping * velocity
         velocity += acceleration * delta
         position += velocity * delta

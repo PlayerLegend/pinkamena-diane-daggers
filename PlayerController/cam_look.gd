@@ -8,9 +8,9 @@ extends Node3D
 
 var _roll_oscillator: DampedOscillatorFloat
 var _jump_oscillator: DampedOscillatorFloat
+var _lean_oscillator: DampedOscillatorFloat
 var _mouse_scale: float = 1.0/300.0
 var _accel_lerp: Vector3
-
 
 func _get_roll() -> float:
     var forward := -global_basis.z
@@ -45,13 +45,22 @@ func _get_roll_fix(delta: float, pitch_roll: Vector2):
     
     return Quaternion(Vector3.BACK, _roll_oscillator.velocity * delta)
     
+func _get_velocity_roll(delta: float):
+    var walk_basis = physics_character.get_walk_basis(global_basis)
+    var fac = physics_character.acceleration.dot(walk_basis.x)
+    _lean_oscillator.target = atan(fac) * 0.003
+    _lean_oscillator.delta = delta
+    return Quaternion(Vector3.FORWARD, _lean_oscillator.position)
+    
 func _process(delta: float) -> void:
     var pitch_roll := physics_character.get_pitch_roll(basis)
     _accel_lerp = _accel_lerp.lerp(physics_character.acceleration, delta * 10.0)
     
     weapon.quaternion *= _get_mouselook()
     weapon.quaternion *= _get_roll_fix(delta, pitch_roll)
-    quaternion = weapon.quaternion * _get_accel_knock(delta)
+    weapon.quaternion *= _get_velocity_roll(delta)
+    quaternion = weapon.quaternion
+    quaternion *= _get_accel_knock(delta)
     
 func _on_set_mouse_scale(mscale: float, _area:float, _degrees: float):
     _mouse_scale = mscale
@@ -59,6 +68,7 @@ func _on_set_mouse_scale(mscale: float, _area:float, _degrees: float):
 func _ready():
     _roll_oscillator = DampedOscillatorFloat.new(70)
     _jump_oscillator = DampedOscillatorFloat.new(70)
+    _lean_oscillator = DampedOscillatorFloat.new(400)
     var mouse_scale = Config.get_mouse_scale()
     Config.signal_set_mouse_scale.connect(_on_set_mouse_scale)
     if mouse_scale:
