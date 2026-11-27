@@ -60,7 +60,7 @@ func _get_roll_fix(delta: float, pitch_roll: Vector2):
     
     var pitch := pitch_roll.x
     
-    var limit = deg_to_rad(70)
+    var limit = deg_to_rad(50)
     
     delta *= max(0, 1.0 - abs(pitch) / limit)
     
@@ -81,7 +81,7 @@ func _on_set_mouse_scale(mscale: float, _area:float, _degrees: float):
     _mouse_scale = mscale
     
 func _ready():
-    _roll_oscillator = DampedOscillatorFloat.new(10)
+    _roll_oscillator = DampedOscillatorFloat.new(70)
     var mouse_scale = Config.get_mouse_scale()
     Config.signal_set_mouse_scale.connect(_on_set_mouse_scale)
     if mouse_scale:
