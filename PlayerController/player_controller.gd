@@ -91,28 +91,17 @@ func _helper_get_wishdir():
     return wishdir.normalized()
 
 func _helper_apply_friction(wishdir: Vector3, delta: float) -> void:
-    var have_speed: float = wishdir.dot(velocity)
+    var gvel = velocity.slide(ground_normal)
+    var speed = gvel.length()
+    if speed < 0.01:
+        velocity -= gvel
+        return
     
-    if have_speed < 0:
-        have_speed = 0
-
-    var friction_vel = velocity - have_speed * wishdir
+    var control = maxf(speed, walk_stopspeed);
+    var drop = control * walk_friction * delta;
+    var new_speed = max(speed - drop, 0)
+    velocity = velocity.project(ground_normal) + gvel * new_speed / speed
     
-    friction_vel = friction_vel.slide(up_direction)
-    
-    var friction_mag = friction_vel.length()
-    var friction_dir = friction_vel.normalized()
-    var friction_take = delta * walk_friction * friction_mag
-    
-    if friction_mag < walk_stopspeed:
-        friction_take *= 4
-        
-    if friction_take > friction_mag:
-        friction_take = friction_mag
-    
-    var take: Vector3 = -friction_take * friction_dir
-
-    velocity += take
 
 func _helper_apply_acceleration(wishdir: Vector3, delta: float, is_on_floor: bool) -> void:
     var have_speed = wishdir.dot(velocity)
