@@ -107,11 +107,12 @@ func _helper_apply_acceleration(wishdir: Vector3, delta: float, is_on_floor: boo
     var have_speed = wishdir.dot(velocity)
 
     var wishspeed = walk_speed
+    var cap = wishspeed
     
     if not is_on_floor:
-        wishspeed *= walk_air_control
+        cap *= walk_air_control
 
-    var add_speed_cap = wishspeed - have_speed
+    var add_speed_cap = cap - have_speed
     
     if add_speed_cap <= 0:
         return
