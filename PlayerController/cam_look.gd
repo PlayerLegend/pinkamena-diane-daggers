@@ -4,29 +4,14 @@ extends Node3D
 @export var weapon: Node3D
 
 @export var guide_action_look:GUIDEAction
-
 @export var physics_character: PhysicsCharacter
 
 var _roll_oscillator: DampedOscillatorFloat
-
+var _jump_oscillator: DampedOscillatorFloat
 var _mouse_scale: float = 1.0/300.0
-
 var _accel_lerp: Vector3
 
-func set_mouse_scale(mscale: float):
-    _mouse_scale = mscale
-    
-func _get_accel_angle():
-    if not physics_character.acceleration:
-        return 0
-        
-    return -0.01 * basis.x.dot(physics_character.acceleration)
 
-#func _get_roll() -> float:
-    #return global_basis.y.signed_angle_to(
-                #physics_character.ground_normal, 
-                #-global_basis.z
-            #)
 func _get_roll() -> float:
     var forward := -global_basis.z
     var ground := physics_character.ground_normal
@@ -45,21 +30,12 @@ func _get_mouselook() -> Quaternion:
     return Quaternion(look_axis / look_length, _mouse_scale * look_length)
     
 func _get_accel_knock(delta: float) -> Quaternion:
-    _accel_lerp = _accel_lerp.lerp(physics_character.acceleration, delta * 0.1)
-    var fac := 0.01 * _accel_lerp.dot(physics_character.ground_normal)
-    if is_zero_approx(fac):
-        return Quaternion.IDENTITY
-    return Quaternion(Vector3.RIGHT, fac * fac)
+    _jump_oscillator.velocity += delta * physics_character.acceleration.dot(physics_character.ground_normal)
+    _jump_oscillator.delta = delta
+    return Quaternion(Vector3.RIGHT, -0.25 * _jump_oscillator.position)
 
 func _get_roll_fix(delta: float, pitch_roll: Vector2):
-    #var roll := _get_roll()
-    #var roll_correct_rate = 1;
-    #var step := roll * (1.0 - exp(-roll_correct_rate * delta))
-    #return Quaternion(Vector3.FORWARD, step)
-    #var roll = _get_roll()
-    
     var pitch := pitch_roll.x
-    
     var limit = deg_to_rad(50)
     
     delta *= max(0, 1.0 - abs(pitch) / limit)
@@ -75,13 +51,14 @@ func _process(delta: float) -> void:
     
     weapon.quaternion *= _get_mouselook()
     weapon.quaternion *= _get_roll_fix(delta, pitch_roll)
-    quaternion = weapon.quaternion
+    quaternion = weapon.quaternion * _get_accel_knock(delta)
     
 func _on_set_mouse_scale(mscale: float, _area:float, _degrees: float):
     _mouse_scale = mscale
     
 func _ready():
     _roll_oscillator = DampedOscillatorFloat.new(70)
+    _jump_oscillator = DampedOscillatorFloat.new(70)
     var mouse_scale = Config.get_mouse_scale()
     Config.signal_set_mouse_scale.connect(_on_set_mouse_scale)
     if mouse_scale:
