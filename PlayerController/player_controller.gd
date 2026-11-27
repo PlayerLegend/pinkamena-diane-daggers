@@ -19,7 +19,6 @@ class_name PlayerController
 @onready var hoof_skel: Skeleton3D = $HoofTranslation/HoofRotation/HoofVisual/HoofArmature/Skeleton3D
 @onready var projectile_source: Marker3D = $HoofTranslation/HoofRotation/HoofVisual/ProjectileSource
 
-
 var _teleport_to: Variant = null
 
 @export var projectile_parent: Node:
@@ -53,7 +52,7 @@ var _light_fade_target: float
         print("Set enable light to ", _light_fade_target)
         
 @onready var input = $Input
-@onready var camera = $CamLook/Camera3D
+@export var camera: Node3D
 @onready var rollback_synchronizer = $RollbackSynchronizer
 #@onready var projectile_source = $CamLook/Camera3D/Attack
 @onready var camera_controller = $CamLook

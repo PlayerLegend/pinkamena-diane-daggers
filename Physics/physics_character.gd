@@ -14,7 +14,16 @@ var _ground_fac: float = cos(deg_to_rad(ground_angle_degrees))
 
 func get_walk_basis(look_basis: Basis):
     return Basis.looking_at(-look_basis.z.slide(ground_normal), ground_normal)
-
+    
+func get_pitch_roll(look: Basis) -> Vector2:
+    var n := ground_normal
+    var pitch := asin(clampf((-look.z).dot(n), -1.0, 1.0))
+    var right_n := look.x.dot(n)
+    var up_n := look.y.dot(n)
+    if absf(right_n) + absf(up_n) < 0.0001:
+        return Vector2(pitch, 0.0)   # looking straight up/down: roll undefined
+    return Vector2(pitch, atan2(right_n, up_n))
+    
 func check_onground() -> bool:
     var collision := move_and_collide(-ground_normal * 0.05, true)
     if not collision:
